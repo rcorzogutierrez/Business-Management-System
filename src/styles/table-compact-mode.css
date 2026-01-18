@@ -1,0 +1,59 @@
+/**
+ * Table Compact Mode
+ * Estilos para el modo compacto de tablas de datos
+ * Reduce el espaciado y tamaño de elementos para mostrar más información
+ */
+
+/* =====================================================
+   FILAS Y CELDAS
+   ===================================================== */
+
+.compact-mode .data-table tbody tr {
+  height: 40px !important;
+}
+
+.compact-mode .data-table tbody td {
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+}
+
+.compact-mode .data-table thead th {
+  padding: 8px 12px !important;
+  font-size: 11px !important;
+}
+
+/* =====================================================
+   BADGES Y ESTADOS
+   ===================================================== */
+
+.compact-mode .status-badge {
+  padding: 2px 8px !important;
+  font-size: 10px !important;
+}
+
+.compact-mode .status-badge mat-icon {
+  font-size: 11px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+
+/* =====================================================
+   BOTONES DE ACCIÓN
+   ===================================================== */
+
+.compact-mode .action-menu-btn {
+  width: 28px !important;
+  height: 28px !important;
+}
+
+.compact-mode .action-menu-btn mat-icon {
+  font-size: 18px !important;
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* =====================================================
+   SELECTORES Y CONTROLES
+   ===================================================== */
+
+/* Los estilos de checkbox están en material-checkbox.css */

@@ -1,0 +1,57 @@
+/**
+ * Material Checkbox Overrides
+ * Personalización global de checkboxes de Angular Material
+ * Sin usar ::ng-deep (deprecated en Angular 20)
+ */
+
+/* =====================================================
+   CHECKBOX SIZE - TAMAÑO ESTÁNDAR
+   ===================================================== */
+
+.mat-mdc-checkbox .mdc-checkbox {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__background {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.mat-mdc-checkbox .mdc-checkbox__ripple {
+  width: 32px !important;
+  height: 32px !important;
+  left: -8px !important;
+  top: -8px !important;
+}
+
+/* =====================================================
+   CHECKBOX SIZE - MODO COMPACTO
+   ===================================================== */
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox__background {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox__checkmark {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+.compact-mode .mat-mdc-checkbox .mdc-checkbox__ripple {
+  width: 28px !important;
+  height: 28px !important;
+  left: -7px !important;
+  top: -7px !important;
+}
