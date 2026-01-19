@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, effect, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, effect, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +29,7 @@ export interface ColumnOption {
   templateUrl: './column-visibility-control.component.html',
   styleUrl: './column-visibility-control.component.css'
 })
-export class ColumnVisibilityControlComponent implements OnInit {
+export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   /**
    * Lista de columnas disponibles
    */
@@ -62,6 +62,7 @@ export class ColumnVisibilityControlComponent implements OnInit {
   isMenuOpen = signal<boolean>(false);
   visibleColumnIds = signal<Set<string>>(new Set());
   private loadedFromStorage = false;
+  private isInitialized = false;
 
   // Computed
   visibleCount = computed(() => this.visibleColumnIds().size);
@@ -73,22 +74,26 @@ export class ColumnVisibilityControlComponent implements OnInit {
       const visible = Array.from(this.visibleColumnIds());
       this.visibilityChange.emit(visible);
     });
-
-    // Effect reactivo para inicializar cuando lleguen las columnas por defecto
-    effect(() => {
-      // Solo actuar si no hemos cargado de localStorage y hay columnas por defecto
-      if (!this.loadedFromStorage &&
-          this.defaultVisibleColumns &&
-          this.defaultVisibleColumns.length > 0 &&
-          this.visibleColumnIds().size === 0) {
-        this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
-        this.saveToStorage();
-      }
-    });
   }
 
   ngOnInit() {
-    // Intentar cargar desde localStorage
+    this.tryLoadFromStorage();
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // Cuando defaultVisibleColumns cambia y no hemos inicializado
+    if (changes['defaultVisibleColumns'] && !this.isInitialized && !this.loadedFromStorage) {
+      const newValue = changes['defaultVisibleColumns'].currentValue;
+      if (newValue && newValue.length > 0) {
+        this.initializeDefaultColumns();
+      }
+    }
+  }
+
+  /**
+   * Intentar cargar desde localStorage
+   */
+  private tryLoadFromStorage() {
     if (this.storageKey) {
       const stored = localStorage.getItem(this.storageKey);
       if (stored) {
@@ -96,7 +101,8 @@ export class ColumnVisibilityControlComponent implements OnInit {
           const columnIds = JSON.parse(stored) as string[];
           this.visibleColumnIds.set(new Set(columnIds));
           this.loadedFromStorage = true;
-          return; // Ya cargamos, no necesitamos más
+          this.isInitialized = true;
+          return;
         } catch (error) {
           console.error('Error cargando preferencias de columnas:', error);
         }
@@ -104,8 +110,7 @@ export class ColumnVisibilityControlComponent implements OnInit {
     }
 
     // Si no cargamos desde localStorage, intentar inicializar con columnas por defecto
-    // El effect reactivo se encargará si defaultVisibleColumns llega después
-    if (!this.loadedFromStorage) {
+    if (!this.loadedFromStorage && !this.isInitialized) {
       this.initializeDefaultColumns();
     }
   }
@@ -116,10 +121,12 @@ export class ColumnVisibilityControlComponent implements OnInit {
   private initializeDefaultColumns() {
     if (this.defaultVisibleColumns && this.defaultVisibleColumns.length > 0) {
       this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
+      this.isInitialized = true;
     } else if (this.columns.length > 0) {
       // Si no hay columnas por defecto especificadas, mostrar todas
       const allIds = this.columns.map(col => col.id);
       this.visibleColumnIds.set(new Set(allIds));
+      this.isInitialized = true;
     }
     // Guardar la inicialización
     this.saveToStorage();
