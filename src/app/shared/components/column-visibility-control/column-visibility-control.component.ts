@@ -61,6 +61,7 @@ export class ColumnVisibilityControlComponent implements OnInit {
   // Estado
   isMenuOpen = signal<boolean>(false);
   visibleColumnIds = signal<Set<string>>(new Set());
+  private loadedFromStorage = false;
 
   // Computed
   visibleCount = computed(() => this.visibleColumnIds().size);
@@ -72,35 +73,56 @@ export class ColumnVisibilityControlComponent implements OnInit {
       const visible = Array.from(this.visibleColumnIds());
       this.visibilityChange.emit(visible);
     });
+
+    // Effect reactivo para inicializar cuando lleguen las columnas por defecto
+    effect(() => {
+      // Solo actuar si no hemos cargado de localStorage y hay columnas por defecto
+      if (!this.loadedFromStorage &&
+          this.defaultVisibleColumns &&
+          this.defaultVisibleColumns.length > 0 &&
+          this.visibleColumnIds().size === 0) {
+        this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
+        this.saveToStorage();
+      }
+    });
   }
 
   ngOnInit() {
-    // Cargar preferencias cuando los inputs están disponibles
-    this.loadFromStorage();
+    // Intentar cargar desde localStorage
+    if (this.storageKey) {
+      const stored = localStorage.getItem(this.storageKey);
+      if (stored) {
+        try {
+          const columnIds = JSON.parse(stored) as string[];
+          this.visibleColumnIds.set(new Set(columnIds));
+          this.loadedFromStorage = true;
+          return; // Ya cargamos, no necesitamos más
+        } catch (error) {
+          console.error('Error cargando preferencias de columnas:', error);
+        }
+      }
+    }
+
+    // Si no cargamos desde localStorage, intentar inicializar con columnas por defecto
+    // El effect reactivo se encargará si defaultVisibleColumns llega después
+    if (!this.loadedFromStorage) {
+      this.initializeDefaultColumns();
+    }
   }
 
   /**
-   * Cargar preferencias desde localStorage
+   * Inicializar con columnas por defecto
    */
-  private loadFromStorage() {
-    if (!this.storageKey) return;
-
-    const stored = localStorage.getItem(this.storageKey);
-
-    if (stored) {
-      try {
-        const columnIds = JSON.parse(stored) as string[];
-        this.visibleColumnIds.set(new Set(columnIds));
-      } catch (error) {
-        console.error('Error cargando preferencias de columnas:', error);
-        // Si hay error, usar columnas por defecto
-        this.showDefaultColumns();
-      }
-    } else {
-      // Primera vez: usar columnas por defecto o todas
-      this.showDefaultColumns();
-      this.saveToStorage();
+  private initializeDefaultColumns() {
+    if (this.defaultVisibleColumns && this.defaultVisibleColumns.length > 0) {
+      this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
+    } else if (this.columns.length > 0) {
+      // Si no hay columnas por defecto especificadas, mostrar todas
+      const allIds = this.columns.map(col => col.id);
+      this.visibleColumnIds.set(new Set(allIds));
     }
+    // Guardar la inicialización
+    this.saveToStorage();
   }
 
   /**
@@ -111,25 +133,6 @@ export class ColumnVisibilityControlComponent implements OnInit {
 
     const columnIds = Array.from(this.visibleColumnIds());
     localStorage.setItem(this.storageKey, JSON.stringify(columnIds));
-  }
-
-  /**
-   * Mostrar todas las columnas
-   */
-  private showAllColumns() {
-    const allIds = this.columns.map(col => col.id);
-    this.visibleColumnIds.set(new Set(allIds));
-  }
-
-  /**
-   * Mostrar columnas por defecto o todas si no hay especificadas
-   */
-  private showDefaultColumns() {
-    if (this.defaultVisibleColumns && this.defaultVisibleColumns.length > 0) {
-      this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
-    } else {
-      this.showAllColumns();
-    }
   }
 
   /**
@@ -174,11 +177,10 @@ export class ColumnVisibilityControlComponent implements OnInit {
   }
 
   /**
-   * Resetear a valores por defecto (todas visibles)
+   * Resetear a valores por defecto
    */
   resetToDefault() {
-    this.showAllColumns();
-    this.saveToStorage();
+    this.initializeDefaultColumns();
   }
 
   /**
