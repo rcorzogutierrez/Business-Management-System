@@ -53,6 +53,7 @@
             <app-column-visibility-control
               [columns]="columnOptions()"
               [storageKey]="'clients-visible-columns'"
+              [defaultVisibleColumns]="defaultVisibleColumnIds()"
               [themeColor]="'purple'"
               (visibilityChange)="onColumnVisibilityChange($event)">
             </app-column-visibility-control>

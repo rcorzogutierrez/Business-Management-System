@@ -47,6 +47,12 @@ export class ColumnVisibilityControlComponent {
   @Input() themeColor: 'purple' | 'green' | 'blue' | 'amber' = 'purple';
 
   /**
+   * IDs de columnas que deben estar visibles por defecto (primera carga)
+   * Si no se proporciona, se muestran todas las columnas por defecto
+   */
+  @Input() defaultVisibleColumns?: string[];
+
+  /**
    * Emite cuando cambia la visibilidad de columnas
    * Devuelve array de IDs de columnas visibles
    */
@@ -90,12 +96,12 @@ export class ColumnVisibilityControlComponent {
         this.visibleColumnIds.set(new Set(columnIds));
       } catch (error) {
         console.error('Error cargando preferencias de columnas:', error);
-        // Si hay error, mostrar todas las columnas
-        this.showAllColumns();
+        // Si hay error, usar columnas por defecto
+        this.showDefaultColumns();
       }
     } else {
-      // Primera vez: mostrar todas las columnas
-      this.showAllColumns();
+      // Primera vez: usar columnas por defecto o todas
+      this.showDefaultColumns();
       this.saveToStorage();
     }
   }
@@ -116,6 +122,17 @@ export class ColumnVisibilityControlComponent {
   private showAllColumns() {
     const allIds = this.columns.map(col => col.id);
     this.visibleColumnIds.set(new Set(allIds));
+  }
+
+  /**
+   * Mostrar columnas por defecto o todas si no hay especificadas
+   */
+  private showDefaultColumns() {
+    if (this.defaultVisibleColumns && this.defaultVisibleColumns.length > 0) {
+      this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
+    } else {
+      this.showAllColumns();
+    }
   }
 
   /**
