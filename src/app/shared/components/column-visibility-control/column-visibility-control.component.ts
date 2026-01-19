@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, effect } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, effect, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +29,7 @@ export interface ColumnOption {
   templateUrl: './column-visibility-control.component.html',
   styleUrl: './column-visibility-control.component.css'
 })
-export class ColumnVisibilityControlComponent {
+export class ColumnVisibilityControlComponent implements OnInit {
   /**
    * Lista de columnas disponibles
    */
@@ -67,19 +67,16 @@ export class ColumnVisibilityControlComponent {
   totalCount = computed(() => this.columns.length);
 
   constructor() {
-    // Effect para cargar desde localStorage cuando el componente se inicializa
-    effect(() => {
-      // Solo ejecutar si tenemos columnas y storageKey
-      if (this.columns.length > 0 && this.storageKey) {
-        this.loadFromStorage();
-      }
-    });
-
-    // Effect para emitir cambios
+    // Effect para emitir cambios cuando visibleColumnIds cambia
     effect(() => {
       const visible = Array.from(this.visibleColumnIds());
       this.visibilityChange.emit(visible);
     });
+  }
+
+  ngOnInit() {
+    // Cargar preferencias cuando los inputs están disponibles
+    this.loadFromStorage();
   }
 
   /**
