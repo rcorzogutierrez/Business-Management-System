@@ -92,7 +92,18 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
         currentValue: changes['defaultVisibleColumns'].currentValue
       });
 
+      // CRÍTICO: Verificar localStorage directamente antes de sobrescribir
+      // porque ngOnChanges se ejecuta ANTES que ngOnInit
       if (!this.isInitialized && !this.loadedFromStorage) {
+        // Verificar si hay datos guardados en localStorage
+        const hasStoredData = this.storageKey && localStorage.getItem(this.storageKey);
+
+        if (hasStoredData) {
+          console.log('🛑 Hay datos en localStorage - NO sobrescribir con defaults');
+          // NO hacer nada - ngOnInit se encargará de cargar de localStorage
+          return;
+        }
+
         const change = changes['defaultVisibleColumns'];
         // Solo actuar en el primer cambio (de undefined a un valor)
         if (change.isFirstChange() || change.previousValue === undefined) {
