@@ -78,6 +78,13 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   // Columnas visibles (manejado por ColumnVisibilityControl)
   visibleColumnIds = signal<string[]>([]);
 
+  // Columnas por defecto (las que tienen showInGrid: true)
+  defaultVisibleColumnIds = computed(() => {
+    return this.gridFields()
+      .filter(field => field.gridConfig?.showInGrid === true)
+      .map(field => field.id);
+  });
+
   // Opciones de columnas para el control de visibilidad
   columnOptions = computed<ColumnOption[]>(() => {
     return this.gridFields().map(field => ({
@@ -407,12 +414,8 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
         });
       }
 
-      // Inicializar selector de columnas con las columnas visibles por defecto
-      const defaultVisibleColumns = this.gridFields()
-        .filter(field => field.gridConfig?.showInGrid === true)
-        .map(field => field.id);
-
-      this.visibleColumnIds.set(defaultVisibleColumns);
+      // NO inicializar visibleColumnIds aquí
+      // El ColumnVisibilityControl maneja su propia inicialización y persistencia
 
       this.cdr.markForCheck();
     } catch (error) {
