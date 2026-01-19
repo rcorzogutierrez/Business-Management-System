@@ -99,11 +99,15 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     const allFields = this.gridFields();
     const visibleIds = this.visibleColumnIds();
 
+    console.log('🔶 visibleGridFields computed - visibleIds:', visibleIds);
+
     // Si no hay columnas seleccionadas, mostrar solo las que tienen showInGrid: true
     if (visibleIds.length === 0) {
+      console.log('⚠️ visibleIds está vacío - mostrando showInGrid: true');
       return allFields.filter(field => field.gridConfig?.showInGrid === true);
     }
 
+    console.log('✅ Filtrando por visibleIds:', visibleIds.length, 'columnas');
     return allFields.filter(field => visibleIds.includes(field.id));
   });
 
@@ -432,6 +436,7 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    * Manejar cambio de visibilidad de columnas desde ColumnVisibilityControl
    */
   onColumnVisibilityChange(visibleIds: string[]) {
+    console.log('🔷 onColumnVisibilityChange recibido:', visibleIds);
     this.visibleColumnIds.set(visibleIds);
   }
 
