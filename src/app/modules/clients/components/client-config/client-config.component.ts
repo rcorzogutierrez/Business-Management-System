@@ -83,6 +83,17 @@ export class ClientConfigComponent implements OnInit {
     return config.gridConfig;
   });
 
+  // Computed para verificar si todas las funcionalidades están activas
+  allFeaturesEnabled = computed(() => {
+    const gc = this.gridConfig();
+    return gc.enableSearch &&
+           gc.enableFilters &&
+           gc.enableExport &&
+           gc.enableBulkActions &&
+           gc.enableColumnSelector &&
+           gc.compactMode;
+  });
+
   // Stats
   get totalFields(): number {
     return this.fields.length;
@@ -399,25 +410,26 @@ export class ClientConfigComponent implements OnInit {
   }
 
   /**
-   * Activa todas las funcionalidades de la tabla de una vez
+   * Toggle: Activa o desactiva todas las funcionalidades de la tabla
    */
-  async enableAllFeatures() {
+  async toggleAllFeatures() {
     try {
       const currentConfig = this.configService.config();
       if (!currentConfig) return;
 
       const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
+      const shouldEnable = !this.allFeaturesEnabled();
 
       const updatedConfig = {
         ...currentConfig,
         gridConfig: {
           ...currentGridConfig,
-          enableColumnSelector: true,
-          enableFilters: true,
-          enableExport: true,
-          enableBulkActions: true,
-          enableSearch: true,
-          compactMode: true,
+          enableColumnSelector: shouldEnable,
+          enableFilters: shouldEnable,
+          enableExport: shouldEnable,
+          enableBulkActions: shouldEnable,
+          enableSearch: shouldEnable,
+          compactMode: shouldEnable,
           itemsPerPage: 10
         }
       };
@@ -427,7 +439,11 @@ export class ClientConfigComponent implements OnInit {
 
       await this.configService.updateConfig(updatedConfig);
 
-      this.snackBar.open('✅ Todas las funcionalidades han sido activadas', '', {
+      const message = shouldEnable
+        ? '✅ Todas las funcionalidades han sido activadas'
+        : '✅ Todas las funcionalidades han sido desactivadas';
+
+      this.snackBar.open(message, '', {
         duration: 3000,
         horizontalPosition: 'end',
         verticalPosition: 'top'
@@ -435,8 +451,8 @@ export class ClientConfigComponent implements OnInit {
 
       this.cdr.markForCheck();
     } catch (error) {
-      console.error('❌ Error activando funcionalidades:', error);
-      this.snackBar.open('❌ Error al activar las funcionalidades', '', {
+      console.error('❌ Error al cambiar funcionalidades:', error);
+      this.snackBar.open('❌ Error al cambiar las funcionalidades', '', {
         duration: 4000,
         horizontalPosition: 'end',
         verticalPosition: 'top'

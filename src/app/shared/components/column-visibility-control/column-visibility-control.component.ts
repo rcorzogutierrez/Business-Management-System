@@ -83,9 +83,13 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     // Cuando defaultVisibleColumns cambia y no hemos inicializado
     if (changes['defaultVisibleColumns'] && !this.isInitialized && !this.loadedFromStorage) {
-      const newValue = changes['defaultVisibleColumns'].currentValue;
-      if (newValue && newValue.length > 0) {
-        this.initializeDefaultColumns();
+      const change = changes['defaultVisibleColumns'];
+      // Solo actuar en el primer cambio (de undefined a un valor)
+      if (change.isFirstChange() || change.previousValue === undefined) {
+        const newValue = change.currentValue;
+        if (newValue && newValue.length > 0) {
+          this.initializeDefaultColumns();
+        }
       }
     }
   }
