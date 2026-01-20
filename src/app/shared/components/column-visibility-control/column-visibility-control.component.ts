@@ -77,21 +77,17 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    console.log('🔵 ColumnVisibility ngOnInit - Intentando cargar desde localStorage');
     this.tryLoadFromStorage();
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    // Cuando las columnas disponibles cambian, validar y filtrar IDs inválidos
+    if (changes['columns'] && this.loadedFromStorage) {
+      this.validateAndFilterInvalidIds();
+    }
+
     // Cuando defaultVisibleColumns cambia y no hemos inicializado
     if (changes['defaultVisibleColumns']) {
-      console.log('🟡 ColumnVisibility ngOnChanges', {
-        isInitialized: this.isInitialized,
-        loadedFromStorage: this.loadedFromStorage,
-        isFirstChange: changes['defaultVisibleColumns'].isFirstChange(),
-        previousValue: changes['defaultVisibleColumns'].previousValue,
-        currentValue: changes['defaultVisibleColumns'].currentValue
-      });
-
       // CRÍTICO: Verificar localStorage directamente antes de sobrescribir
       // porque ngOnChanges se ejecuta ANTES que ngOnInit
       if (!this.isInitialized && !this.loadedFromStorage) {
@@ -99,7 +95,6 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
         const hasStoredData = this.storageKey && localStorage.getItem(this.storageKey);
 
         if (hasStoredData) {
-          console.log('🛑 Hay datos en localStorage - NO sobrescribir con defaults');
           // NO hacer nada - ngOnInit se encargará de cargar de localStorage
           return;
         }
@@ -109,13 +104,32 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
         if (change.isFirstChange() || change.previousValue === undefined) {
           const newValue = change.currentValue;
           if (newValue && newValue.length > 0) {
-            console.log('🟢 Inicializando con defaultVisibleColumns:', newValue);
             this.initializeDefaultColumns();
           }
         }
-      } else {
-        console.log('⚪ Ignorando cambio - ya inicializado o cargado de storage');
       }
+    }
+  }
+
+  /**
+   * Validar y filtrar IDs que ya no existen en las columnas actuales
+   */
+  private validateAndFilterInvalidIds() {
+    const validIds = new Set(this.columns.map(col => col.id));
+    const currentIds = this.visibleColumnIds();
+    const filteredIds = new Set<string>();
+
+    // Filtrar solo los IDs que existen en las columnas actuales
+    currentIds.forEach(id => {
+      if (validIds.has(id)) {
+        filteredIds.add(id);
+      }
+    });
+
+    // Si hubo cambios, actualizar y guardar
+    if (filteredIds.size !== currentIds.size) {
+      this.visibleColumnIds.set(filteredIds);
+      this.saveToStorage();
     }
   }
 
@@ -125,31 +139,24 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   private tryLoadFromStorage() {
     if (this.storageKey) {
       const stored = localStorage.getItem(this.storageKey);
-      console.log('🔷 tryLoadFromStorage - stored:', stored);
 
       if (stored) {
         try {
           const columnIds = JSON.parse(stored) as string[];
           // Validar que el array no esté vacío
           if (columnIds && columnIds.length > 0) {
-            console.log('✅ Cargado desde localStorage:', columnIds);
             this.visibleColumnIds.set(new Set(columnIds));
             this.loadedFromStorage = true;
             this.isInitialized = true;
             return;
-          } else {
-            console.log('⚠️ localStorage tiene array vacío');
           }
         } catch (error) {
-          console.error('❌ Error cargando preferencias de columnas:', error);
+          console.error('Error cargando preferencias de columnas:', error);
         }
-      } else {
-        console.log('⚠️ No hay datos en localStorage');
       }
     }
 
     // NO inicializar aquí - dejar que ngOnChanges lo haga cuando defaultVisibleColumns esté disponible
-    console.log('⏳ Esperando defaultVisibleColumns en ngOnChanges');
   }
 
   /**
@@ -158,12 +165,9 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   private initializeDefaultColumns() {
     // SOLO inicializar si tenemos defaultVisibleColumns con valores
     if (this.defaultVisibleColumns && this.defaultVisibleColumns.length > 0) {
-      console.log('💾 Guardando columnas por defecto:', this.defaultVisibleColumns);
       this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
       this.isInitialized = true;
       this.saveToStorage();
-    } else {
-      console.log('⚠️ No hay defaultVisibleColumns para inicializar');
     }
     // NO usar fallback de "todas las columnas" - esto causaba el bug
   }
@@ -175,7 +179,6 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
     if (!this.storageKey) return;
 
     const columnIds = Array.from(this.visibleColumnIds());
-    console.log('💾 Guardando en localStorage:', columnIds);
     localStorage.setItem(this.storageKey, JSON.stringify(columnIds));
   }
 
@@ -205,10 +208,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
 
     if (visible.has(columnId)) {
       visible.delete(columnId);
-      console.log('➖ Ocultando columna:', columnId);
     } else {
       visible.add(columnId);
-      console.log('➕ Mostrando columna:', columnId);
     }
 
     this.visibleColumnIds.set(visible);

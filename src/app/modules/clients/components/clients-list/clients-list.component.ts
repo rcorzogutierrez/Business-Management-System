@@ -100,15 +100,11 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
     const allFields = this.gridFields();
     const visibleIds = this.visibleColumnIds();
 
-    console.log('🔶 visibleGridFields computed - visibleIds:', visibleIds);
-
     // Si no hay columnas seleccionadas, mostrar solo las que tienen showInGrid: true
     if (visibleIds.length === 0) {
-      console.log('⚠️ visibleIds está vacío - mostrando showInGrid: true');
       return allFields.filter(field => field.gridConfig?.showInGrid === true);
     }
 
-    console.log('✅ Filtrando por visibleIds:', visibleIds.length, 'columnas');
     return allFields.filter(field => visibleIds.includes(field.id));
   });
 
@@ -445,17 +441,15 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
       try {
         const columnIds = JSON.parse(stored) as string[];
         if (columnIds && columnIds.length > 0) {
-          console.log('🔵 INIT: Cargando columnas desde localStorage:', columnIds);
           return columnIds;
         }
       } catch (error) {
-        console.error('❌ Error cargando columnas iniciales:', error);
+        console.error('Error cargando columnas iniciales:', error);
       }
     }
 
     // Si no hay datos guardados, retornar array vacío
     // El selector se encargará de inicializar con defaults
-    console.log('🔵 INIT: No hay columnas en localStorage - esperando selector');
     return [];
   }
 
@@ -463,7 +457,6 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
    * Manejar cambio de visibilidad de columnas desde ColumnVisibilityControl
    */
   onColumnVisibilityChange(visibleIds: string[]) {
-    console.log('🔷 onColumnVisibilityChange recibido:', visibleIds);
     this.visibleColumnIds.set(visibleIds);
   }
 
