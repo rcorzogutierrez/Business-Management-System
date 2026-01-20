@@ -76,7 +76,8 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   gridFields = computed(() => this.configService.getGridFields());
 
   // Columnas visibles (manejado por ColumnVisibilityControl)
-  visibleColumnIds = signal<string[]>([]);
+  // Inicializar con localStorage para evitar flash de todas las columnas
+  visibleColumnIds = signal<string[]>(this.loadVisibleColumnsFromStorage());
 
   // Columnas por defecto (las que tienen showInGrid: true)
   defaultVisibleColumnIds = computed(() => {
@@ -431,6 +432,32 @@ export class ClientsListComponent implements OnInit, AfterViewInit {
   // ============================================
   // GESTIÓN DE COLUMNAS VISIBLES
   // ============================================
+
+  /**
+   * Cargar columnas visibles desde localStorage
+   * Se ejecuta en la inicialización para evitar flash de todas las columnas
+   */
+  private loadVisibleColumnsFromStorage(): string[] {
+    const storageKey = 'clients-visible-columns';
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      try {
+        const columnIds = JSON.parse(stored) as string[];
+        if (columnIds && columnIds.length > 0) {
+          console.log('🔵 INIT: Cargando columnas desde localStorage:', columnIds);
+          return columnIds;
+        }
+      } catch (error) {
+        console.error('❌ Error cargando columnas iniciales:', error);
+      }
+    }
+
+    // Si no hay datos guardados, retornar array vacío
+    // El selector se encargará de inicializar con defaults
+    console.log('🔵 INIT: No hay columnas en localStorage - esperando selector');
+    return [];
+  }
 
   /**
    * Manejar cambio de visibilidad de columnas desde ColumnVisibilityControl
