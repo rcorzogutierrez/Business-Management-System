@@ -81,6 +81,11 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
+    // Cuando las columnas disponibles cambian, validar y filtrar IDs inválidos
+    if (changes['columns'] && this.loadedFromStorage) {
+      this.validateAndFilterInvalidIds();
+    }
+
     // Cuando defaultVisibleColumns cambia y no hemos inicializado
     if (changes['defaultVisibleColumns']) {
       // CRÍTICO: Verificar localStorage directamente antes de sobrescribir
@@ -103,6 +108,28 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Validar y filtrar IDs que ya no existen en las columnas actuales
+   */
+  private validateAndFilterInvalidIds() {
+    const validIds = new Set(this.columns.map(col => col.id));
+    const currentIds = this.visibleColumnIds();
+    const filteredIds = new Set<string>();
+
+    // Filtrar solo los IDs que existen en las columnas actuales
+    currentIds.forEach(id => {
+      if (validIds.has(id)) {
+        filteredIds.add(id);
+      }
+    });
+
+    // Si hubo cambios, actualizar y guardar
+    if (filteredIds.size !== currentIds.size) {
+      this.visibleColumnIds.set(filteredIds);
+      this.saveToStorage();
     }
   }
 
