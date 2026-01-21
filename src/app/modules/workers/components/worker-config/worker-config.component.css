@@ -1,0 +1,145 @@
+/* worker-config.component.css - MINIMAL CSS, MOSTLY TAILWIND */
+
+/* ============================================
+   HOST
+   ============================================ */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+}
+
+/* ============================================
+   CUSTOM ANIMATIONS (no disponibles en Tailwind)
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* ============================================
+   GRADIENTS (complejos para Tailwind inline)
+   ============================================ */
+.bg-gradient-amber {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.bg-gradient-amber-light {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+}
+
+.bg-gradient-inactive {
+  background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+/* ============================================
+   DRAG & DROP (CDK específico)
+   ============================================ */
+.cdk-drag-preview {
+  box-shadow: 0 12px 40px rgba(245, 158, 11, 0.25) !important;
+  border: 2px solid #f59e0b !important;
+  opacity: 0.95 !important;
+}
+
+.cdk-drag-animating {
+  transition: transform 300ms ease;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.3;
+  background: #f1f5f9;
+  border: 2px dashed #fbbf24;
+  border-radius: 14px;
+}
+
+/* ============================================
+   STAGGERED ANIMATIONS (nth-child necesario)
+   ============================================ */
+.field-card {
+  animation: fadeInScale 0.3s ease-out backwards;
+}
+
+.field-card:nth-child(1) { animation-delay: 0.03s; }
+.field-card:nth-child(2) { animation-delay: 0.06s; }
+.field-card:nth-child(3) { animation-delay: 0.09s; }
+.field-card:nth-child(4) { animation-delay: 0.12s; }
+.field-card:nth-child(5) { animation-delay: 0.15s; }
+.field-card:nth-child(6) { animation-delay: 0.18s; }
+
+/* ============================================
+   HOVER STATES (complejos para Tailwind)
+   ============================================ */
+.field-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.field-card:hover .field-actions {
+  opacity: 1;
+}
+
+.drag-handle mat-icon {
+  color: #94a3b8;
+}
+
+.drag-handle:hover mat-icon {
+  color: #f59e0b;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .field-card,
+  .cdk-drag-animating,
+  .animate-fadeIn,
+  .animate-fadeInUp {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================
+   RESPONSIVE OVERRIDES
+   ============================================ */
+@media (max-width: 768px) {
+  .field-actions {
+    opacity: 1;
+  }
+}

@@ -4,6 +4,10 @@
 
 import { GenericEntity } from '../../../shared/models/generic-entity.interface';
 
+// Worker Configuration
+export * from './worker-module-config.interface';
+export * from './worker-field-config';
+
 /**
  * Tipo de trabajador
  */
