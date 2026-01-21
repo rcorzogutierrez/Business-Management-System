@@ -21,6 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { GenericModuleConfig } from '../../../../shared/models/generic-entity.interface';
 import { CompaniesListDialogComponent } from '../companies-list-dialog/companies-list-dialog.component';
 import { CompaniesService } from '../../companies/services/companies.service';
+import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
 
 @Component({
   selector: 'app-workers-list',
@@ -36,7 +37,8 @@ import { CompaniesService } from '../../companies/services/companies.service';
     MatCheckboxModule,
     MatDividerModule,
     MatChipsModule,
-    MatDialogModule
+    MatDialogModule,
+    ColumnVisibilityControlComponent
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css'
@@ -60,6 +62,33 @@ export class WorkersListComponent implements OnInit {
   workerTypeLabels = WORKER_TYPE_LABELS;
 
   workers = this.workersService.workers;
+
+  // === COLUMNAS VISIBLES ===
+  // Columnas disponibles (hardcoded)
+  private readonly AVAILABLE_COLUMNS = [
+    { id: 'fullName', label: 'Nombre', alwaysVisible: true },
+    { id: 'workerType', label: 'Tipo', alwaysVisible: false },
+    { id: 'phone', label: 'Teléfono', alwaysVisible: false },
+    { id: 'companyName', label: 'Empresa', alwaysVisible: false },
+    { id: 'isActive', label: 'Estado', alwaysVisible: false }
+  ];
+
+  // Columnas por defecto (visible al inicio)
+  private readonly DEFAULT_VISIBLE_COLUMNS = ['fullName', 'workerType', 'phone', 'isActive'];
+
+  // Signal para columnas visibles (inicializar desde localStorage)
+  visibleColumnIds = signal<string[]>(this.loadVisibleColumnsFromStorage());
+
+  // Opciones de columnas para el control de visibilidad
+  columnOptions = computed<ColumnOption[]>(() => {
+    const visible = this.visibleColumnIds();
+    return this.AVAILABLE_COLUMNS.map(col => ({
+      id: col.id,
+      label: col.label,
+      visible: visible.includes(col.id),
+      disabled: col.alwaysVisible // fullName siempre visible
+    }));
+  });
 
   // Workers filtrados
   filteredWorkers = computed(() => {
@@ -157,6 +186,53 @@ export class WorkersListComponent implements OnInit {
 
     this.isLoading = false;
   }
+
+  // === MÉTODOS DE COLUMNAS VISIBLES ===
+
+  /**
+   * Cargar columnas visibles desde localStorage
+   */
+  private loadVisibleColumnsFromStorage(): string[] {
+    const storageKey = 'workers-visible-columns';
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      try {
+        const columnIds = JSON.parse(stored) as string[];
+        if (columnIds && columnIds.length > 0) {
+          return columnIds;
+        }
+      } catch (error) {
+        console.error('Error cargando columnas desde localStorage:', error);
+      }
+    }
+
+    // Retornar columnas por defecto si no hay nada en localStorage
+    return this.DEFAULT_VISIBLE_COLUMNS;
+  }
+
+  /**
+   * Manejar cambio de visibilidad de columnas
+   */
+  onColumnVisibilityChange(visibleIds: Set<string>) {
+    const idsArray = Array.from(visibleIds);
+
+    // Asegurar que fullName siempre esté visible
+    if (!idsArray.includes('fullName')) {
+      idsArray.unshift('fullName');
+    }
+
+    this.visibleColumnIds.set(idsArray);
+  }
+
+  /**
+   * Verificar si una columna está visible
+   */
+  isColumnVisible(columnId: string): boolean {
+    return this.visibleColumnIds().includes(columnId);
+  }
+
+  // === MÉTODOS EXISTENTES ===
 
   clearCompanyFilter() {
     this.filterCompanyId.set(null);

@@ -47,6 +47,14 @@
           <mat-icon>refresh</mat-icon>
         </button>
 
+        <!-- Selector de Columnas -->
+        <app-column-visibility-control
+          [columns]="columnOptions()"
+          [storageKey]="'workers-visible-columns'"
+          [themeColor]="'amber'"
+          (visibilityChange)="onColumnVisibilityChange($event)">
+        </app-column-visibility-control>
+
         <button type="button"
                 class="btn-secondary"
                 (click)="openCompaniesDialog()"
@@ -219,9 +227,18 @@
                   class="table-checkbox">
               </th>
               <th>Nombre</th>
-              <th class="w-32">Tipo</th>
-              <th>Teléfono</th>
-              <th class="w-24">Estado</th>
+              @if (isColumnVisible('workerType')) {
+                <th class="w-32">Tipo</th>
+              }
+              @if (isColumnVisible('phone')) {
+                <th>Teléfono</th>
+              }
+              @if (isColumnVisible('companyName')) {
+                <th>Empresa</th>
+              }
+              @if (isColumnVisible('isActive')) {
+                <th class="w-24">Estado</th>
+              }
               <th class="w-16 text-right">Acciones</th>
             </tr>
           </thead>
@@ -251,30 +268,41 @@
                 </td>
 
                 <!-- Tipo -->
-                <td>
-                  <span class="type-badge" [class]="worker.workerType">
-                    <mat-icon>{{ worker.workerType === 'internal' ? 'person' : 'groups' }}</mat-icon>
-                    {{ workerTypeLabels[worker.workerType] }}
-                  </span>
-                </td>
+                @if (isColumnVisible('workerType')) {
+                  <td>
+                    <span class="type-badge" [class]="worker.workerType">
+                      <mat-icon>{{ worker.workerType === 'internal' ? 'person' : 'groups' }}</mat-icon>
+                      {{ workerTypeLabels[worker.workerType] }}
+                    </span>
+                  </td>
+                }
 
                 <!-- Teléfono -->
-                <td>{{ worker.phone || '-' }}</td>
+                @if (isColumnVisible('phone')) {
+                  <td>{{ worker.phone || '-' }}</td>
+                }
+
+                <!-- Empresa -->
+                @if (isColumnVisible('companyName')) {
+                  <td>{{ worker.companyName || '-' }}</td>
+                }
 
                 <!-- Estado -->
-                <td>
-                  @if (worker.isActive) {
-                    <span class="status-badge active">
-                      <mat-icon>check_circle</mat-icon>
-                      Activo
-                    </span>
-                  } @else {
-                    <span class="status-badge inactive">
-                      <mat-icon>cancel</mat-icon>
-                      Inactivo
-                    </span>
-                  }
-                </td>
+                @if (isColumnVisible('isActive')) {
+                  <td>
+                    @if (worker.isActive) {
+                      <span class="status-badge active">
+                        <mat-icon>check_circle</mat-icon>
+                        Activo
+                      </span>
+                    } @else {
+                      <span class="status-badge inactive">
+                        <mat-icon>cancel</mat-icon>
+                        Inactivo
+                      </span>
+                    }
+                  </td>
+                }
 
                 <!-- Acciones -->
                 <td class="text-right" (click)="$event.stopPropagation()">
