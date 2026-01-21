@@ -1,17 +1,18 @@
 // src/app/modules/materials/components/material-config/material-config.component.ts
-import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, effect, computed, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { MaterialsConfigService } from '../../services/materials-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig } from '../../../../modules/clients/models';
-import { FormLayoutConfig } from '../../../../modules/clients/models/client-module-config.interface';
+import { FormLayoutConfig, GridConfiguration } from '../../../../modules/clients/models/client-module-config.interface';
 import { FormDesignerComponent } from '../../../../shared/modules/dynamic-form-builder';
 
 @Component({
@@ -23,6 +24,7 @@ import { FormDesignerComponent } from '../../../../shared/modules/dynamic-form-b
     MatIconModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
     FormDesignerComponent
   ],
   templateUrl: './material-config.component.html',
@@ -45,6 +47,39 @@ export class MaterialConfigComponent implements OnInit {
   get formLayout(): FormLayoutConfig | undefined {
     return this.configService.getFormLayout();
   }
+
+  // Grid configuration como computed signal para mejor reactividad
+  gridConfig = computed(() => {
+    const config = this.configService.config();
+    // Si no existe gridConfig, retornar valores por defecto
+    if (!config?.gridConfig) {
+      return {
+        defaultView: 'table' as const,
+        itemsPerPage: 10,
+        sortBy: 'name',
+        sortOrder: 'asc' as const,
+        enableSearch: true,
+        enableFilters: true,
+        enableExport: true,
+        enableBulkActions: true,
+        enableColumnSelector: true,
+        showThumbnails: false,
+        compactMode: false
+      };
+    }
+    return config.gridConfig;
+  });
+
+  // Computed para verificar si todas las funcionalidades están activas
+  allFeaturesEnabled = computed(() => {
+    const gc = this.gridConfig();
+    return gc.enableSearch &&
+           gc.enableFilters &&
+           gc.enableExport &&
+           gc.enableBulkActions &&
+           gc.enableColumnSelector &&
+           gc.compactMode;
+  });
 
   // Stats
   get totalFields(): number {
@@ -144,6 +179,97 @@ export class MaterialConfigComponent implements OnInit {
   async onFieldAdded() {
     // Recargar la configuración para obtener el nuevo campo
     await this.loadConfig();
+  }
+
+  /**
+   * Actualiza una configuración del grid
+   */
+  async updateGridConfig(key: keyof GridConfiguration, value: any) {
+    try {
+      const currentConfig = this.configService.config();
+      if (!currentConfig) return;
+
+      // Si no existe gridConfig, usar el computed que tiene valores por defecto
+      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
+
+      const updatedConfig = {
+        ...currentConfig,
+        gridConfig: {
+          ...currentGridConfig,
+          [key]: value
+        }
+      };
+
+      await this.configService.updateConfig(updatedConfig);
+
+      this.snackBar.open('✅ Configuración actualizada correctamente', '', {
+        duration: 2000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('❌ Error actualizando configuración del grid:', error);
+      this.snackBar.open('❌ Error al actualizar la configuración', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    }
+  }
+
+  /**
+   * Toggle: Activa o desactiva todas las funcionalidades de la tabla
+   */
+  async toggleAllFeatures() {
+    try {
+      const currentConfig = this.configService.config();
+      if (!currentConfig) return;
+
+      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
+      const shouldEnable = !this.allFeaturesEnabled();
+
+      const updatedConfig = {
+        ...currentConfig,
+        gridConfig: {
+          ...currentGridConfig,
+          enableColumnSelector: shouldEnable,
+          enableFilters: shouldEnable,
+          enableExport: shouldEnable,
+          enableBulkActions: shouldEnable,
+          enableSearch: shouldEnable,
+          compactMode: shouldEnable
+        }
+      };
+
+      this.isLoading = true;
+      this.cdr.markForCheck();
+
+      await this.configService.updateConfig(updatedConfig);
+
+      const message = shouldEnable
+        ? '✅ Todas las funcionalidades han sido activadas'
+        : '✅ Todas las funcionalidades han sido desactivadas';
+
+      this.snackBar.open(message, '', {
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+
+      this.cdr.markForCheck();
+    } catch (error) {
+      console.error('❌ Error al cambiar funcionalidades:', error);
+      this.snackBar.open('❌ Error al cambiar las funcionalidades', '', {
+        duration: 4000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top'
+      });
+    } finally {
+      this.isLoading = false;
+      this.cdr.markForCheck();
+    }
   }
 
   /**
