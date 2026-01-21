@@ -214,15 +214,13 @@ export class WorkersListComponent implements OnInit {
   /**
    * Manejar cambio de visibilidad de columnas
    */
-  onColumnVisibilityChange(visibleIds: Set<string>) {
-    const idsArray = Array.from(visibleIds);
-
+  onColumnVisibilityChange(visibleIds: string[]) {
     // Asegurar que fullName siempre esté visible
-    if (!idsArray.includes('fullName')) {
-      idsArray.unshift('fullName');
+    if (!visibleIds.includes('fullName')) {
+      visibleIds.unshift('fullName');
     }
 
-    this.visibleColumnIds.set(idsArray);
+    this.visibleColumnIds.set(visibleIds);
   }
 
   /**
