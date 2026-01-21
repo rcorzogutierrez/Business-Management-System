@@ -243,6 +243,11 @@ export class WorkersListComponent implements OnInit, AfterViewInit {
   // Workers labels
   workerTypeLabels = WORKER_TYPE_LABELS;
 
+  // Helper para obtener label de tipo de trabajador
+  getWorkerTypeLabel(type: WorkerType | string): string {
+    return WORKER_TYPE_LABELS[type as WorkerType] || type;
+  }
+
   // Workers filtrados y paginados
   filteredWorkers = computed(() => {
     let workers = this.workers();

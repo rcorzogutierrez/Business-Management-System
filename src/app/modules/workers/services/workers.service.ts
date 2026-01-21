@@ -27,6 +27,9 @@ export class WorkersService {
   private workersSignal = signal<Worker[]>([]);
   public workers = this.workersSignal.asReadonly();
 
+  // Loading state signal
+  public isLoading = signal<boolean>(false);
+
   public activeWorkers = computed(() =>
     this.workersSignal().filter(w => w.isActive)
   );
@@ -53,21 +56,28 @@ export class WorkersService {
   }
 
   private async loadWorkers(): Promise<void> {
-    const workersRef = collection(this.db, 'workers');
-    const q = query(workersRef, orderBy('createdAt', 'desc'));
-    const querySnapshot = await getDocs(q);
+    try {
+      this.isLoading.set(true);
+      const workersRef = collection(this.db, 'workers');
+      const q = query(workersRef, orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
 
-    const workers = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-        createdAt: data['createdAt']?.toDate() || new Date(),
-        updatedAt: data['updatedAt']?.toDate() || null
-      } as Worker;
-    });
+      const workers = querySnapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          createdAt: data['createdAt']?.toDate() || new Date(),
+          updatedAt: data['updatedAt']?.toDate() || null
+        } as Worker;
+      });
 
-    this.workersSignal.set(workers);
+      this.workersSignal.set(workers);
+    } catch (error) {
+      console.error('Error loading workers:', error);
+    } finally {
+      this.isLoading.set(false);
+    }
   }
 
   async createWorker(workerData: Partial<Worker>, currentUserUid: string): Promise<OperationResult> {

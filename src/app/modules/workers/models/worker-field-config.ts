@@ -1,6 +1,6 @@
 // src/app/modules/workers/models/worker-field-config.ts
 
-import { FieldConfig, FieldType, FieldValidation, FieldGridConfig } from '../../../shared/models/field-config.interface';
+import { FieldConfig, FieldType, FieldValidation, FieldGridConfig } from '../../../shared/modules/dynamic-form-builder';
 
 /**
  * Campos por defecto del módulo de trabajadores
