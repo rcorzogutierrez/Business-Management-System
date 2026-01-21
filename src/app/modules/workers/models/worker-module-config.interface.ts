@@ -1,7 +1,7 @@
 // src/app/modules/workers/models/worker-module-config.interface.ts
 
 import { Timestamp } from 'firebase/firestore';
-import { FieldConfig } from '../../../shared/models/field-config.interface';
+import { FieldConfig } from '../../../shared/modules/dynamic-form-builder';
 
 /**
  * Vista por defecto del grid/tabla

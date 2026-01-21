@@ -17,7 +17,7 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 
 import { WorkerConfigService } from '../../services/worker-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
-import { FieldConfig, FieldType } from '../../../../shared/models/field-config.interface';
+import { FieldConfig, FieldType } from '../../../../shared/modules/dynamic-form-builder';
 import { FormLayoutConfig, GridConfiguration } from '../../models/worker-module-config.interface';
 // Importar componentes compartidos del módulo dynamic-form-builder
 import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
