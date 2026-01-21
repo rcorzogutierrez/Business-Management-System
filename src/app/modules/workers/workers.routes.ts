@@ -42,6 +42,15 @@ export const WORKERS_ROUTES: Routes = [
           ),
         data: { mode: 'edit' },
         title: 'Editar Trabajador'
+      },
+      {
+        path: 'config',
+        canActivate: [roleGuard(['admin'])],
+        loadComponent: () =>
+          import('./components/worker-config/worker-config.component').then(
+            m => m.WorkerConfigComponent
+          ),
+        title: 'Configuración de Trabajadores'
       }
     ]
   }
