@@ -365,7 +365,7 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
 
     this.tableConfig.set({
       columns: this.buildTableColumns(),
-      selectable: enableBulkActions ? 'multiple' : 'none',
+      selectable: enableBulkActions ? 'multiple' : false,
       showSelectAll: enableBulkActions,
       clickableRows: false,
       hoverEffect: true,
