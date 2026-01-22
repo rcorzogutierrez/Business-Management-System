@@ -49,6 +49,28 @@
           </app-column-visibility-control>
         }
 
+        <!-- Botón Exportar -->
+        @if (config()?.gridConfig?.enableExport !== false) {
+          <button type="button"
+                  class="icon-btn"
+                  [matMenuTriggerFor]="exportMenu"
+                  [disabled]="isLoading() || filteredMaterials().length === 0"
+                  title="Exportar datos">
+            <mat-icon>download</mat-icon>
+          </button>
+
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="exportToCSV()">
+              <mat-icon>table_chart</mat-icon>
+              <span>Exportar a CSV</span>
+            </button>
+            <button mat-menu-item (click)="exportToJSON()">
+              <mat-icon>code</mat-icon>
+              <span>Exportar a JSON</span>
+            </button>
+          </mat-menu>
+        }
+
         <button type="button"
                 class="icon-btn"
                 (click)="goToConfig()"
@@ -69,22 +91,25 @@
   </header>
 
   <!-- ========== BÚSQUEDA Y FILTROS ========== -->
-  <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn" style="animation-delay: 0.1s">
-    <div class="flex flex-wrap items-center gap-4">
+  @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
+    <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="flex flex-wrap items-center gap-4">
 
-      <!-- Search Box -->
-      <div class="min-w-[300px] flex-1">
-        <app-search-bar
-          placeholder="Buscar por nombre, código o descripción..."
-          [themeColor]="'green'"
-          [debounceTime]="300"
-          [loading]="isLoading()"
-          (searchChange)="onSearch($event)">
-        </app-search-bar>
-      </div>
+        <!-- Search Box -->
+        @if (config()?.gridConfig?.enableSearch !== false) {
+          <div class="min-w-[300px] flex-1">
+            <app-search-bar
+              placeholder="Buscar por nombre, código o descripción..."
+              [themeColor]="'green'"
+              [debounceTime]="300"
+              [loading]="isLoading()"
+              (searchChange)="onSearch($event)">
+            </app-search-bar>
+          </div>
+        }
 
-      <!-- Filtros dinámicos -->
-      @if (filterableFields().length > 0) {
+        <!-- Filtros dinámicos -->
+        @if (config()?.gridConfig?.enableFilters !== false && filterableFields().length > 0) {
         @for (field of filterableFields(); track field.id) {
           <!-- Searchable Dropdown Filter -->
           <div class="relative min-w-[200px]">
@@ -191,9 +216,10 @@
       }
     </div>
   </section>
+  }
 
   <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-  @if (selectedIds().size > 0) {
+  @if (config()?.gridConfig?.enableBulkActions !== false && selectedIds().size > 0) {
     <div class="bulk-actions-bar animate-fadeIn">
       <div class="flex items-center gap-3">
         <div class="bulk-icon">
@@ -228,7 +254,7 @@
   }
 
   <!-- ========== TABLA (COMPONENTE COMPARTIDO) ========== -->
-  <div class="animate-fadeIn" style="animation-delay: 0.2s">
+  <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden animate-fadeIn" style="animation-delay: 0.2s" [class.compact-mode]="config()?.gridConfig?.compactMode === true">
     <app-data-table
       [data]="paginatedMaterials"
       [config]="tableConfig()"

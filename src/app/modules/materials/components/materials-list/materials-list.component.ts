@@ -79,7 +79,15 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   gridFields = computed(() => this.configService.getGridFields());
 
   // Columnas visibles (manejado por ColumnVisibilityControl)
-  visibleColumnIds = signal<string[]>([]);
+  // Inicializar con localStorage para evitar flash de todas las columnas
+  visibleColumnIds = signal<string[]>(this.loadVisibleColumnsFromStorage());
+
+  // Columnas por defecto (las que tienen showInGrid: true)
+  defaultVisibleColumnIds = computed(() => {
+    return this.gridFields()
+      .filter(field => field.gridConfig?.showInGrid === true)
+      .map(field => field.id);
+  });
 
   // Opciones de columnas para el control de visibilidad
   columnOptions = computed<ColumnOption[]>(() => {
@@ -95,9 +103,9 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     const allFields = this.gridFields();
     const visibleIds = this.visibleColumnIds();
 
-    // Si no hay columnas seleccionadas, mostrar todas
+    // Si no hay columnas visibles seleccionadas, usar las columnas por defecto
     if (visibleIds.length === 0) {
-      return allFields;
+      return allFields.filter(field => field.gridConfig?.showInGrid === true);
     }
 
     return allFields.filter(field => visibleIds.includes(field.id));
@@ -352,10 +360,13 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
    * Actualiza la configuración de la tabla (debe llamarse después de que los templates estén disponibles)
    */
   private updateTableConfig() {
+    const config = this.config();
+    const enableBulkActions = config?.gridConfig?.enableBulkActions !== false;
+
     this.tableConfig.set({
       columns: this.buildTableColumns(),
-      selectable: 'multiple',
-      showSelectAll: true,
+      selectable: enableBulkActions ? 'multiple' : 'none',
+      showSelectAll: enableBulkActions,
       clickableRows: false,
       hoverEffect: true,
       sortable: true, // Habilitar sorting
@@ -456,6 +467,30 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
    */
   onColumnVisibilityChange(visibleIds: string[]) {
     this.visibleColumnIds.set(visibleIds);
+  }
+
+  /**
+   * Cargar columnas visibles desde localStorage
+   * Si no existe configuración guardada, usar las columnas por defecto del gridConfig
+   */
+  private loadVisibleColumnsFromStorage(): string[] {
+    const storageKey = 'materials-visible-columns';
+    const stored = localStorage.getItem(storageKey);
+
+    if (stored) {
+      try {
+        const columnIds = JSON.parse(stored) as string[];
+        if (columnIds && columnIds.length > 0) {
+          return columnIds;
+        }
+      } catch (error) {
+        console.error('Error cargando columnas desde localStorage:', error);
+      }
+    }
+
+    // Si no hay datos en localStorage, retornar array vacío
+    // El computed defaultVisibleColumnIds se encargará de mostrar las columnas por defecto
+    return [];
   }
 
   /**
@@ -695,6 +730,93 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
     await this.materialsService.initialize();
     this.isLoading.set(false);
     this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+  }
+
+  /**
+   * Exportar datos a CSV
+   */
+  exportToCSV() {
+    try {
+      const materials = this.filteredMaterials();
+      if (materials.length === 0) {
+        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      const fields = this.visibleGridFields();
+
+      // Encabezados
+      const headers = fields.map(f => f.label).join(',');
+
+      // Filas
+      const rows = materials.map(material => {
+        return fields.map(field => {
+          const value = getFieldValue(material, field.name);
+          const formatted = formatFieldValue(value, field);
+
+          // Escapar comillas y agregar comillas si contiene comas
+          if (typeof formatted === 'string' && (formatted.includes(',') || formatted.includes('"'))) {
+            return `"${formatted.replace(/"/g, '""')}"`;
+          }
+
+          return formatted;
+        }).join(',');
+      }).join('\n');
+
+      const csv = `${headers}\n${rows}`;
+
+      // Crear blob y descargar
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `materiales_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a CSV:', error);
+      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Exportar datos a JSON
+   */
+  exportToJSON() {
+    try {
+      const materials = this.filteredMaterials();
+      if (materials.length === 0) {
+        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        return;
+      }
+
+      // Convertir a JSON con formato legible
+      const json = JSON.stringify(materials, null, 2);
+
+      // Crear blob y descargar
+      const blob = new Blob([json], { type: 'application/json' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+
+      link.setAttribute('href', url);
+      link.setAttribute('download', `materiales_${new Date().toISOString().split('T')[0]}.json`);
+      link.style.visibility = 'hidden';
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a JSON:', error);
+      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+    }
   }
 
   /**
