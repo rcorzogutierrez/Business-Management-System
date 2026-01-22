@@ -105,7 +105,7 @@
   <!-- ============================================
        BÚSQUEDA Y FILTROS
        ============================================ -->
-  @if ((config()?.gridConfig?.enableSearch !== false) || (config()?.gridConfig?.enableFilters !== false && filterableFields().length > 0)) {
+  @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
     <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
       <div class="flex flex-wrap items-center gap-4">
 

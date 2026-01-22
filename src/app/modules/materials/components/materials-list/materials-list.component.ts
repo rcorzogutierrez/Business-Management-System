@@ -825,35 +825,4 @@ export class MaterialsListComponent implements OnInit, AfterViewInit {
   getActiveMaterialsCount(): number {
     return this.materials().filter(m => m.isActive).length;
   }
-
-  /**
-   * DEBUG: Método temporal para diagnosticar problema de filtros
-   * Eliminar después de resolver el issue
-   */
-  debugFilterConfig() {
-    const config = this.config();
-    const filterableFields = this.filterableFields();
-
-    console.log('=== DEBUG CONFIG ===');
-    console.log('enableSearch:', config?.gridConfig?.enableSearch);
-    console.log('enableFilters:', config?.gridConfig?.enableFilters);
-    console.log('filterableFields count:', filterableFields.length);
-    console.log('filterableFields:', filterableFields.map(f => ({
-      name: f.name,
-      label: f.label,
-      filterable: f.gridConfig?.filterable,
-      isActive: f.isActive
-    })));
-    console.log('All gridFields:', this.gridFields().map(f => ({
-      name: f.name,
-      label: f.label,
-      filterable: f.gridConfig?.filterable,
-      isActive: f.isActive
-    })));
-
-    // Test de condición
-    const showSection = (config?.gridConfig?.enableSearch !== false) ||
-                       (config?.gridConfig?.enableFilters !== false && filterableFields.length > 0);
-    console.log('¿Debería mostrar sección?', showSection);
-  }
 }

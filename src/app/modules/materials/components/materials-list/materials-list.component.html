@@ -39,14 +39,6 @@
           <mat-icon>refresh</mat-icon>
         </button>
 
-        <!-- DEBUG: Botón temporal para diagnosticar filtros (ELIMINAR DESPUÉS) -->
-        <button type="button"
-                class="px-2 py-1 bg-yellow-500 text-white text-xs rounded"
-                (click)="debugFilterConfig()"
-                title="Debug filtros">
-          DEBUG
-        </button>
-
         <!-- Selector de Columnas -->
         @if (config()?.gridConfig?.enableColumnSelector !== false) {
           <app-column-visibility-control
@@ -99,7 +91,7 @@
   </header>
 
   <!-- ========== BÚSQUEDA Y FILTROS ========== -->
-  @if ((config()?.gridConfig?.enableSearch !== false) || (config()?.gridConfig?.enableFilters !== false && filterableFields().length > 0)) {
+  @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
     <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
       <div class="flex flex-wrap items-center gap-4">
 
