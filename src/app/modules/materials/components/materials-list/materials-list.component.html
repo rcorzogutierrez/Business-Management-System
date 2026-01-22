@@ -92,20 +92,17 @@
 
   <!-- ========== BÚSQUEDA Y FILTROS ========== -->
   @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
-    <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn" style="animation-delay: 0.1s">
+    <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">
       <div class="flex flex-wrap items-center gap-4">
 
-        <!-- Search Box -->
+        <!-- Search Box - Ancho dinámico según filtros -->
         @if (config()?.gridConfig?.enableSearch !== false) {
-          <div class="min-w-[300px] flex-1">
-            <app-search-bar
-              placeholder="Buscar por nombre, código o descripción..."
-              [themeColor]="'green'"
-              [debounceTime]="300"
-              [loading]="isLoading()"
-              (searchChange)="onSearch($event)">
-            </app-search-bar>
-          </div>
+          <app-search-bar
+            class="min-w-[300px] flex-1"
+            [themeColor]="'green'"
+            [placeholder]="'Buscar por nombre, código o descripción...'"
+            (searchChange)="onSearch($event)">
+          </app-search-bar>
         }
 
         <!-- Filtros dinámicos -->
