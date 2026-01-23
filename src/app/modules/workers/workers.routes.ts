@@ -18,6 +18,15 @@ export const WORKERS_ROUTES: Routes = [
         title: 'Gestión de Trabajadores'
       },
       {
+        path: 'config',
+        canActivate: [roleGuard(['admin'])], // Solo admin puede configurar
+        loadComponent: () =>
+          import('./components/workers-config/workers-config.component').then(
+            m => m.WorkersConfigComponent
+          ),
+        title: 'Configuración de Trabajadores'
+      },
+      {
         path: 'new',
         loadComponent: () =>
           import('./components/worker-form/worker-form.component').then(
@@ -42,15 +51,6 @@ export const WORKERS_ROUTES: Routes = [
           ),
         data: { mode: 'edit' },
         title: 'Editar Trabajador'
-      },
-      {
-        path: 'config',
-        canActivate: [roleGuard(['admin'])], // Solo admin puede configurar
-        loadComponent: () =>
-          import('./components/workers-config/workers-config.component').then(
-            m => m.WorkersConfigComponent
-          ),
-        title: 'Configuración de Trabajadores'
       }
     ]
   }
