@@ -60,8 +60,8 @@ export class WorkersConfigService {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        if (data?.gridConfig) {
-          this._gridConfig.set(data.gridConfig);
+        if (data?.['gridConfig']) {
+          this._gridConfig.set(data['gridConfig']);
         } else {
           // Si existe el documento pero no tiene gridConfig, usar valores por defecto
           this._gridConfig.set(this.getDefaultGridConfig());
