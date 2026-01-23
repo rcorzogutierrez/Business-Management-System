@@ -70,21 +70,18 @@ export class WorkersConfigService {
    * Cargar configuración desde Firestore
    */
   async loadConfig(): Promise<void> {
-    console.log('🔄 WorkersConfigService.loadConfig iniciando...');
     try {
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log('📄 Documento encontrado:', data);
         if (data?.['gridConfig']) {
           this._config.set({
             gridConfig: data['gridConfig'],
             updatedAt: data['updatedAt']?.toDate?.(),
             createdAt: data['createdAt']?.toDate?.()
           });
-          console.log('✅ Config cargada:', this._config());
         } else {
           // Si existe el documento pero no tiene gridConfig, usar valores por defecto
           this._config.set({
@@ -93,7 +90,6 @@ export class WorkersConfigService {
         }
       } else {
         // Si no existe el documento, crear con valores por defecto
-        console.log('📝 Documento no existe, creando...');
         await this.createDefaultConfig();
       }
     } catch (error) {
@@ -106,14 +102,8 @@ export class WorkersConfigService {
    * Actualizar configuración del grid en Firestore
    */
   async updateGridConfig(gridConfig: GridConfiguration): Promise<void> {
-    console.log('🔧 WorkersConfigService.updateGridConfig llamado con:', gridConfig);
     try {
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
-
-      console.log('📝 Guardando en Firestore...', {
-        collection: this.CONFIG_COLLECTION,
-        docId: this.CONFIG_DOC_ID
-      });
 
       const dataToSave = {
         gridConfig,
@@ -123,18 +113,14 @@ export class WorkersConfigService {
       // Actualizar en Firestore
       await setDoc(docRef, dataToSave, { merge: true });
 
-      console.log('✅ Guardado en Firestore exitoso');
-
-      // Actualizar signal local - ACTUALIZAR EL CONFIG COMPLETO
+      // Actualizar signal local
       this._config.set({
         ...this._config(),
         gridConfig,
         updatedAt: new Date()
       });
-
-      console.log('✅ Signal actualizado. Nuevo valor:', this._config());
     } catch (error) {
-      console.error('❌ Error actualizando workers grid config:', error);
+      console.error('Error actualizando workers grid config:', error);
       throw error;
     }
   }
@@ -154,8 +140,6 @@ export class WorkersConfigService {
 
     const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
     await setDoc(docRef, newConfig);
-
-    console.log('✅ Workers config creado con valores por defecto');
   }
 
   /**

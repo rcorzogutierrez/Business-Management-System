@@ -128,32 +128,26 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
    * Actualizar una configuración específica del grid
    */
   async updateGridConfig(key: keyof GridConfiguration, value: any): Promise<void> {
-    console.log(`🔧 GenericGridConfigBase.updateGridConfig llamado: ${String(key)} = ${value}`);
-
     try {
       const currentGridConfig = this.gridConfig();
-      console.log('📋 Config actual:', currentGridConfig);
 
       const updatedConfig = {
         ...currentGridConfig,
         [key]: value
       };
-      console.log('📋 Config actualizada:', updatedConfig);
 
       // Llamar al método del servicio para actualizar
       // Puede ser updateGridConfig() o updateConfig()
       if (typeof this.configService.updateGridConfig === 'function') {
-        console.log('✅ Servicio tiene updateGridConfig, llamando...');
         await this.configService.updateGridConfig(updatedConfig);
       } else if (typeof this.configService.updateConfig === 'function') {
-        console.log('✅ Servicio tiene updateConfig, llamando...');
         const currentConfig = this.configService.config();
         await this.configService.updateConfig({
           ...currentConfig,
           gridConfig: updatedConfig
         });
       } else {
-        console.error('❌ Servicio no tiene método de actualización!');
+        console.error('Servicio no tiene método de actualización');
       }
 
       this.snackBar.open('✅ Configuración actualizada correctamente', '', {
@@ -164,7 +158,7 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
       this.cdr.markForCheck();
     } catch (error) {
-      console.error('❌ Error actualizando configuración del grid:', error);
+      console.error('Error actualizando configuración del grid:', error);
       this.snackBar.open('❌ Error al actualizar la configuración', '', {
         duration: 4000,
         horizontalPosition: 'end',
