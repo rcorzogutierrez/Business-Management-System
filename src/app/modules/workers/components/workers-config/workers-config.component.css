@@ -1,67 +1,17 @@
-/* workers-config.component.css */
+/* workers-config.component.css - MINIMAL CSS, MOSTLY TAILWIND */
 
-.config-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 1.5rem;
+/* ============================================
+   HOST
+   ============================================ */
+:host {
+  display: block;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
 }
 
-/* ========== HEADER STYLES ========== */
-.header-icon-box {
-  @apply flex items-center justify-center w-12 h-12 rounded-xl;
-}
-
-.header-icon-box.purple {
-  @apply bg-purple-100;
-}
-
-.header-icon-box.purple mat-icon {
-  @apply text-purple-600 text-2xl;
-}
-
-.back-btn {
-  @apply flex items-center justify-center w-9 h-9 rounded-lg;
-  @apply border border-slate-200 bg-white hover:bg-slate-50;
-  @apply text-slate-600 hover:text-slate-800 transition-all;
-}
-
-.back-btn mat-icon {
-  @apply text-xl;
-}
-
-.stat-chip {
-  @apply flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium;
-}
-
-.stat-chip.purple {
-  @apply bg-purple-100 text-purple-700;
-}
-
-.stat-value {
-  @apply font-bold;
-}
-
-.stat-label {
-  @apply font-normal text-xs;
-}
-
-.icon-btn {
-  @apply flex items-center justify-center w-9 h-9 rounded-lg;
-  @apply border border-slate-200 bg-white hover:bg-slate-50;
-  @apply text-slate-600 hover:text-slate-800 transition-all;
-  @apply disabled:opacity-50 disabled:cursor-not-allowed;
-}
-
-.icon-btn mat-icon {
-  @apply text-xl;
-}
-
-/* ========== LOADING ========== */
-.loading-spinner {
-  @apply w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin;
-}
-
-/* ========== ANIMATIONS ========== */
+/* ============================================
+   CUSTOM ANIMATIONS (no disponibles en Tailwind)
+   ============================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -77,15 +27,18 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-/* ========== MATERIAL SELECT OVERRIDE ========== */
-::ng-deep .mat-mdc-form-field {
-  @apply text-sm;
+/* ============================================
+   LOADING SPINNER (custom)
+   ============================================ */
+.loading-spinner {
+  @apply w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin;
 }
 
-::ng-deep .mat-mdc-select-value {
-  @apply text-sm;
-}
-
-::ng-deep .mat-mdc-option {
-  @apply text-sm;
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-fadeIn {
+    animation: none !important;
+  }
 }

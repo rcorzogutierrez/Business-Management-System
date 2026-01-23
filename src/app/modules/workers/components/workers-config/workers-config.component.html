@@ -1,6 +1,6 @@
 <!-- workers-config.component.html -->
 
-<div class="config-container">
+<div class="max-w-7xl mx-auto px-6 py-6">
 
   <!-- ========== HEADER ========== -->
   <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
@@ -8,13 +8,13 @@
 
       <div class="flex items-center gap-3">
         <button type="button"
-                class="back-btn"
+                class="icon-btn"
                 (click)="goBack()"
                 title="Volver a trabajadores">
           <mat-icon>arrow_back</mat-icon>
         </button>
 
-        <div class="header-icon-box purple">
+        <div class="header-icon-box amber">
           <mat-icon>settings</mat-icon>
         </div>
 
@@ -52,8 +52,8 @@
     <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 animate-fadeIn">
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-3">
-          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-purple-100">
-            <mat-icon class="text-purple-600">table_chart</mat-icon>
+          <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-amber-100">
+            <mat-icon class="text-amber-600">table_chart</mat-icon>
           </div>
           <div>
             <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
@@ -64,7 +64,7 @@
         <button type="button"
                 [class]="allFeaturesEnabled()
                   ? 'px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'
-                  : 'px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'"
+                  : 'px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'"
                 (click)="toggleAllFeatures()"
                 [disabled]="isLoading"
                 [title]="allFeaturesEnabled() ? 'Desactivar todas las funcionalidades' : 'Activar todas las funcionalidades'">
@@ -75,7 +75,7 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <!-- Enable Column Selector -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">view_column</mat-icon>
             <div>
@@ -91,7 +91,7 @@
         </div>
 
         <!-- Enable Filters -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">filter_list</mat-icon>
             <div>
@@ -107,7 +107,7 @@
         </div>
 
         <!-- Enable Export -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">download</mat-icon>
             <div>
@@ -123,7 +123,7 @@
         </div>
 
         <!-- Enable Bulk Actions -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">checklist</mat-icon>
             <div>
@@ -139,7 +139,7 @@
         </div>
 
         <!-- Enable Search -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">search</mat-icon>
             <div>
@@ -155,7 +155,7 @@
         </div>
 
         <!-- Compact Mode -->
-        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-purple-300 transition-colors">
+        <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-amber-300 transition-colors">
           <div class="flex items-center gap-3">
             <mat-icon class="text-slate-400">compress</mat-icon>
             <div>
