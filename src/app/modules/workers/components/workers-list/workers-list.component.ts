@@ -90,6 +90,12 @@ export class WorkersListComponent implements OnInit {
     }));
   });
 
+  // Computed para verificar si el usuario es admin
+  isAdmin = computed(() => {
+    const user = this.authService.authorizedUser();
+    return user?.role === 'admin';
+  });
+
   // Workers filtrados
   filteredWorkers = computed(() => {
     let workers = this.workers();
@@ -277,6 +283,10 @@ export class WorkersListComponent implements OnInit {
 
   viewWorker(worker: Worker) {
     this.router.navigate(['/modules/workers', worker.id]);
+  }
+
+  goToConfig() {
+    this.router.navigate(['/modules/workers/config']);
   }
 
   async toggleActive(worker: Worker) {
