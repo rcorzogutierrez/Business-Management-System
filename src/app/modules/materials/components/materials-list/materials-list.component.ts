@@ -304,13 +304,6 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
     });
   }
 
-  /**
-   * Override para manejar cambio de selección con tipo correcto
-   */
-  override onSelectionChange(ids: (string | number)[]): void {
-    this.selectedIds.set(new Set(ids));
-  }
-
   // ==============================================
   // MÉTODOS ESPECÍFICOS DE MATERIALES
   // ==============================================
@@ -434,14 +427,14 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
   /**
    * Exportar a CSV (usa método de base)
    */
-  exportToCSV(): void {
+  override exportToCSV(): void {
     super.exportToCSV(this.filteredMaterials(), 'materiales');
   }
 
   /**
    * Exportar a JSON (usa método de base)
    */
-  exportToJSON(): void {
+  override exportToJSON(): void {
     super.exportToJSON(this.filteredMaterials(), 'materiales');
   }
 
