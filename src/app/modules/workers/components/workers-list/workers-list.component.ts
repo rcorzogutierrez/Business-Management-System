@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed } from '@angular/core';
+import { Component, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -96,6 +96,9 @@ export class WorkersListComponent implements OnInit {
     return user?.role === 'admin';
   });
 
+  // Exponer configuración del servicio para uso reactivo en el template
+  config = this.workersConfigService.config;
+
   // Workers filtrados
   filteredWorkers = computed(() => {
     let workers = this.workers();
@@ -168,7 +171,17 @@ export class WorkersListComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private authService: AuthService
-  ) {}
+  ) {
+    // Effect para reaccionar a cambios en la configuración
+    effect(() => {
+      const cfg = this.config();
+      if (cfg?.gridConfig?.itemsPerPage) {
+        this.itemsPerPage.set(cfg.gridConfig.itemsPerPage);
+        // Reset a primera página cuando cambia itemsPerPage
+        this.currentPage.set(0);
+      }
+    });
+  }
 
   async ngOnInit() {
     this.isLoading = true;

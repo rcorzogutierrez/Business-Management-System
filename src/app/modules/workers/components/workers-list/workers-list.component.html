@@ -48,12 +48,14 @@
         </button>
 
         <!-- Selector de Columnas -->
-        <app-column-visibility-control
-          [columns]="columnOptions()"
-          [storageKey]="'workers-visible-columns'"
-          [themeColor]="'amber'"
-          (visibilityChange)="onColumnVisibilityChange($event)">
-        </app-column-visibility-control>
+        @if (config()?.gridConfig?.enableColumnSelector !== false) {
+          <app-column-visibility-control
+            [columns]="columnOptions()"
+            [storageKey]="'workers-visible-columns'"
+            [themeColor]="'amber'"
+            (visibilityChange)="onColumnVisibilityChange($event)">
+          </app-column-visibility-control>
+        }
 
         @if (isAdmin()) {
           <button type="button"
@@ -85,71 +87,77 @@
   </header>
 
   <!-- ========== FILTROS Y BÚSQUEDA ========== -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
-    <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
-      <!-- Búsqueda -->
-      <div class="flex items-center gap-3 flex-1 w-full md:w-auto">
-        <mat-icon class="text-slate-400 text-lg">search</mat-icon>
-        <input
-          type="text"
-          placeholder="Buscar por nombre, teléfono, ID, empresa..."
-          [ngModel]="searchTerm()"
-          (ngModelChange)="onSearch($event)"
-          class="search-input">
+  @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+        <!-- Búsqueda -->
+        @if (config()?.gridConfig?.enableSearch !== false) {
+          <div class="flex items-center gap-3 flex-1 w-full md:w-auto">
+            <mat-icon class="text-slate-400 text-lg">search</mat-icon>
+            <input
+              type="text"
+              placeholder="Buscar por nombre, teléfono, ID, empresa..."
+              [ngModel]="searchTerm()"
+              (ngModelChange)="onSearch($event)"
+              class="search-input">
 
-        @if (searchTerm()) {
-          <button type="button"
-                  class="icon-btn-sm"
-                  (click)="onSearch('')"
-                  title="Limpiar búsqueda">
-            <mat-icon>close</mat-icon>
-          </button>
+            @if (searchTerm()) {
+              <button type="button"
+                      class="icon-btn-sm"
+                      (click)="onSearch('')"
+                      title="Limpiar búsqueda">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Filtro por tipo -->
+        @if (config()?.gridConfig?.enableFilters !== false) {
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-xs text-slate-500 font-medium">Filtrar:</span>
+            <button type="button"
+                    class="filter-btn"
+                    [class.active]="filterType() === 'all'"
+                    (click)="setFilterType('all')">
+              Todos
+            </button>
+            <button type="button"
+                    class="filter-btn blue"
+                    [class.active]="filterType() === 'internal'"
+                    (click)="setFilterType('internal')">
+              <mat-icon>person</mat-icon>
+              Propios
+            </button>
+            <button type="button"
+                    class="filter-btn purple"
+                    [class.active]="filterType() === 'contractor'"
+                    (click)="setFilterType('contractor')">
+              <mat-icon>groups</mat-icon>
+              Subcontratados
+            </button>
+          </div>
+
+          <!-- Filtro por empresa activo -->
+          @if (filterCompanyName()) {
+            <div class="company-filter-chip">
+              <mat-icon>business</mat-icon>
+              <span>{{ filterCompanyName() }}</span>
+              <button type="button"
+                      class="chip-close-btn"
+                      (click)="clearCompanyFilter()"
+                      title="Quitar filtro">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
         }
       </div>
-
-      <!-- Filtro por tipo -->
-      <div class="flex items-center gap-2 flex-wrap">
-        <span class="text-xs text-slate-500 font-medium">Filtrar:</span>
-        <button type="button"
-                class="filter-btn"
-                [class.active]="filterType() === 'all'"
-                (click)="setFilterType('all')">
-          Todos
-        </button>
-        <button type="button"
-                class="filter-btn blue"
-                [class.active]="filterType() === 'internal'"
-                (click)="setFilterType('internal')">
-          <mat-icon>person</mat-icon>
-          Propios
-        </button>
-        <button type="button"
-                class="filter-btn purple"
-                [class.active]="filterType() === 'contractor'"
-                (click)="setFilterType('contractor')">
-          <mat-icon>groups</mat-icon>
-          Subcontratados
-        </button>
-      </div>
-
-      <!-- Filtro por empresa activo -->
-      @if (filterCompanyName()) {
-        <div class="company-filter-chip">
-          <mat-icon>business</mat-icon>
-          <span>{{ filterCompanyName() }}</span>
-          <button type="button"
-                  class="chip-close-btn"
-                  (click)="clearCompanyFilter()"
-                  title="Quitar filtro">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      }
     </div>
-  </div>
+  }
 
   <!-- ========== BARRA DE ACCIONES MASIVAS ========== -->
-  @if (selectedWorkers().length > 0) {
+  @if (config()?.gridConfig?.enableBulkActions !== false && selectedWorkers().length > 0) {
     <div class="bulk-actions-bar animate-fadeIn">
       <div class="flex items-center gap-3">
         <div class="bulk-icon">
@@ -227,14 +235,16 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="w-12">
-                <input
-                  type="checkbox"
-                  [checked]="isAllSelected()"
-                  [indeterminate]="isIndeterminate()"
-                  (change)="toggleSelectAll()"
-                  class="table-checkbox">
-              </th>
+              @if (config()?.gridConfig?.enableBulkActions !== false) {
+                <th class="w-12">
+                  <input
+                    type="checkbox"
+                    [checked]="isAllSelected()"
+                    [indeterminate]="isIndeterminate()"
+                    (change)="toggleSelectAll()"
+                    class="table-checkbox">
+                </th>
+              }
               <th>Nombre</th>
               @if (isColumnVisible('workerType')) {
                 <th class="w-32">Tipo</th>
@@ -258,13 +268,15 @@
                   [style.animation-delay]="(i * 0.03) + 's'"
                   (click)="viewWorker(worker)">
 
-                <td (click)="$event.stopPropagation()">
-                  <input
-                    type="checkbox"
-                    [checked]="isSelected(worker.id)"
-                    (change)="toggleSelection(worker.id)"
-                    class="table-checkbox">
-                </td>
+                @if (config()?.gridConfig?.enableBulkActions !== false) {
+                  <td (click)="$event.stopPropagation()">
+                    <input
+                      type="checkbox"
+                      [checked]="isSelected(worker.id)"
+                      (change)="toggleSelection(worker.id)"
+                      class="table-checkbox">
+                  </td>
+                }
 
                 <!-- Nombre con avatar -->
                 <td>
