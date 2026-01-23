@@ -10,6 +10,15 @@ import {
 import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
 /**
+ * Configuración simple para Workers (solo GridConfiguration)
+ */
+export interface WorkersConfig {
+  gridConfig: GridConfiguration;
+  updatedAt?: Date;
+  createdAt?: Date;
+}
+
+/**
  * Servicio de configuración para el módulo de Workers
  *
  * Gestiona la configuración de GridConfiguration (tabla) persistida en Firestore.
@@ -25,11 +34,16 @@ export class WorkersConfigService {
   private readonly CONFIG_COLLECTION = 'moduleConfigs';
   private readonly CONFIG_DOC_ID = 'workers';
 
-  // Signal privado (writable)
-  private _gridConfig = signal<GridConfiguration>(this.getDefaultGridConfig());
+  // Signal privado (writable) - ESTRUCTURA SIMILAR A ModuleConfigBaseService
+  private _config = signal<WorkersConfig>({
+    gridConfig: this.getDefaultGridConfig()
+  });
 
-  // Signal público (readonly)
-  gridConfig = this._gridConfig.asReadonly();
+  // Signal público (readonly) - COMPATIBLE CON GenericGridConfigBaseComponent
+  config = this._config.asReadonly();
+
+  // También exponer gridConfig directamente para compatibilidad
+  gridConfig = () => this._config().gridConfig;
 
   // Flag de inicialización
   private initialized = false;
@@ -46,7 +60,9 @@ export class WorkersConfigService {
     } catch (error) {
       console.error('Error inicializando WorkersConfigService:', error);
       // Si falla, usar valores por defecto
-      this._gridConfig.set(this.getDefaultGridConfig());
+      this._config.set({
+        gridConfig: this.getDefaultGridConfig()
+      });
     }
   }
 
@@ -54,20 +70,30 @@ export class WorkersConfigService {
    * Cargar configuración desde Firestore
    */
   async loadConfig(): Promise<void> {
+    console.log('🔄 WorkersConfigService.loadConfig iniciando...');
     try {
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
+        console.log('📄 Documento encontrado:', data);
         if (data?.['gridConfig']) {
-          this._gridConfig.set(data['gridConfig']);
+          this._config.set({
+            gridConfig: data['gridConfig'],
+            updatedAt: data['updatedAt']?.toDate?.(),
+            createdAt: data['createdAt']?.toDate?.()
+          });
+          console.log('✅ Config cargada:', this._config());
         } else {
           // Si existe el documento pero no tiene gridConfig, usar valores por defecto
-          this._gridConfig.set(this.getDefaultGridConfig());
+          this._config.set({
+            gridConfig: this.getDefaultGridConfig()
+          });
         }
       } else {
         // Si no existe el documento, crear con valores por defecto
+        console.log('📝 Documento no existe, creando...');
         await this.createDefaultConfig();
       }
     } catch (error) {
@@ -89,18 +115,24 @@ export class WorkersConfigService {
         docId: this.CONFIG_DOC_ID
       });
 
-      // Actualizar en Firestore
-      await setDoc(docRef, {
+      const dataToSave = {
         gridConfig,
         updatedAt: new Date()
-      }, { merge: true });
+      };
+
+      // Actualizar en Firestore
+      await setDoc(docRef, dataToSave, { merge: true });
 
       console.log('✅ Guardado en Firestore exitoso');
 
-      // Actualizar signal local
-      this._gridConfig.set(gridConfig);
+      // Actualizar signal local - ACTUALIZAR EL CONFIG COMPLETO
+      this._config.set({
+        ...this._config(),
+        gridConfig,
+        updatedAt: new Date()
+      });
 
-      console.log('✅ Signal actualizado. Nuevo valor:', this._gridConfig());
+      console.log('✅ Signal actualizado. Nuevo valor:', this._config());
     } catch (error) {
       console.error('❌ Error actualizando workers grid config:', error);
       throw error;
@@ -111,15 +143,17 @@ export class WorkersConfigService {
    * Crear configuración por defecto en Firestore
    */
   private async createDefaultConfig(): Promise<void> {
-    const defaultConfig = this.getDefaultGridConfig();
-    this._gridConfig.set(defaultConfig);
-
-    const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
-    await setDoc(docRef, {
-      gridConfig: defaultConfig,
+    const defaultGridConfig = this.getDefaultGridConfig();
+    const newConfig: WorkersConfig = {
+      gridConfig: defaultGridConfig,
       createdAt: new Date(),
       updatedAt: new Date()
-    });
+    };
+
+    this._config.set(newConfig);
+
+    const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+    await setDoc(docRef, newConfig);
 
     console.log('✅ Workers config creado con valores por defecto');
   }

@@ -179,10 +179,10 @@ export class WorkersListComponent implements OnInit {
       this.workersConfigService.initialize()
     ]);
 
-    // Aplicar itemsPerPage desde gridConfig
-    const gridConfig = this.workersConfigService.gridConfig();
-    if (gridConfig?.itemsPerPage) {
-      this.itemsPerPage.set(gridConfig.itemsPerPage);
+    // Aplicar itemsPerPage desde config.gridConfig
+    const config = this.workersConfigService.config();
+    if (config?.gridConfig?.itemsPerPage) {
+      this.itemsPerPage.set(config.gridConfig.itemsPerPage);
     }
 
     // Leer queryParam companyId para filtrar
