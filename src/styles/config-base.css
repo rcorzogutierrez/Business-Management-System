@@ -1,0 +1,216 @@
+/* =====================================================
+   ARCHIVO: src/styles/config-base.css
+   PROPÓSITO: Estilos base reutilizables para componentes de configuración
+   USO: Clases comunes para client-config, material-config, etc.
+   ===================================================== */
+
+/* ============================================
+   CONTAINER BASE
+   ============================================ */
+
+.config-container-base {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ============================================
+   BACK BUTTON
+   ============================================ */
+
+.config-back-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.config-back-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+  transform: translateX(-2px);
+}
+
+.config-back-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   ICON BUTTON
+   ============================================ */
+
+.config-icon-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.config-icon-btn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.config-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.config-icon-btn mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================
+   STAT CHIP
+   ============================================ */
+
+.stat-chip-base {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 10px;
+  padding: 6px 12px;
+  min-width: 65px;
+}
+
+.stat-chip-green {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+}
+
+.stat-chip-green .stat-value {
+  color: #059669;
+}
+
+.stat-chip-green .stat-label {
+  color: #10b981;
+}
+
+.stat-chip-purple {
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+}
+
+.stat-chip-purple .stat-value {
+  color: #7c3aed;
+}
+
+.stat-chip-purple .stat-label {
+  color: #8b5cf6;
+}
+
+.stat-value {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* ============================================
+   DRAG & DROP (CDK específico)
+   ============================================ */
+
+.config-drag-preview {
+  box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25) !important;
+  border: 2px solid #8b5cf6 !important;
+  opacity: 0.95 !important;
+}
+
+.config-drag-animating {
+  transition: transform 300ms ease;
+}
+
+.config-drag-placeholder {
+  opacity: 0.3;
+  background: #f1f5f9;
+  border: 2px dashed #a78bfa;
+  border-radius: 14px;
+}
+
+/* ============================================
+   FIELD CARD ANIMATIONS (staggered)
+   ============================================ */
+
+.config-field-card {
+  animation: fadeInScale 0.3s ease-out backwards;
+}
+
+.config-field-card:nth-child(1) { animation-delay: 0.03s; }
+.config-field-card:nth-child(2) { animation-delay: 0.06s; }
+.config-field-card:nth-child(3) { animation-delay: 0.09s; }
+.config-field-card:nth-child(4) { animation-delay: 0.12s; }
+.config-field-card:nth-child(5) { animation-delay: 0.15s; }
+.config-field-card:nth-child(6) { animation-delay: 0.18s; }
+.config-field-card:nth-child(7) { animation-delay: 0.21s; }
+.config-field-card:nth-child(8) { animation-delay: 0.24s; }
+
+/* ============================================
+   FIELD ACTIONS HOVER
+   ============================================ */
+
+.config-field-actions {
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.config-field-card:hover .config-field-actions {
+  opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 768px) {
+  .config-container-base {
+    padding: 16px;
+  }
+
+  .stat-chip-base,
+  .stat-chip-green,
+  .stat-chip-purple {
+    display: none;
+  }
+
+  .config-field-actions {
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .config-field-card,
+  .config-drag-animating {
+    animation: none !important;
+    transition: none !important;
+  }
+}
