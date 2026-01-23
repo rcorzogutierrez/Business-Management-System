@@ -80,8 +80,14 @@ export class WorkersConfigService {
    * Actualizar configuración del grid en Firestore
    */
   async updateGridConfig(gridConfig: GridConfiguration): Promise<void> {
+    console.log('🔧 WorkersConfigService.updateGridConfig llamado con:', gridConfig);
     try {
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
+
+      console.log('📝 Guardando en Firestore...', {
+        collection: this.CONFIG_COLLECTION,
+        docId: this.CONFIG_DOC_ID
+      });
 
       // Actualizar en Firestore
       await setDoc(docRef, {
@@ -89,12 +95,14 @@ export class WorkersConfigService {
         updatedAt: new Date()
       }, { merge: true });
 
+      console.log('✅ Guardado en Firestore exitoso');
+
       // Actualizar signal local
       this._gridConfig.set(gridConfig);
 
-      console.log('✅ Workers GridConfig actualizado:', gridConfig);
+      console.log('✅ Signal actualizado. Nuevo valor:', this._gridConfig());
     } catch (error) {
-      console.error('Error actualizando workers grid config:', error);
+      console.error('❌ Error actualizando workers grid config:', error);
       throw error;
     }
   }
