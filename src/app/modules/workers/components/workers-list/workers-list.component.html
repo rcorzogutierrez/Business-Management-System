@@ -55,6 +55,15 @@
           (visibilityChange)="onColumnVisibilityChange($event)">
         </app-column-visibility-control>
 
+        @if (isAdmin()) {
+          <button type="button"
+                  class="icon-btn"
+                  (click)="goToConfig()"
+                  title="Configurar módulo">
+            <mat-icon>settings</mat-icon>
+          </button>
+        }
+
         <button type="button"
                 class="btn-secondary"
                 (click)="openCompaniesDialog()"
