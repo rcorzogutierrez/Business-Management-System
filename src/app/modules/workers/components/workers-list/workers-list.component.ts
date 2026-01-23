@@ -452,4 +452,82 @@ export class WorkersListComponent implements OnInit {
       disableClose: false
     });
   }
+
+  // ==========================================
+  // MÉTODOS DE EXPORTACIÓN
+  // ==========================================
+
+  /**
+   * Exportar trabajadores filtrados a CSV
+   */
+  exportToCSV(): void {
+    const workers = this.filteredWorkers();
+    if (workers.length === 0) {
+      this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    try {
+      // Convertir datos a CSV
+      const headers = ['ID', 'Nombre Completo', 'Tipo', 'Teléfono', 'Empresa', 'Estado'];
+      const csvData = workers.map(w => [
+        w.id,
+        w.fullName || '',
+        this.workerTypeLabels[w.workerType],
+        w.phone || '',
+        w.companyName || '',
+        w.isActive ? 'Activo' : 'Inactivo'
+      ]);
+
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
+      ].join('\n');
+
+      // Descargar archivo
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `trabajadores_${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('✅ Datos exportados a CSV correctamente', '', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a CSV:', error);
+      this.snackBar.open('❌ Error al exportar los datos', '', { duration: 3000 });
+    }
+  }
+
+  /**
+   * Exportar trabajadores filtrados a JSON
+   */
+  exportToJSON(): void {
+    const workers = this.filteredWorkers();
+    if (workers.length === 0) {
+      this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+      return;
+    }
+
+    try {
+      const jsonContent = JSON.stringify(workers, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `trabajadores_${new Date().toISOString().split('T')[0]}.json`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      this.snackBar.open('✅ Datos exportados a JSON correctamente', '', { duration: 3000 });
+    } catch (error) {
+      console.error('Error exportando a JSON:', error);
+      this.snackBar.open('❌ Error al exportar los datos', '', { duration: 3000 });
+    }
+  }
 }

@@ -57,6 +57,28 @@
           </app-column-visibility-control>
         }
 
+        <!-- Botón de Exportar -->
+        @if (config().gridConfig?.enableExport !== false) {
+          <button type="button"
+                  class="icon-btn"
+                  [matMenuTriggerFor]="exportMenu"
+                  [disabled]="isLoading || filteredWorkers().length === 0"
+                  title="Exportar datos">
+            <mat-icon>download</mat-icon>
+          </button>
+
+          <mat-menu #exportMenu="matMenu">
+            <button mat-menu-item (click)="exportToCSV()">
+              <mat-icon>table_chart</mat-icon>
+              <span>Exportar a CSV</span>
+            </button>
+            <button mat-menu-item (click)="exportToJSON()">
+              <mat-icon>code</mat-icon>
+              <span>Exportar a JSON</span>
+            </button>
+          </mat-menu>
+        }
+
         @if (isAdmin()) {
           <button type="button"
                   class="icon-btn"
