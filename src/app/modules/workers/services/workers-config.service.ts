@@ -1,7 +1,12 @@
 // src/app/modules/workers/services/workers-config.service.ts
 
-import { Injectable, signal, inject } from '@angular/core';
-import { Firestore, doc, getDoc, setDoc } from '@angular/fire/firestore';
+import { Injectable, signal } from '@angular/core';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  setDoc
+} from 'firebase/firestore';
 import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
 /**
@@ -14,7 +19,7 @@ import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/
   providedIn: 'root'
 })
 export class WorkersConfigService {
-  private db = inject(Firestore);
+  private db = getFirestore();
 
   // Colección y documento en Firestore
   private readonly CONFIG_COLLECTION = 'moduleConfigs';
