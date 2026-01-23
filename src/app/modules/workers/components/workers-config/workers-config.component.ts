@@ -8,8 +8,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatSelectModule } from '@angular/material/select';
-import { FormsModule } from '@angular/forms';
 
 import { WorkersConfigService } from '../../services';
 import { GenericGridConfigBaseComponent } from '../../../../shared/components/generic-grid-config-base/generic-grid-config-base.component';
@@ -26,14 +24,12 @@ import { GenericGridConfigBaseComponent } from '../../../../shared/components/ge
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
-    MatDividerModule,
-    MatSelectModule
+    MatDividerModule
   ],
   templateUrl: './workers-config.component.html',
   styleUrl: './workers-config.component.css',
