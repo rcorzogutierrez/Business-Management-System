@@ -13,7 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { Router, ActivatedRoute } from '@angular/router';
 
-import { WorkersService } from '../../services';
+import { WorkersService, WorkersConfigService } from '../../services';
 import { Worker, WORKER_TYPE_LABELS, WorkerType } from '../../models';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
@@ -53,7 +53,7 @@ export class WorkersListComponent implements OnInit {
 
   // Paginación
   currentPage = signal<number>(0);
-  itemsPerPage = signal<number>(25);
+  itemsPerPage = signal<number>(25); // Se actualiza desde gridConfig en ngOnInit
 
   // Math para templates
   Math = Math;
@@ -155,6 +155,7 @@ export class WorkersListComponent implements OnInit {
 
   constructor(
     private workersService: WorkersService,
+    private workersConfigService: WorkersConfigService,
     private companiesService: CompaniesService,
     private dialog: MatDialog,
     private snackBar: MatSnackBar,
@@ -165,7 +166,18 @@ export class WorkersListComponent implements OnInit {
 
   async ngOnInit() {
     this.isLoading = true;
-    await this.workersService.initialize();
+
+    // Cargar configuración y trabajadores en paralelo
+    await Promise.all([
+      this.workersService.initialize(),
+      this.workersConfigService.initialize()
+    ]);
+
+    // Aplicar itemsPerPage desde gridConfig
+    const gridConfig = this.workersConfigService.gridConfig();
+    if (gridConfig?.itemsPerPage) {
+      this.itemsPerPage.set(gridConfig.itemsPerPage);
+    }
 
     // Leer queryParam companyId para filtrar
     this.route.queryParams.subscribe(async params => {
