@@ -181,15 +181,14 @@
               <p class="text-xs text-slate-500">Cantidad de trabajadores mostrados por página</p>
             </div>
           </div>
-          <mat-form-field appearance="outline" class="w-24">
-            <mat-select
-              [value]="gridConfig().itemsPerPage"
-              (selectionChange)="updateGridConfig('itemsPerPage', $event.value)">
-              @for (size of pageSizeOptions; track size) {
-                <mat-option [value]="size">{{ size }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <select
+            [value]="gridConfig().itemsPerPage"
+            (change)="updateGridConfig('itemsPerPage', +$any($event.target).value)"
+            class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-amber-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all outline-none cursor-pointer">
+            @for (size of pageSizeOptions; track size) {
+              <option [value]="size">{{ size }}</option>
+            }
+          </select>
         </div>
       </div>
 
