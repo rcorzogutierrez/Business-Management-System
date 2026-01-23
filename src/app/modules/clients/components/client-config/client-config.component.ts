@@ -1,5 +1,5 @@
 // src/app/modules/clients/components/client-config/client-config.component.ts
-import { Component, OnInit, effect, computed, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +9,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
@@ -18,10 +17,14 @@ import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-
 import { ClientConfigServiceRefactored } from '../../services/client-config-refactored.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
-import { FormLayoutConfig, GridConfiguration } from '../../models/client-module-config.interface';
-// Importar componentes compartidos del módulo dynamic-form-builder
 import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
+import { GenericConfigBaseComponent } from '../../../../shared/components/generic-config-base/generic-config-base.component';
 
+/**
+ * Componente de configuración del módulo de Clientes
+ * Hereda toda la lógica común de GenericConfigBaseComponent
+ * Contiene lógica específica para gestión avanzada de campos (editar, eliminar, reordenar)
+ */
 @Component({
   selector: 'app-client-config',
   standalone: true,
@@ -43,113 +46,29 @@ import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../s
   styleUrl: './client-config.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ClientConfigComponent implements OnInit {
-  // Hacer configService público para que pueda ser pasado al template
+export class ClientConfigComponent extends GenericConfigBaseComponent {
+  // Implementar propiedades abstractas requeridas
   configService = inject(ClientConfigServiceRefactored);
+  override modulePath = '/modules/clients';
+
+  // Propiedades específicas de clientes
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
   private router = inject(Router);
-  private cdr = inject(ChangeDetectorRef);
 
   currentUser = this.authService.authorizedUser;
-  fields: FieldConfig[] = [];
-  isLoading = false;
 
-  // Form layout
-  get formLayout(): FormLayoutConfig | undefined {
-    return this.configService.getFormLayout();
-  }
+  // Toda la lógica compartida (gridConfig, allFeaturesEnabled, stats, updateGridConfig,
+  // toggleAllFeatures, loadConfig, onLayoutChange, etc.) ya está en la clase base.
 
-  // Grid configuration como computed signal para mejor reactividad
-  gridConfig = computed(() => {
-    const config = this.configService.config();
-    // Si no existe gridConfig, retornar valores por defecto
-    if (!config?.gridConfig) {
-      return {
-        defaultView: 'table' as const,
-        itemsPerPage: 10,
-        sortBy: 'name',
-        sortOrder: 'asc' as const,
-        enableSearch: true,
-        enableFilters: true,
-        enableExport: true,
-        enableBulkActions: true,
-        enableColumnSelector: true,
-        showThumbnails: false,
-        compactMode: false
-      };
-    }
-    return config.gridConfig;
-  });
-
-  // Computed para verificar si todas las funcionalidades están activas
-  allFeaturesEnabled = computed(() => {
-    const gc = this.gridConfig();
-    return gc.enableSearch &&
-           gc.enableFilters &&
-           gc.enableExport &&
-           gc.enableBulkActions &&
-           gc.enableColumnSelector &&
-           gc.compactMode;
-  });
-
-  // Stats
-  get totalFields(): number {
-    return this.fields.length;
-  }
-
-  get activeFields(): number {
-    return this.fields.filter(f => f.isActive).length;
-  }
-
-  get customFields(): number {
-    return this.fields.filter(f => !f.isSystem).length;
-  }
-
-  get systemFields(): number {
-    return this.fields.filter(f => f.isSystem).length;
-  }
-
-  get gridColumns(): number {
-    return this.fields.filter(f => f.gridConfig.showInGrid).length;
-  }
-
-  constructor() {
-    // Effect para reaccionar a cambios en los campos
-    effect(() => {
-      const fields = this.configService.fields();
-      this.fields = [...fields].sort((a, b) => a.formOrder - b.formOrder);
-      this.cdr.markForCheck();
-    });
-  }
-
-  async ngOnInit() {
-    await this.loadConfig();
-  }
-
-  /**
-   * Carga la configuración del módulo
-   */
-  async loadConfig() {
-    this.isLoading = true;
-    this.cdr.markForCheck();
-
-    try {
-      await this.configService.loadConfig();
-    } catch (error) {
-      console.error('Error cargando configuración:', error);
-      this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
-    } finally {
-      this.isLoading = false;
-      this.cdr.markForCheck();
-    }
-  }
+  // ==============================================
+  // MÉTODOS ESPECÍFICOS DE CLIENTES
+  // ==============================================
 
   /**
    * Abre el dialog para editar un campo
    */
-  editField(field: FieldConfig) {
+  editField(field: FieldConfig): void {
     const dialogRef = this.dialog.open(FieldConfigDialogComponent, {
       width: '800px',
       maxWidth: '95vw',
@@ -175,7 +94,7 @@ export class ClientConfigComponent implements OnInit {
   /**
    * Elimina un campo personalizado
    */
-  async deleteField(field: FieldConfig) {
+  async deleteField(field: FieldConfig): Promise<void> {
     if (field.isSystem) {
       this.snackBar.open('No se pueden eliminar campos del sistema', 'Cerrar', { duration: 3000 });
       return;
@@ -205,7 +124,7 @@ export class ClientConfigComponent implements OnInit {
   /**
    * Toggle del estado activo/inactivo de un campo
    */
-  async toggleFieldStatus(field: FieldConfig) {
+  async toggleFieldStatus(field: FieldConfig): Promise<void> {
     this.isLoading = true;
     this.cdr.markForCheck();
 
@@ -228,7 +147,7 @@ export class ClientConfigComponent implements OnInit {
   /**
    * Toggle de visibilidad en el grid
    */
-  async toggleGridVisibility(field: FieldConfig) {
+  async toggleGridVisibility(field: FieldConfig): Promise<void> {
     this.isLoading = true;
     this.cdr.markForCheck();
 
@@ -256,7 +175,7 @@ export class ClientConfigComponent implements OnInit {
   /**
    * Maneja el reordenamiento drag & drop
    */
-  async onFieldDrop(event: CdkDragDrop<FieldConfig[]>) {
+  async onFieldDrop(event: CdkDragDrop<FieldConfig[]>): Promise<void> {
     if (event.previousIndex === event.currentIndex) return;
 
     const fieldsCopy = [...this.fields];
@@ -324,149 +243,9 @@ export class ClientConfigComponent implements OnInit {
   }
 
   /**
-   * Maneja cambios en el layout del formulario
-   */
-  async onLayoutChange(layout: FormLayoutConfig) {
-    try {
-
-      // Validar que exista al menos un campo obligatorio
-      const activeFields = this.configService.getActiveFields();
-      const hasRequiredField = activeFields.some(field => field.validation?.required === true);
-
-      if (!hasRequiredField) {
-
-        this.snackBar.open('⚠️ Debes tener al menos un campo obligatorio en el formulario', 'Cerrar', {
-          duration: 5000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-warning']
-        });
-        return;
-      }
-
-      await this.configService.saveFormLayout(layout);
-
-      this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-
-      this.cdr.markForCheck();
-    } catch (error) {
-      console.error('❌ Error guardando layout:', error);
-      this.snackBar.open('❌ Error al guardar el diseño del formulario', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-    }
-  }
-
-  /**
-   * Maneja cuando se agrega un nuevo campo desde el diseñador
-   */
-  async onFieldAdded() {
-    // Recargar la configuración para obtener el nuevo campo
-    await this.loadConfig();
-  }
-
-  /**
-   * Actualiza una configuración del grid
-   */
-  async updateGridConfig(key: keyof GridConfiguration, value: any) {
-    try {
-      const currentConfig = this.configService.config();
-      if (!currentConfig) return;
-
-      // Si no existe gridConfig, usar el computed que tiene valores por defecto
-      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
-
-      const updatedConfig = {
-        ...currentConfig,
-        gridConfig: {
-          ...currentGridConfig,
-          [key]: value
-        }
-      };
-
-      await this.configService.updateConfig(updatedConfig);
-
-      this.snackBar.open('✅ Configuración actualizada correctamente', '', {
-        duration: 2000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-
-      this.cdr.markForCheck();
-    } catch (error) {
-      console.error('❌ Error actualizando configuración del grid:', error);
-      this.snackBar.open('❌ Error al actualizar la configuración', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-    }
-  }
-
-  /**
-   * Toggle: Activa o desactiva todas las funcionalidades de la tabla
-   */
-  async toggleAllFeatures() {
-    try {
-      const currentConfig = this.configService.config();
-      if (!currentConfig) return;
-
-      const currentGridConfig = currentConfig.gridConfig || this.gridConfig();
-      const shouldEnable = !this.allFeaturesEnabled();
-
-      const updatedConfig = {
-        ...currentConfig,
-        gridConfig: {
-          ...currentGridConfig,
-          enableColumnSelector: shouldEnable,
-          enableFilters: shouldEnable,
-          enableExport: shouldEnable,
-          enableBulkActions: shouldEnable,
-          enableSearch: shouldEnable,
-          compactMode: shouldEnable,
-          itemsPerPage: 10
-        }
-      };
-
-      this.isLoading = true;
-      this.cdr.markForCheck();
-
-      await this.configService.updateConfig(updatedConfig);
-
-      const message = shouldEnable
-        ? '✅ Todas las funcionalidades han sido activadas'
-        : '✅ Todas las funcionalidades han sido desactivadas';
-
-      this.snackBar.open(message, '', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-
-      this.cdr.markForCheck();
-    } catch (error) {
-      console.error('❌ Error al cambiar funcionalidades:', error);
-      this.snackBar.open('❌ Error al cambiar las funcionalidades', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
-    } finally {
-      this.isLoading = false;
-      this.cdr.markForCheck();
-    }
-  }
-
-  /**
    * Vuelve a la lista de clientes
    */
-  goBack() {
+  goBack(): void {
     this.router.navigate(['/modules/clients']);
   }
 
