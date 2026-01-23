@@ -80,7 +80,7 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   // Computed para verificar si el usuario es admin
   isAdmin = computed(() => {
     const user = this.authService.authorizedUser();
-    return user?.role === 'admin' || user?.role === 'superadmin';
+    return user?.role === 'admin';
   });
 
   // Configuración de la tabla
