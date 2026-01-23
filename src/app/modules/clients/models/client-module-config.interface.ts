@@ -2,28 +2,10 @@
 
 import { Timestamp } from 'firebase/firestore';
 import { FieldConfig } from './field-config.interface';
+import { GridConfiguration, GridView } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
-/**
- * Vista por defecto del grid/tabla
- */
-export type GridView = 'table' | 'grid' | 'cards';
-
-/**
- * Configuración del Grid/Tabla
- */
-export interface GridConfiguration {
-  defaultView: GridView;           // Vista por defecto
-  itemsPerPage: number;            // Elementos por página
-  sortBy: string;                  // Campo por defecto para ordenar
-  sortOrder: 'asc' | 'desc';       // Orden por defecto
-  enableSearch: boolean;           // Habilitar búsqueda global
-  enableFilters: boolean;          // Habilitar filtros
-  enableExport: boolean;           // Habilitar exportar
-  enableBulkActions: boolean;      // Habilitar acciones masivas
-  enableColumnSelector: boolean;   // Habilitar selector de columnas visibles
-  showThumbnails: boolean;         // Mostrar miniaturas (si aplica)
-  compactMode: boolean;            // Modo compacto
-}
+// Re-export para facilitar imports
+export { GridConfiguration, GridView };
 
 /**
  * Permisos específicos del módulo
