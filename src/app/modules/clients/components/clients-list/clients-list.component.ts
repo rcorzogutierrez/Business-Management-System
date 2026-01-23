@@ -77,6 +77,12 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   // Alias para compatibilidad con el template (usa selectedIds de la base, pero expone como selectedClients)
   selectedClients = this.selectedIds;
 
+  // Computed para verificar si el usuario es admin
+  isAdmin = computed(() => {
+    const user = this.authService.authorizedUser();
+    return user?.role === 'admin' || user?.role === 'superadmin';
+  });
+
   // Configuración de la tabla
   tableConfig = signal<TableConfig<Client>>({
     columns: [],
@@ -313,13 +319,6 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
     });
   }
 
-  /**
-   * Override para manejar cambio de selección con tipo correcto
-   */
-  override onSelectionChange(ids: (string | number)[]): void {
-    this.selectedIds.set(new Set(ids));
-  }
-
   // ==============================================
   // MÉTODOS ESPECÍFICOS DE CLIENTES
   // ==============================================
@@ -458,14 +457,14 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   /**
    * Exportar a CSV (usa método de base)
    */
-  exportToCSV(): void {
+  override exportToCSV(): void {
     super.exportToCSV(this.filteredClients(), 'clientes');
   }
 
   /**
    * Exportar a JSON (usa método de base)
    */
-  exportToJSON(): void {
+  override exportToJSON(): void {
     super.exportToJSON(this.filteredClients(), 'clientes');
   }
 

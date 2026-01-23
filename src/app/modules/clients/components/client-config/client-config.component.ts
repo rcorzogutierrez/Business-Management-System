@@ -1,7 +1,6 @@
 // src/app/modules/clients/components/client-config/client-config.component.ts
 import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -54,7 +53,6 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
   // Propiedades específicas de clientes
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private router = inject(Router);
 
   currentUser = this.authService.authorizedUser;
 
@@ -242,17 +240,5 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
     return labels[type] || type;
   }
 
-  /**
-   * Vuelve a la lista de clientes
-   */
-  goBack(): void {
-    this.router.navigate(['/modules/clients']);
-  }
-
-  /**
-   * Tracking para @for
-   */
-  trackByFieldId(index: number, field: FieldConfig): string {
-    return field.id;
-  }
+  // Los métodos goBack() y trackByFieldId() ya están implementados en la clase base
 }

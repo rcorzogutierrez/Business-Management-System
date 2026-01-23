@@ -316,6 +316,20 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
     this.currentPage.set(0);
   }
 
+  /**
+   * Verificar si hay filtros activos
+   */
+  hasActiveFilters = computed(() => {
+    return Object.keys(this.customFieldFilters()).length > 0;
+  });
+
+  /**
+   * Contar filtros activos
+   */
+  activeFiltersCount = computed(() => {
+    return Object.keys(this.customFieldFilters()).length;
+  });
+
   // ==============================================
   // MÉTODOS COMPARTIDOS - Ordenamiento
   // ==============================================
@@ -462,8 +476,12 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   /**
    * Manejar cambio de selección
    */
-  onSelectionChange(selectedIds: Set<string | number>): void {
-    this.selectedIds.set(selectedIds);
+  onSelectionChange(selectedIds: (string | number)[] | Set<string | number>): void {
+    if (Array.isArray(selectedIds)) {
+      this.selectedIds.set(new Set(selectedIds));
+    } else {
+      this.selectedIds.set(selectedIds);
+    }
   }
 
   /**
