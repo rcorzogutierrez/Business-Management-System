@@ -40,11 +40,8 @@ export class WorkersConfigComponent extends GenericGridConfigBaseComponent {
   configService = inject(WorkersConfigService);
   override modulePath = '/modules/workers';
 
-  // Opciones para el select de itemsPerPage
-  pageSizeOptions = [10, 25, 50, 100];
-
   // Toda la lógica compartida (gridConfig, allFeaturesEnabled, updateGridConfig,
-  // toggleAllFeatures, loadConfig, goBack) ya está en la clase base.
+  // toggleAllFeatures, loadConfig, goBack, pageSizeOptions) ya está en la clase base.
 
   // No hay métodos específicos adicionales para workers en este momento
   // Si en el futuro se necesitan, se pueden agregar aquí
