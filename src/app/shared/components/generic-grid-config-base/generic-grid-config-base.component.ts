@@ -45,6 +45,9 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
   isLoading = false;
 
+  // Opciones para el select de itemsPerPage (compartido por todos los módulos)
+  pageSizeOptions = [10, 25, 50, 100];
+
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
   // ==============================================
