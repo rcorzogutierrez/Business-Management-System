@@ -48,12 +48,6 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
-  // Computed para itemsPerPage que siempre retorna número
-  itemsPerPageValue = computed(() => {
-    const value = this.gridConfig().itemsPerPage;
-    return Number(value); // Convertir siempre a número
-  });
-
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
   // ==============================================
@@ -164,13 +158,15 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         console.error('Servicio no tiene método de actualización');
       }
 
+      // Forzar detección de cambios múltiple para asegurar que el select se actualice
+      this.cdr.markForCheck();
+      setTimeout(() => this.cdr.markForCheck(), 0);
+
       this.snackBar.open('✅ Configuración actualizada correctamente', '', {
         duration: 2000,
         horizontalPosition: 'end',
         verticalPosition: 'top'
       });
-
-      this.cdr.markForCheck();
     } catch (error) {
       console.error('Error actualizando configuración del grid:', error);
       this.snackBar.open('❌ Error al actualizar la configuración', '', {
