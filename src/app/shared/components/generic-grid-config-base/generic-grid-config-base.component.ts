@@ -56,9 +56,15 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
     // Effect para sincronizar selectedItemsPerPage con gridConfig().itemsPerPage automáticamente
     effect(() => {
       const itemsPerPage = this.gridConfig().itemsPerPage;
+      console.log('🔍 Effect ejecutado - gridConfig().itemsPerPage:', itemsPerPage, 'tipo:', typeof itemsPerPage);
+      console.log('🔍 selectedItemsPerPage actual:', this.selectedItemsPerPage(), 'tipo:', typeof this.selectedItemsPerPage());
+
       if (this.selectedItemsPerPage() !== itemsPerPage) {
+        console.log('✅ Sincronizando selectedItemsPerPage de', this.selectedItemsPerPage(), 'a', itemsPerPage);
         this.selectedItemsPerPage.set(itemsPerPage);
         this.cdr.markForCheck();
+      } else {
+        console.log('⏭️ No es necesario sincronizar, valores coinciden');
       }
     });
   }
@@ -149,16 +155,24 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
    */
   async updateGridConfig(key: keyof GridConfiguration, value: any): Promise<void> {
     try {
+      console.log('📝 updateGridConfig llamado:', key, '=', value, 'tipo:', typeof value);
+
       const currentGridConfig = this.gridConfig();
+
+      // Convertir value a número si es itemsPerPage
+      const finalValue = key === 'itemsPerPage' ? Number(value) : value;
 
       const updatedConfig = {
         ...currentGridConfig,
-        [key]: value
+        [key]: finalValue
       };
+
+      console.log('📦 updatedConfig:', updatedConfig);
 
       // Actualizar signal local si es itemsPerPage
       if (key === 'itemsPerPage') {
-        this.selectedItemsPerPage.set(value);
+        console.log('🎯 Actualizando selectedItemsPerPage a:', finalValue);
+        this.selectedItemsPerPage.set(finalValue);
       }
 
       // Llamar al método del servicio para actualizar
