@@ -62,6 +62,11 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
     const numValue = Number(value);
     console.log('✍️ [SETTER] itemsPerPageModel recibió:', value, 'tipo:', typeof value, '→ convertido a:', numValue);
     this._itemsPerPageSignal.set(numValue);
+
+    // Forzar detección inmediata ANTES de llamar updateGridConfig
+    console.log('🎨 [SETTER] Forzando detectChanges inmediato');
+    this.cdr.detectChanges();
+
     this.updateGridConfig('itemsPerPage', numValue);
   }
 
@@ -136,6 +141,9 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       const loadedValue = Number(this.gridConfig().itemsPerPage);
       console.log('🔄 [LOAD] Sincronizando _itemsPerPageSignal con valor cargado:', loadedValue);
       this._itemsPerPageSignal.set(loadedValue);
+
+      // Forzar detección inmediata después de sincronizar
+      this.cdr.detectChanges();
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -192,13 +200,15 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       // NO sincronizar aquí porque el setter ya lo hizo, evitamos loop
       console.log('🔄 [UPDATE] _itemsPerPageSignal ya sincronizado por el setter');
 
-      // Forzar detección de cambios múltiple para asegurar que el select se actualice
-      this.cdr.markForCheck();
+      // Forzar detección de cambios INMEDIATA (no solo marcar)
+      console.log('🎨 [UPDATE] Forzando detectChanges() después de guardar');
+      this.cdr.detectChanges();
+
       setTimeout(() => {
-        console.log('⏰ [UPDATE] setTimeout markForCheck ejecutado');
+        console.log('⏰ [UPDATE] setTimeout detectChanges ejecutado');
         console.log('📊 [UPDATE] gridConfig().itemsPerPage en setTimeout:', this.gridConfig().itemsPerPage);
         console.log('📊 [UPDATE] _itemsPerPageSignal en setTimeout:', this._itemsPerPageSignal());
-        this.cdr.markForCheck();
+        this.cdr.detectChanges();
       }, 0);
 
       this.snackBar.open('✅ Configuración actualizada correctamente', '', {
