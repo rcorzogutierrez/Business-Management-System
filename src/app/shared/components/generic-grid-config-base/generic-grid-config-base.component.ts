@@ -48,25 +48,22 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
-  // Signal writable para itemsPerPage (soluciona problema de binding con ngModel + OnPush)
-  private _itemsPerPageSignal = signal<number>(10);
+  // Signal PÚBLICO writable para binding directo con ngModel
+  itemsPerPageSignal = signal<number>(10);
 
-  // Exponer como propiedad para ngModel
-  get itemsPerPageModel(): number {
-    const value = this._itemsPerPageSignal();
-    console.log('🔍 [GETTER] itemsPerPageModel leído:', value, 'tipo:', typeof value);
-    return value;
-  }
-
-  set itemsPerPageModel(value: number) {
+  // Método para manejar cambios desde ngModel
+  onItemsPerPageChange(value: number | string): void {
     const numValue = Number(value);
-    console.log('✍️ [SETTER] itemsPerPageModel recibió:', value, 'tipo:', typeof value, '→ convertido a:', numValue);
-    this._itemsPerPageSignal.set(numValue);
+    console.log('📝 [CHANGE] onItemsPerPageChange recibió:', value, '→ convertido a:', numValue);
 
-    // Forzar detección inmediata ANTES de llamar updateGridConfig
-    console.log('🎨 [SETTER] Forzando detectChanges inmediato');
+    // Actualizar signal inmediatamente
+    this.itemsPerPageSignal.set(numValue);
+    console.log('✅ [CHANGE] itemsPerPageSignal actualizado a:', numValue);
+
+    // Forzar detección
     this.cdr.detectChanges();
 
+    // Guardar en Firestore
     this.updateGridConfig('itemsPerPage', numValue);
   }
 
@@ -137,10 +134,10 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         await this.configService.initialize();
       }
 
-      // Sincronizar signal local con el valor cargado
+      // Sincronizar signal público con el valor cargado
       const loadedValue = Number(this.gridConfig().itemsPerPage);
-      console.log('🔄 [LOAD] Sincronizando _itemsPerPageSignal con valor cargado:', loadedValue);
-      this._itemsPerPageSignal.set(loadedValue);
+      console.log('🔄 [LOAD] Sincronizando itemsPerPageSignal con valor cargado:', loadedValue);
+      this.itemsPerPageSignal.set(loadedValue);
 
       // Forzar detección inmediata después de sincronizar
       this.cdr.detectChanges();
@@ -196,18 +193,19 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
       const updatedValue = Number(this.gridConfig().itemsPerPage);
       console.log('📊 [UPDATE] gridConfig().itemsPerPage DESPUÉS:', updatedValue, 'tipo:', typeof updatedValue);
+      console.log('📊 [UPDATE] itemsPerPageSignal DESPUÉS:', this.itemsPerPageSignal());
 
-      // NO sincronizar aquí porque el setter ya lo hizo, evitamos loop
-      console.log('🔄 [UPDATE] _itemsPerPageSignal ya sincronizado por el setter');
+      // Sincronizar signal público con el nuevo valor
+      this.itemsPerPageSignal.set(updatedValue);
 
-      // Forzar detección de cambios INMEDIATA (no solo marcar)
+      // Forzar detección de cambios INMEDIATA
       console.log('🎨 [UPDATE] Forzando detectChanges() después de guardar');
       this.cdr.detectChanges();
 
       setTimeout(() => {
         console.log('⏰ [UPDATE] setTimeout detectChanges ejecutado');
         console.log('📊 [UPDATE] gridConfig().itemsPerPage en setTimeout:', this.gridConfig().itemsPerPage);
-        console.log('📊 [UPDATE] _itemsPerPageSignal en setTimeout:', this._itemsPerPageSignal());
+        console.log('📊 [UPDATE] itemsPerPageSignal en setTimeout:', this.itemsPerPageSignal());
         this.cdr.detectChanges();
       }, 0);
 
