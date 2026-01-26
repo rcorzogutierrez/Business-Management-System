@@ -1,6 +1,6 @@
 // src/app/shared/components/generic-grid-config-base/generic-grid-config-base.component.ts
 
-import { Component, OnInit, computed, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -47,6 +47,9 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
+
+  // Signal local para itemsPerPage (para binding reactivo con ngModel)
+  selectedItemsPerPage = signal<number>(10);
 
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
@@ -114,6 +117,9 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       else if (typeof this.configService.initialize === 'function') {
         await this.configService.initialize();
       }
+
+      // Sincronizar el signal local con el valor cargado
+      this.selectedItemsPerPage.set(this.gridConfig().itemsPerPage);
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -138,6 +144,11 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         ...currentGridConfig,
         [key]: value
       };
+
+      // Actualizar signal local si es itemsPerPage
+      if (key === 'itemsPerPage') {
+        this.selectedItemsPerPage.set(value);
+      }
 
       // Llamar al método del servicio para actualizar
       // Puede ser updateGridConfig() o updateConfig()
