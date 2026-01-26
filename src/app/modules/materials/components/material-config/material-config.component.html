@@ -189,10 +189,11 @@
             </div>
           </div>
           <select
-            (change)="updateGridConfig('itemsPerPage', +$any($event.target).value)"
+            [ngModel]="gridConfig().itemsPerPage"
+            (ngModelChange)="updateGridConfig('itemsPerPage', $event)"
             class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-green-400 focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all outline-none cursor-pointer">
             @for (size of pageSizeOptions; track size) {
-              <option [value]="size" [selected]="gridConfig().itemsPerPage === size">{{ size }}</option>
+              <option [value]="size">{{ size }}</option>
             }
           </select>
         </div>
