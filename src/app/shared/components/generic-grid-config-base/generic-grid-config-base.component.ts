@@ -48,26 +48,11 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
-  // Signal local para itemsPerPage (para binding reactivo con ngModel)
-  selectedItemsPerPage = signal<number>(10);
-
-  // Constructor para inicializar el effect de sincronización
-  constructor() {
-    // Effect para sincronizar selectedItemsPerPage con gridConfig().itemsPerPage automáticamente
-    effect(() => {
-      const itemsPerPage = this.gridConfig().itemsPerPage;
-      console.log('🔍 Effect ejecutado - gridConfig().itemsPerPage:', itemsPerPage, 'tipo:', typeof itemsPerPage);
-      console.log('🔍 selectedItemsPerPage actual:', this.selectedItemsPerPage(), 'tipo:', typeof this.selectedItemsPerPage());
-
-      if (this.selectedItemsPerPage() !== itemsPerPage) {
-        console.log('✅ Sincronizando selectedItemsPerPage de', this.selectedItemsPerPage(), 'a', itemsPerPage);
-        this.selectedItemsPerPage.set(itemsPerPage);
-        this.cdr.markForCheck();
-      } else {
-        console.log('⏭️ No es necesario sincronizar, valores coinciden');
-      }
-    });
-  }
+  // Computed para itemsPerPage que siempre retorna número
+  itemsPerPageValue = computed(() => {
+    const value = this.gridConfig().itemsPerPage;
+    return Number(value); // Convertir siempre a número
+  });
 
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
@@ -155,8 +140,6 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
    */
   async updateGridConfig(key: keyof GridConfiguration, value: any): Promise<void> {
     try {
-      console.log('📝 updateGridConfig llamado:', key, '=', value, 'tipo:', typeof value);
-
       const currentGridConfig = this.gridConfig();
 
       // Convertir value a número si es itemsPerPage
@@ -166,14 +149,6 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         ...currentGridConfig,
         [key]: finalValue
       };
-
-      console.log('📦 updatedConfig:', updatedConfig);
-
-      // Actualizar signal local si es itemsPerPage
-      if (key === 'itemsPerPage') {
-        console.log('🎯 Actualizando selectedItemsPerPage a:', finalValue);
-        this.selectedItemsPerPage.set(finalValue);
-      }
 
       // Llamar al método del servicio para actualizar
       // Puede ser updateGridConfig() o updateConfig()
