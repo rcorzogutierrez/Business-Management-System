@@ -48,6 +48,15 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
+  // Getter/setter para ngModel binding bidireccional
+  get itemsPerPageModel(): number {
+    return Number(this.gridConfig().itemsPerPage);
+  }
+
+  set itemsPerPageModel(value: number) {
+    this.updateGridConfig('itemsPerPage', value);
+  }
+
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
   // ==============================================
