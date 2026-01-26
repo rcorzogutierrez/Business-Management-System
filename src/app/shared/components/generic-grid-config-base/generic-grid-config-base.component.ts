@@ -50,10 +50,14 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
   // Getter/setter para ngModel binding bidireccional
   get itemsPerPageModel(): number {
-    return Number(this.gridConfig().itemsPerPage);
+    const value = Number(this.gridConfig().itemsPerPage);
+    console.log('🔍 [GETTER] itemsPerPageModel leído:', value, 'tipo:', typeof value);
+    return value;
   }
 
   set itemsPerPageModel(value: number) {
+    console.log('✍️ [SETTER] itemsPerPageModel recibió:', value, 'tipo:', typeof value);
+    console.log('📊 [SETTER] gridConfig().itemsPerPage ANTES:', this.gridConfig().itemsPerPage);
     this.updateGridConfig('itemsPerPage', value);
   }
 
@@ -143,33 +147,47 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
    */
   async updateGridConfig(key: keyof GridConfiguration, value: any): Promise<void> {
     try {
+      console.log('🔧 [UPDATE] updateGridConfig iniciado:', key, '=', value);
       const currentGridConfig = this.gridConfig();
+      console.log('📋 [UPDATE] currentGridConfig:', currentGridConfig);
 
       // Convertir value a número si es itemsPerPage
       const finalValue = key === 'itemsPerPage' ? Number(value) : value;
+      console.log('🔢 [UPDATE] finalValue después de conversión:', finalValue, 'tipo:', typeof finalValue);
 
       const updatedConfig = {
         ...currentGridConfig,
         [key]: finalValue
       };
+      console.log('📦 [UPDATE] updatedConfig creado:', updatedConfig);
 
       // Llamar al método del servicio para actualizar
       // Puede ser updateGridConfig() o updateConfig()
       if (typeof this.configService.updateGridConfig === 'function') {
+        console.log('💾 [UPDATE] Llamando configService.updateGridConfig...');
         await this.configService.updateGridConfig(updatedConfig);
+        console.log('✅ [UPDATE] configService.updateGridConfig completado');
       } else if (typeof this.configService.updateConfig === 'function') {
+        console.log('💾 [UPDATE] Llamando configService.updateConfig...');
         const currentConfig = this.configService.config();
         await this.configService.updateConfig({
           ...currentConfig,
           gridConfig: updatedConfig
         });
+        console.log('✅ [UPDATE] configService.updateConfig completado');
       } else {
         console.error('Servicio no tiene método de actualización');
       }
 
+      console.log('📊 [UPDATE] gridConfig().itemsPerPage DESPUÉS:', this.gridConfig().itemsPerPage, 'tipo:', typeof this.gridConfig().itemsPerPage);
+
       // Forzar detección de cambios múltiple para asegurar que el select se actualice
       this.cdr.markForCheck();
-      setTimeout(() => this.cdr.markForCheck(), 0);
+      setTimeout(() => {
+        console.log('⏰ [UPDATE] setTimeout markForCheck ejecutado');
+        console.log('📊 [UPDATE] gridConfig().itemsPerPage en setTimeout:', this.gridConfig().itemsPerPage);
+        this.cdr.markForCheck();
+      }, 0);
 
       this.snackBar.open('✅ Configuración actualizada correctamente', '', {
         duration: 2000,
