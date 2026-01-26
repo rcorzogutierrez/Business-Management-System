@@ -1,6 +1,6 @@
 // src/app/shared/components/generic-grid-config-base/generic-grid-config-base.component.ts
 
-import { Component, OnInit, computed, signal, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, effect, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -50,6 +50,18 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
 
   // Signal local para itemsPerPage (para binding reactivo con ngModel)
   selectedItemsPerPage = signal<number>(10);
+
+  // Constructor para inicializar el effect de sincronización
+  constructor() {
+    // Effect para sincronizar selectedItemsPerPage con gridConfig().itemsPerPage automáticamente
+    effect(() => {
+      const itemsPerPage = this.gridConfig().itemsPerPage;
+      if (this.selectedItemsPerPage() !== itemsPerPage) {
+        this.selectedItemsPerPage.set(itemsPerPage);
+        this.cdr.markForCheck();
+      }
+    });
+  }
 
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
@@ -118,8 +130,7 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         await this.configService.initialize();
       }
 
-      // Sincronizar el signal local con el valor cargado
-      this.selectedItemsPerPage.set(this.gridConfig().itemsPerPage);
+      // El effect() sincronizará automáticamente selectedItemsPerPage con gridConfig().itemsPerPage
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
