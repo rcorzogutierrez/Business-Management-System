@@ -1,6 +1,6 @@
 // src/app/shared/components/generic-grid-config-base/generic-grid-config-base.component.ts
 
-import { Component, OnInit, computed, signal, effect, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, computed, signal, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -48,17 +48,21 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
-  // Getter/setter para ngModel binding bidireccional
+  // Signal writable para itemsPerPage (soluciona problema de binding con ngModel + OnPush)
+  private _itemsPerPageSignal = signal<number>(10);
+
+  // Exponer como propiedad para ngModel
   get itemsPerPageModel(): number {
-    const value = Number(this.gridConfig().itemsPerPage);
+    const value = this._itemsPerPageSignal();
     console.log('🔍 [GETTER] itemsPerPageModel leído:', value, 'tipo:', typeof value);
     return value;
   }
 
   set itemsPerPageModel(value: number) {
-    console.log('✍️ [SETTER] itemsPerPageModel recibió:', value, 'tipo:', typeof value);
-    console.log('📊 [SETTER] gridConfig().itemsPerPage ANTES:', this.gridConfig().itemsPerPage);
-    this.updateGridConfig('itemsPerPage', value);
+    const numValue = Number(value);
+    console.log('✍️ [SETTER] itemsPerPageModel recibió:', value, 'tipo:', typeof value, '→ convertido a:', numValue);
+    this._itemsPerPageSignal.set(numValue);
+    this.updateGridConfig('itemsPerPage', numValue);
   }
 
   // ==============================================
@@ -128,7 +132,10 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         await this.configService.initialize();
       }
 
-      // El effect() sincronizará automáticamente selectedItemsPerPage con gridConfig().itemsPerPage
+      // Sincronizar signal local con el valor cargado
+      const loadedValue = Number(this.gridConfig().itemsPerPage);
+      console.log('🔄 [LOAD] Sincronizando _itemsPerPageSignal con valor cargado:', loadedValue);
+      this._itemsPerPageSignal.set(loadedValue);
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -179,13 +186,18 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         console.error('Servicio no tiene método de actualización');
       }
 
-      console.log('📊 [UPDATE] gridConfig().itemsPerPage DESPUÉS:', this.gridConfig().itemsPerPage, 'tipo:', typeof this.gridConfig().itemsPerPage);
+      const updatedValue = Number(this.gridConfig().itemsPerPage);
+      console.log('📊 [UPDATE] gridConfig().itemsPerPage DESPUÉS:', updatedValue, 'tipo:', typeof updatedValue);
+
+      // NO sincronizar aquí porque el setter ya lo hizo, evitamos loop
+      console.log('🔄 [UPDATE] _itemsPerPageSignal ya sincronizado por el setter');
 
       // Forzar detección de cambios múltiple para asegurar que el select se actualice
       this.cdr.markForCheck();
       setTimeout(() => {
         console.log('⏰ [UPDATE] setTimeout markForCheck ejecutado');
         console.log('📊 [UPDATE] gridConfig().itemsPerPage en setTimeout:', this.gridConfig().itemsPerPage);
+        console.log('📊 [UPDATE] _itemsPerPageSignal en setTimeout:', this._itemsPerPageSignal());
         this.cdr.markForCheck();
       }, 0);
 
