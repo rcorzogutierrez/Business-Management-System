@@ -58,11 +58,9 @@ export class PaginationComponent {
   }
 
   /**
-   * Cambiar tamaño de página
+   * Cambiar tamaño de página - Ahora recibe el valor directamente desde el botón
    */
-  onPageSizeChange(event: Event): void {
-    const select = event.target as HTMLSelectElement;
-    const newSize = parseInt(select.value, 10);
+  onPageSizeChange(newSize: number): void {
     this.pageSizeChange.emit(newSize);
   }
 
@@ -131,14 +129,14 @@ export class PaginationComponent {
   }
 
   /**
-   * Obtener clases de tema para el select
+   * Obtener clase de fondo para botón activo según el tema
    */
-  getThemeRingClass(): string {
+  getActiveButtonClass(): string {
     const themeMap: Record<string, string> = {
-      purple: 'focus:ring-purple-500',
-      green: 'focus:ring-green-500',
-      blue: 'focus:ring-blue-500',
-      amber: 'focus:ring-amber-500'
+      purple: 'bg-purple-600 shadow-sm',
+      green: 'bg-green-600 shadow-sm',
+      blue: 'bg-blue-600 shadow-sm',
+      amber: 'bg-amber-600 shadow-sm'
     };
     return themeMap[this.themeColor] || themeMap['blue'];
   }
