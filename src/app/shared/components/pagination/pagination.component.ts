@@ -1,12 +1,17 @@
 // src/app/shared/components/pagination/pagination.component.ts
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [CommonModule, MatIconModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatIconModule
+  ],
   templateUrl: './pagination.component.html',
   styleUrl: './pagination.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -126,19 +131,6 @@ export class PaginationComponent {
     } else {
       return `Pág. ${this.currentPage}`;
     }
-  }
-
-  /**
-   * Obtener clase de fondo para botón activo según el tema
-   */
-  getActiveButtonClass(): string {
-    const themeMap: Record<string, string> = {
-      purple: 'bg-purple-600 shadow-sm',
-      green: 'bg-green-600 shadow-sm',
-      blue: 'bg-blue-600 shadow-sm',
-      amber: 'bg-amber-600 shadow-sm'
-    };
-    return themeMap[this.themeColor] || themeMap['blue'];
   }
 
   /**
