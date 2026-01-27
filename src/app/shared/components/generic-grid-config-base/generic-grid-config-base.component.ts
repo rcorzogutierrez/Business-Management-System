@@ -51,6 +51,13 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Signal PÚBLICO writable para binding directo con ngModel
   itemsPerPageSignal = signal<number>(10);
 
+  // Getter para template - con logging para debug
+  get itemsPerPageForTemplate(): number {
+    const value = this.itemsPerPageSignal();
+    console.log('🎨 [TEMPLATE-GET] Select HTML está leyendo:', value, 'tipo:', typeof value);
+    return value;
+  }
+
   // Método para manejar cambios desde ngModel
   onItemsPerPageChange(value: number | string): void {
     const numValue = Number(value);
