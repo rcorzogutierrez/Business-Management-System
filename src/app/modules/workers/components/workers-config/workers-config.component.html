@@ -181,16 +181,19 @@
               <p class="text-xs text-slate-500">Cantidad de trabajadores mostrados por página</p>
             </div>
           </div>
-          <select
-            [ngModel]="itemsPerPageSignal()"
-            (ngModelChange)="itemsPerPageSignal.set($event); updateGridConfig('itemsPerPage', $event)"
-            class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-amber-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 transition-all outline-none cursor-pointer">
+          <!-- Botones en lugar de select -->
+          <div class="flex gap-1">
             @for (size of pageSizeOptions; track size) {
-              <option [value]="size">{{ size }}</option>
+              <button
+                type="button"
+                (click)="itemsPerPageSignal.set(size); updateGridConfig('itemsPerPage', size)"
+                [class]="size === itemsPerPageSignal()
+                  ? 'px-3 py-1.5 bg-amber-600 text-white text-sm font-semibold rounded-lg shadow-sm'
+                  : 'px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-amber-50 hover:border-amber-400 transition-all'">
+                {{ size }}
+              </button>
             }
-          </select>
-          <!-- Debug: mostrar valor actual -->
-          <span class="text-xs text-red-500 ml-2">Debug: signal={{ itemsPerPageSignal() }}</span>
+          </div>
         </div>
       </div>
 
