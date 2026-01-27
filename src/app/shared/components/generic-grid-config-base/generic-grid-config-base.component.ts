@@ -48,31 +48,8 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Opciones para el select de itemsPerPage (compartido por todos los módulos)
   pageSizeOptions = [10, 25, 50, 100];
 
-  // Signal PÚBLICO writable para binding directo con ngModel
+  // Signal para tracking del valor de itemsPerPage seleccionado
   itemsPerPageSignal = signal<number>(10);
-
-  // Getter para template - con logging para debug
-  get itemsPerPageForTemplate(): number {
-    const value = this.itemsPerPageSignal();
-    console.log('🎨 [TEMPLATE-GET] Select HTML está leyendo:', value, 'tipo:', typeof value);
-    return value;
-  }
-
-  // Método para manejar cambios desde ngModel
-  onItemsPerPageChange(value: number | string): void {
-    const numValue = Number(value);
-    console.log('📝 [CHANGE] onItemsPerPageChange recibió:', value, '→ convertido a:', numValue);
-
-    // Actualizar signal inmediatamente
-    this.itemsPerPageSignal.set(numValue);
-    console.log('✅ [CHANGE] itemsPerPageSignal actualizado a:', numValue);
-
-    // Forzar detección
-    this.cdr.detectChanges();
-
-    // Guardar en Firestore
-    this.updateGridConfig('itemsPerPage', numValue);
-  }
 
   // ==============================================
   // COMPUTED SIGNALS COMPARTIDOS
@@ -141,12 +118,9 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
         await this.configService.initialize();
       }
 
-      // Sincronizar signal público con el valor cargado
+      // Sincronizar signal con el valor cargado
       const loadedValue = Number(this.gridConfig().itemsPerPage);
-      console.log('🔄 [LOAD] Sincronizando itemsPerPageSignal con valor cargado:', loadedValue);
       this.itemsPerPageSignal.set(loadedValue);
-
-      // Forzar detección inmediata después de sincronizar
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error cargando configuración:', error);
@@ -166,55 +140,34 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
    */
   async updateGridConfig(key: keyof GridConfiguration, value: any): Promise<void> {
     try {
-      console.log('🔧 [UPDATE] updateGridConfig iniciado:', key, '=', value);
       const currentGridConfig = this.gridConfig();
-      console.log('📋 [UPDATE] currentGridConfig:', currentGridConfig);
 
       // Convertir value a número si es itemsPerPage
       const finalValue = key === 'itemsPerPage' ? Number(value) : value;
-      console.log('🔢 [UPDATE] finalValue después de conversión:', finalValue, 'tipo:', typeof finalValue);
 
       const updatedConfig = {
         ...currentGridConfig,
         [key]: finalValue
       };
-      console.log('📦 [UPDATE] updatedConfig creado:', updatedConfig);
 
       // Llamar al método del servicio para actualizar
       // Puede ser updateGridConfig() o updateConfig()
       if (typeof this.configService.updateGridConfig === 'function') {
-        console.log('💾 [UPDATE] Llamando configService.updateGridConfig...');
         await this.configService.updateGridConfig(updatedConfig);
-        console.log('✅ [UPDATE] configService.updateGridConfig completado');
       } else if (typeof this.configService.updateConfig === 'function') {
-        console.log('💾 [UPDATE] Llamando configService.updateConfig...');
         const currentConfig = this.configService.config();
         await this.configService.updateConfig({
           ...currentConfig,
           gridConfig: updatedConfig
         });
-        console.log('✅ [UPDATE] configService.updateConfig completado');
       } else {
         console.error('Servicio no tiene método de actualización');
       }
 
+      // Sincronizar signal con el nuevo valor
       const updatedValue = Number(this.gridConfig().itemsPerPage);
-      console.log('📊 [UPDATE] gridConfig().itemsPerPage DESPUÉS:', updatedValue, 'tipo:', typeof updatedValue);
-      console.log('📊 [UPDATE] itemsPerPageSignal DESPUÉS:', this.itemsPerPageSignal());
-
-      // Sincronizar signal público con el nuevo valor
       this.itemsPerPageSignal.set(updatedValue);
-
-      // Forzar detección de cambios INMEDIATA
-      console.log('🎨 [UPDATE] Forzando detectChanges() después de guardar');
       this.cdr.detectChanges();
-
-      setTimeout(() => {
-        console.log('⏰ [UPDATE] setTimeout detectChanges ejecutado');
-        console.log('📊 [UPDATE] gridConfig().itemsPerPage en setTimeout:', this.gridConfig().itemsPerPage);
-        console.log('📊 [UPDATE] itemsPerPageSignal en setTimeout:', this.itemsPerPageSignal());
-        this.cdr.detectChanges();
-      }, 0);
 
       this.snackBar.open('✅ Configuración actualizada correctamente', '', {
         duration: 2000,

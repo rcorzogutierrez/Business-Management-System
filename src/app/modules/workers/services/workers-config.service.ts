@@ -71,14 +71,11 @@ export class WorkersConfigService {
    */
   async loadConfig(): Promise<void> {
     try {
-      console.log('📥 [SERVICE-LOAD] Cargando configuración desde Firestore...');
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log('📄 [SERVICE-LOAD] Datos cargados de Firestore:', data);
-        console.log('📄 [SERVICE-LOAD] gridConfig.itemsPerPage:', data?.['gridConfig']?.itemsPerPage, 'tipo:', typeof data?.['gridConfig']?.itemsPerPage);
 
         if (data?.['gridConfig']) {
           this._config.set({
@@ -86,18 +83,14 @@ export class WorkersConfigService {
             updatedAt: data['updatedAt']?.toDate?.(),
             createdAt: data['createdAt']?.toDate?.()
           });
-          console.log('✅ [SERVICE-LOAD] Signal actualizado con datos de Firestore');
-          console.log('📊 [SERVICE-LOAD] _config().gridConfig.itemsPerPage:', this._config().gridConfig.itemsPerPage, 'tipo:', typeof this._config().gridConfig.itemsPerPage);
         } else {
           // Si existe el documento pero no tiene gridConfig, usar valores por defecto
           this._config.set({
             gridConfig: this.getDefaultGridConfig()
           });
-          console.log('⚠️ [SERVICE-LOAD] Documento sin gridConfig, usando defaults');
         }
       } else {
         // Si no existe el documento, crear con valores por defecto
-        console.log('⚠️ [SERVICE-LOAD] Documento no existe, creando defaults');
         await this.createDefaultConfig();
       }
     } catch (error) {
@@ -111,10 +104,6 @@ export class WorkersConfigService {
    */
   async updateGridConfig(gridConfig: GridConfiguration): Promise<void> {
     try {
-      console.log('🔥 [SERVICE] updateGridConfig recibido:', gridConfig);
-      console.log('🔥 [SERVICE] itemsPerPage recibido:', gridConfig.itemsPerPage, 'tipo:', typeof gridConfig.itemsPerPage);
-      console.log('🔥 [SERVICE] _config ANTES:', this._config());
-
       const docRef = doc(this.db, this.CONFIG_COLLECTION, this.CONFIG_DOC_ID);
 
       const dataToSave = {
@@ -122,10 +111,8 @@ export class WorkersConfigService {
         updatedAt: new Date()
       };
 
-      console.log('💾 [SERVICE] Guardando en Firestore:', dataToSave);
       // Actualizar en Firestore
       await setDoc(docRef, dataToSave, { merge: true });
-      console.log('✅ [SERVICE] Guardado en Firestore completado');
 
       // Actualizar signal local
       const newConfig = {
@@ -133,11 +120,7 @@ export class WorkersConfigService {
         gridConfig,
         updatedAt: new Date()
       };
-      console.log('📡 [SERVICE] Actualizando signal con:', newConfig);
       this._config.set(newConfig);
-      console.log('✅ [SERVICE] Signal actualizado');
-      console.log('🔥 [SERVICE] _config DESPUÉS:', this._config());
-      console.log('🔥 [SERVICE] gridConfig().itemsPerPage DESPUÉS:', this._config().gridConfig.itemsPerPage, 'tipo:', typeof this._config().gridConfig.itemsPerPage);
     } catch (error) {
       console.error('Error actualizando workers grid config:', error);
       throw error;

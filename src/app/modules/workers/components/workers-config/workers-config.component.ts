@@ -34,8 +34,8 @@ import { GenericGridConfigBaseComponent } from '../../../../shared/components/ge
     MatDividerModule
   ],
   templateUrl: './workers-config.component.html',
-  styleUrl: './workers-config.component.css'
-  // OnPush removido temporalmente para test
+  styleUrl: './workers-config.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class WorkersConfigComponent extends GenericGridConfigBaseComponent {
   // Implementar propiedades abstractas requeridas
