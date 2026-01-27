@@ -194,14 +194,18 @@
               <p class="text-xs text-slate-500">Cantidad de clientes mostrados por página</p>
             </div>
           </div>
-          <select
-            [value]="itemsPerPageSignal()"
-            (change)="onItemsPerPageChange($any($event.target).value)"
-            class="px-3 py-2 border border-slate-300 rounded-lg text-sm font-medium text-slate-700 bg-white hover:border-purple-400 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all outline-none cursor-pointer">
+          <div class="flex gap-1">
             @for (size of pageSizeOptions; track size) {
-              <option [value]="size" [selected]="size === itemsPerPageSignal()">{{ size }}</option>
+              <button
+                type="button"
+                (click)="itemsPerPageSignal.set(size); updateGridConfig('itemsPerPage', size)"
+                [class]="size === itemsPerPageSignal()
+                  ? 'px-3 py-1.5 bg-purple-600 text-white text-sm font-semibold rounded-lg shadow-sm'
+                  : 'px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg hover:bg-purple-50 hover:border-purple-400 transition-all'">
+                {{ size }}
+              </button>
             }
-          </select>
+          </div>
         </div>
       </div>
 
