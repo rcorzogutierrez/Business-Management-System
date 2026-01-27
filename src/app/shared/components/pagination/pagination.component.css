@@ -12,42 +12,6 @@
   background: #fafbfc;
 }
 
-/* ============================================
-   MAT-SELECT COMPACTO
-   ============================================ */
-::ng-deep .pagination-select {
-  width: 70px !important;
-  margin-bottom: -1.25em !important;
-}
-
-::ng-deep .pagination-select .mat-mdc-text-field-wrapper {
-  padding: 0 !important;
-}
-
-::ng-deep .pagination-select .mat-mdc-form-field-flex {
-  height: 32px !important;
-  align-items: center !important;
-}
-
-::ng-deep .pagination-select .mat-mdc-form-field-infix {
-  padding: 0 !important;
-  border: 0 !important;
-  min-height: auto !important;
-}
-
-::ng-deep .pagination-select .mat-mdc-select {
-  font-size: 13px !important;
-  padding: 4px 8px !important;
-}
-
-::ng-deep .pagination-select .mdc-notched-outline {
-  display: none !important;
-}
-
-::ng-deep .pagination-select .mat-mdc-select-arrow-wrapper {
-  padding-left: 4px !important;
-}
-
 .pagination-btn {
   width: 28px;
   height: 28px;

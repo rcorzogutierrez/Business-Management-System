@@ -1,18 +1,16 @@
 // src/app/shared/components/pagination/pagination.component.ts
 import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
   imports: [
     CommonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule
+    FormsModule,
+    MatIconModule
   ],
   templateUrl: './pagination.component.html',
   styleUrl: './pagination.component.css',
