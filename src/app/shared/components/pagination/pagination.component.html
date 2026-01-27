@@ -11,22 +11,20 @@
       }
     </span>
 
-    <!-- Page Size Selector - BOTONES en lugar de select -->
+    <!-- Page Size Selector - Material Select (mejor UX) -->
     <div class="flex items-center gap-2">
       <label class="text-xs text-slate-600 font-medium">Registros:</label>
-      <div class="flex gap-1">
-        @for (size of pageSizeOptions; track size) {
-          <button
-            type="button"
-            (click)="onPageSizeChange(size)"
-            [disabled]="isLoading"
-            [class]="size === itemsPerPage
-              ? 'px-2 py-1 text-white text-xs font-semibold rounded-lg transition-colors ' + getActiveButtonClass()
-              : 'px-2 py-1 bg-white border border-slate-300 text-slate-700 text-xs font-medium rounded-lg hover:border-slate-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed'">
-            {{ size }}
-          </button>
-        }
-      </div>
+      <mat-form-field appearance="outline" class="pagination-select">
+        <mat-select
+          [value]="itemsPerPage"
+          (selectionChange)="onPageSizeChange($event.value)"
+          [disabled]="isLoading"
+          [panelClass]="'pagination-panel'">
+          @for (size of pageSizeOptions; track size) {
+            <mat-option [value]="size">{{ size }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     </div>
   </div>
 
