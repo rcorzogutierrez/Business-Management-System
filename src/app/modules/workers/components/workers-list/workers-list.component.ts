@@ -172,14 +172,12 @@ export class WorkersListComponent implements OnInit {
     private route: ActivatedRoute,
     private authService: AuthService
   ) {
-    // Effect para reaccionar a cambios en la configuración
+    // Effect para resetear página cuando cambia itemsPerPage
+    // (itemsPerPage ahora es un computed que lee de la config automáticamente)
     effect(() => {
-      const cfg = this.config();
-      if (cfg?.gridConfig?.itemsPerPage) {
-        this.itemsPerPage.set(cfg.gridConfig.itemsPerPage);
-        // Reset a primera página cuando cambia itemsPerPage
-        this.currentPage.set(0);
-      }
+      const itemsPerPageValue = this.itemsPerPage();
+      // Cuando cambia, resetear a primera página
+      this.currentPage.set(0);
     });
   }
 
@@ -192,11 +190,7 @@ export class WorkersListComponent implements OnInit {
       this.workersConfigService.initialize()
     ]);
 
-    // Aplicar itemsPerPage desde config.gridConfig
-    const config = this.workersConfigService.config();
-    if (config?.gridConfig?.itemsPerPage) {
-      this.itemsPerPage.set(config.gridConfig.itemsPerPage);
-    }
+    // itemsPerPage ahora es un computed que se sincroniza automáticamente con la config
 
     // Leer queryParam companyId para filtrar
     this.route.queryParams.subscribe(async params => {
