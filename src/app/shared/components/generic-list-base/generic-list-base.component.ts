@@ -386,14 +386,9 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
         };
 
         // Actualizar en el servicio (que guarda en Firestore)
-        if (typeof this.configService.updateGridConfig === 'function') {
-          await this.configService.updateGridConfig(updatedGridConfig);
-        } else if (typeof this.configService.updateConfig === 'function') {
-          await this.configService.updateConfig({
-            ...config,
-            gridConfig: updatedGridConfig
-          });
-        }
+        await this.configService.updateConfig({
+          gridConfig: updatedGridConfig
+        });
       }
 
       // Resetear a la primera página
