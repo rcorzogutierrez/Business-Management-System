@@ -163,8 +163,15 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   // ==============================================
 
   currentPage = signal<number>(0);
-  itemsPerPage = signal<number>(10);
-  pageSizeOptions = [10, 20, 50, 100];
+
+  // itemsPerPage ahora es un computed que se sincroniza automáticamente con la configuración
+  itemsPerPage = computed(() => {
+    const config = this.configService.config();
+    return config?.gridConfig?.itemsPerPage || 10;
+  });
+
+  // Sincronizar pageSizeOptions con la configuración
+  pageSizeOptions = [10, 25, 50, 100];
 
   // ==============================================
   // SIGNALS COMPARTIDOS - Selección
@@ -176,11 +183,8 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   Object = Object;
 
   ngOnInit(): void {
-    // Cargar configuración inicial si es necesario
-    const config = this.configService.config();
-    if (config?.gridConfig) {
-      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 10);
-    }
+    // itemsPerPage ahora es un computed que se sincroniza automáticamente
+    // No es necesario hacer .set() manualmente
   }
 
   // ==============================================
@@ -370,10 +374,33 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
 
   /**
    * Cambiar tamaño de página
+   * Ahora actualiza la configuración para que persista el cambio
    */
-  changePageSize(newSize: number): void {
-    this.itemsPerPage.set(newSize);
-    this.currentPage.set(0);
+  async changePageSize(newSize: number): Promise<void> {
+    try {
+      const config = this.configService.config();
+      if (config?.gridConfig) {
+        const updatedGridConfig = {
+          ...config.gridConfig,
+          itemsPerPage: newSize
+        };
+
+        // Actualizar en el servicio (que guarda en Firestore)
+        if (typeof this.configService.updateGridConfig === 'function') {
+          await this.configService.updateGridConfig(updatedGridConfig);
+        } else if (typeof this.configService.updateConfig === 'function') {
+          await this.configService.updateConfig({
+            ...config,
+            gridConfig: updatedGridConfig
+          });
+        }
+      }
+
+      // Resetear a la primera página
+      this.currentPage.set(0);
+    } catch (error) {
+      console.error('Error actualizando itemsPerPage:', error);
+    }
   }
 
   /**

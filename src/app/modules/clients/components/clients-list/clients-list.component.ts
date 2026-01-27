@@ -226,10 +226,7 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
       this.clientsService.initialize()
     ]);
 
-    const config = this.config();
-    if (config?.gridConfig) {
-      this.itemsPerPage.set(config.gridConfig.itemsPerPage || 10);
-    }
+    // itemsPerPage ahora es un computed que se sincroniza automáticamente con la config
   }
 
   ngAfterViewInit() {
