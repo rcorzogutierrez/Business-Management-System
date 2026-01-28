@@ -2,6 +2,59 @@
 
 ## 🎯 Reglas Fundamentales (SIEMPRE cumplir)
 
+### ⚠️ CRÍTICO: Recursos Compartidos
+
+**ANTES de implementar cualquier funcionalidad, PREGÚNTATE:**
+
+1. **¿Esta funcionalidad ya existe en un componente base?**
+   - Paginación → `GenericListBaseComponent`
+   - Filtros → `GenericListBaseComponent`
+   - Búsqueda → `GenericListBaseComponent`
+   - Columnas visibles → `GenericListBaseComponent`
+   - Exportación → `GenericListBaseComponent`
+   - Configuración de grid → `GenericGridConfigBaseComponent`
+   - Formularios dinámicos → `GenericConfigBaseComponent`
+
+2. **¿Se usa en 2+ módulos?** → Mover a componente base INMEDIATAMENTE
+
+3. **¿Estoy duplicando código?** → DETENER y refactorizar primero
+
+**Ejemplo Real del Proyecto:**
+```
+❌ INCORRECTO: Implementar itemsPerPage en cada módulo
+✅ CORRECTO: itemsPerPage en GenericListBaseComponent (herencia)
+
+❌ INCORRECTO: Tres servicios con el mismo método loadConfig()
+✅ CORRECTO: Un ModuleConfigBaseService<T> (herencia)
+```
+
+**Jerarquía de Componentes Base:**
+```
+Para LISTAS:
+  GenericListBaseComponent<T>
+  ├── visibleColumnIds, columnOptions
+  ├── filterableFields, customFieldFilters
+  ├── searchTerm, currentSort
+  ├── currentPage, itemsPerPage ← COMPARTIDO
+  ├── pageSizeOptions ← COMPARTIDO
+  └── selectedIds
+
+Para CONFIGURACIÓN:
+  GenericGridConfigBaseComponent
+  ├── config(), gridConfig()
+  ├── isLoading, cdr
+  ├── pageSizeOptions ← COMPARTIDO
+  ├── itemsPerPageSignal ← COMPARTIDO
+  └── updateGridConfig()
+      └── GenericConfigBaseComponent
+          ├── Hereda todo de arriba
+          └── Agrega: customFields, formConfig
+```
+
+**Regla de Oro:**
+> "Si copias y pegas código entre workers/clients/materials → ESTÁS HACIENDO MAL.
+> Mueve el código al componente base y usa herencia."
+
 ### 1. **Estilos y CSS**
 - ✅ **SIEMPRE usar Tailwind CSS** por encima de Angular Material
 - ✅ **Reutilizar al máximo los estilos globales** de `src/styles.css`
@@ -190,6 +243,121 @@ npm run build
 npm run lint
 ```
 
+## 🔄 Recursos Compartidos Disponibles
+
+### Para Componentes de Lista (workers-list, clients-list, materials-list)
+
+**Heredan de:** `GenericListBaseComponent<T>`
+
+**Recursos disponibles (NO reimplementar):**
+
+#### Paginación:
+```typescript
+currentPage = signal<number>(0);
+itemsPerPage = computed(() => config.gridConfig.itemsPerPage || 10);
+pageSizeOptions = [10, 25, 50, 100];
+
+goToPage(page: number): void
+changePageSize(newSize: number): Promise<void>  // Guarda en Firestore
+```
+
+#### Filtros:
+```typescript
+filterableFields = computed(() => ...)
+customFieldFilters = signal<Record<string, any>>({})
+openFilterDropdown = signal<string | null>(null)
+filteredOptions = computed(() => ...)
+
+toggleFilterDropdown(fieldName: string): void
+selectFilterValue(fieldName: string, value: any): void
+clearAllFilters(): void
+```
+
+#### Búsqueda:
+```typescript
+searchTerm = signal<string>('')
+onSearch(term: string): void
+```
+
+#### Columnas Visibles:
+```typescript
+visibleColumnIds = signal<string[]>(...)
+columnOptions = computed<ColumnOption[]>(...)
+visibleGridFields = computed(() => ...)
+
+onColumnVisibilityChange(visibleIds: string[]): void
+```
+
+#### Exportación:
+```typescript
+exportToCSV(filteredData: T[], fileName: string): void
+exportToJSON(filteredData: T[], fileName: string): void
+```
+
+#### Ordenamiento:
+```typescript
+currentSort = signal<{ field: string; direction: 'asc' | 'desc' }>()
+sortBy(field: string): void
+```
+
+#### Selección:
+```typescript
+selectedIds = signal<Set<string | number>>(new Set())
+onSelectionChange(selectedIds: Set): void
+clearSelection(): void
+```
+
+### Para Componentes de Configuración
+
+**Nivel 1:** `GenericGridConfigBaseComponent`
+```typescript
+// Solo configuración de tabla (workers-config)
+config = computed(() => configService.config())
+gridConfig = computed(() => config()?.gridConfig)
+pageSizeOptions = [10, 25, 50, 100]
+itemsPerPageSignal = signal<number>(10)
+
+updateGridConfig(key: string, value: any): Promise<void>
+toggleAllFeatures(): void
+loadConfig(): Promise<void>
+```
+
+**Nivel 2:** `GenericConfigBaseComponent` (hereda Nivel 1 + agrega)
+```typescript
+// Configuración completa con formularios (client-config, material-config)
+customFields = computed(() => ...)
+formConfig = computed(() => ...)
+
+updateCustomField(fieldId: string, updates: any): Promise<void>
+toggleFieldActive(fieldId: string): Promise<void>
+```
+
+### Para Servicios de Configuración
+
+**Heredan de:** `ModuleConfigBaseService<TConfig>`
+
+```typescript
+config = signal<TConfig | null>(null)  // ← USAR ESTE
+isLoading = signal<boolean>(false)
+error = signal<string | null>(null)
+
+async initialize(): Promise<void>
+async updateConfig(updates: Partial<TConfig>): Promise<void>  // ← USAR ESTE
+```
+
+**Ejemplo de uso correcto:**
+```typescript
+// ✅ Servicio hijo solo define el tipo y paths
+export class ClientConfigServiceRefactored extends ModuleConfigBaseService<ClientConfig> {
+  protected override configPath = 'modules/clients/config';
+
+  // Métodos específicos de clientes (si los hay)
+  getGridFields(): FieldConfig[] {
+    return this.config()?.fields?.filter(f => f.gridConfig?.showInGrid) || [];
+  }
+}
+```
+
 ## 📁 Estructura de Archivos Importante
 
 ```
@@ -215,13 +383,43 @@ src/
 
 ## ⚠️ Errores Comunes y Soluciones
 
+### Error: "Esta funcionalidad solo está en workers, debería estar en todos"
+**Problema:** Implementaste algo (ej: itemsPerPage) solo en un módulo
+**Solución:**
+1. DETENER inmediatamente
+2. Mover a componente base (`GenericListBaseComponent` o `GenericGridConfigBaseComponent`)
+3. Eliminar código duplicado de módulos hijos
+4. Verificar que herencia funciona en todos los módulos
+
+**Checklist de recursos compartidos:**
+- [ ] ¿Paginación? → `GenericListBaseComponent.itemsPerPage` (computed)
+- [ ] ¿Filtros? → `GenericListBaseComponent.customFieldFilters`
+- [ ] ¿Búsqueda? → `GenericListBaseComponent.searchTerm`
+- [ ] ¿Columnas? → `GenericListBaseComponent.visibleColumnIds`
+- [ ] ¿Config grid? → `GenericGridConfigBaseComponent.updateGridConfig()`
+
 ### Error: Select no se actualiza
 **Problema:** `<select [value]="signal()">` no reacciona a cambios
 **Solución:** Usar `[ngModel]` + `(ngModelChange)` con `FormsModule`
 
+```html
+<!-- ✅ CORRECTO -->
+<select [ngModel]="itemsPerPage" (ngModelChange)="onChange($event)">
+
+<!-- ❌ INCORRECTO -->
+<select [value]="itemsPerPage" (change)="onChange($event)">
+```
+
 ### Error: Código duplicado entre módulos
 **Problema:** Misma lógica en workers, clients, materials
 **Solución:** Mover a `GenericListBaseComponent` o `GenericConfigBaseComponent`
+
+**Pasos:**
+1. Identificar código duplicado
+2. Mover a componente base apropiado
+3. Hacer que sea `public` o `protected` (no `private`)
+4. Verificar herencia: `extends GenericListBaseComponent<Client>`
+5. Eliminar código de hijos
 
 ### Error: Estilos no aplicándose
 **Problema:** Usar CSS custom que ya existe en `styles.css`
