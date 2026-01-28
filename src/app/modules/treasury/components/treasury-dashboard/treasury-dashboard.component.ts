@@ -66,8 +66,8 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
 
               <!-- Este Mes Badge -->
               <div class="flex items-center gap-3 rounded-lg px-4 py-2 bg-gradient-to-br from-amber-50 via-amber-50 to-orange-50 border-2 border-amber-200 shadow-sm">
-                <div class="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-md">
-                  <mat-icon class="!text-white !text-[22px]">calendar_month</mat-icon>
+                <div class="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg shadow-md">
+                  <mat-icon class="!text-white !text-lg">calendar_month</mat-icon>
                 </div>
                 <div class="flex flex-col gap-1">
                   <span class="text-[10px] uppercase tracking-[0.1em] font-bold text-amber-700 leading-none">Este Mes</span>
