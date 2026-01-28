@@ -1,0 +1,442 @@
+# Guía de Desarrollo - Business Management System
+
+## 🎯 Reglas Fundamentales (SIEMPRE cumplir)
+
+### ⚠️ CRÍTICO: Recursos Compartidos
+
+**ANTES de implementar cualquier funcionalidad, PREGÚNTATE:**
+
+1. **¿Esta funcionalidad ya existe en un componente base?**
+   - Paginación → `GenericListBaseComponent`
+   - Filtros → `GenericListBaseComponent`
+   - Búsqueda → `GenericListBaseComponent`
+   - Columnas visibles → `GenericListBaseComponent`
+   - Exportación → `GenericListBaseComponent`
+   - Configuración de grid → `GenericGridConfigBaseComponent`
+   - Formularios dinámicos → `GenericConfigBaseComponent`
+
+2. **¿Se usa en 2+ módulos?** → Mover a componente base INMEDIATAMENTE
+
+3. **¿Estoy duplicando código?** → DETENER y refactorizar primero
+
+**Ejemplo Real del Proyecto:**
+```
+❌ INCORRECTO: Implementar itemsPerPage en cada módulo
+✅ CORRECTO: itemsPerPage en GenericListBaseComponent (herencia)
+
+❌ INCORRECTO: Tres servicios con el mismo método loadConfig()
+✅ CORRECTO: Un ModuleConfigBaseService<T> (herencia)
+```
+
+**Jerarquía de Componentes Base:**
+```
+Para LISTAS:
+  GenericListBaseComponent<T>
+  ├── visibleColumnIds, columnOptions
+  ├── filterableFields, customFieldFilters
+  ├── searchTerm, currentSort
+  ├── currentPage, itemsPerPage ← COMPARTIDO
+  ├── pageSizeOptions ← COMPARTIDO
+  └── selectedIds
+
+Para CONFIGURACIÓN:
+  GenericGridConfigBaseComponent
+  ├── config(), gridConfig()
+  ├── isLoading, cdr
+  ├── pageSizeOptions ← COMPARTIDO
+  ├── itemsPerPageSignal ← COMPARTIDO
+  └── updateGridConfig()
+      └── GenericConfigBaseComponent
+          ├── Hereda todo de arriba
+          └── Agrega: customFields, formConfig
+```
+
+**Regla de Oro:**
+> "Si copias y pegas código entre workers/clients/materials → ESTÁS HACIENDO MAL.
+> Mueve el código al componente base y usa herencia."
+
+### 1. **Estilos y CSS**
+- ✅ **SIEMPRE usar Tailwind CSS** por encima de Angular Material
+- ✅ **Reutilizar al máximo los estilos globales** de `src/styles.css`
+- ❌ **NUNCA usar `::ng-deep`** - Solo CSS puro o Tailwind
+- ❌ **Evitar Material Design components** cuando sea posible (excepto MatIcon)
+- ✅ Los estilos custom deben ser mínimos y específicos
+- ✅ Verificar `styles.css` antes de crear nuevas clases duplicadas
+
+**Clases globales disponibles:**
+- `.header-icon-box` (con variantes: `.purple`, `.green`, `.blue`, `.amber`)
+- `.stat-chip`
+- `.icon-btn`
+- `.loading-spinner`
+- Gradientes: `.bg-gradient-purple`, `.bg-gradient-green`, `.bg-gradient-blue`, `.bg-gradient-amber`
+
+### 2. **Arquitectura del Proyecto**
+
+#### Componentes Base Genéricos
+El proyecto usa **herencia de componentes base** para compartir funcionalidad:
+
+```
+GenericListBaseComponent<T>
+├── ClientsListComponent
+├── WorkersListComponent
+└── MaterialsListComponent
+
+GenericGridConfigBaseComponent
+├── GenericConfigBaseComponent (hereda + formularios)
+│   ├── ClientConfigComponent
+│   └── MaterialConfigComponent
+└── WorkersConfigComponent (solo grid, sin formularios)
+```
+
+**Regla importante:**
+- Si una funcionalidad se usa en 2+ módulos → mover a componente base
+- Ejemplo: `itemsPerPage`, `pageSizeOptions`, filtros, búsqueda, etc.
+
+#### Servicios Base
+```
+ModuleConfigBaseService<TConfig>
+├── ClientConfigServiceRefactored
+├── MaterialConfigServiceRefactored
+└── WorkersConfigService
+```
+
+### 3. **Angular 20 - Signals y Reactive Programming**
+
+✅ **USAR:**
+- `signal()` para estado mutable
+- `computed()` para valores derivados (read-only)
+- `effect()` para side effects
+- Standalone components
+- `ChangeDetectionStrategy.OnPush` siempre
+- Control flow syntax: `@if`, `@for`, `@switch`
+
+❌ **NO USAR:**
+- `BehaviorSubject` / `Observable` (usar signals)
+- NgModules (todo standalone)
+- `*ngIf`, `*ngFor` (usar nueva sintaxis)
+
+**Ejemplo correcto:**
+```typescript
+// ✅ Signal mutable
+currentPage = signal<number>(0);
+
+// ✅ Computed para valores derivados
+itemsPerPage = computed(() => {
+  const config = this.configService.config();
+  return config?.gridConfig?.itemsPerPage || 10;
+});
+
+// ✅ Effect para side effects
+effect(() => {
+  const page = this.currentPage();
+  console.log('Página cambió:', page);
+});
+```
+
+### 4. **Firebase/Firestore**
+
+✅ **Imports correctos:**
+```typescript
+import { doc, getDoc, setDoc, updateDoc, Timestamp } from 'firebase/firestore';
+```
+
+✅ **Usar signals para estado de Firestore:**
+```typescript
+private _config = signal<ModuleConfig | null>(null);
+config = this._config.asReadonly();
+```
+
+❌ **NO importar** de `@angular/fire` (usar SDK directo)
+
+### 5. **HTML Select vs Botones**
+
+**Problema conocido:** Los `<select>` HTML nativos no funcionan bien con:
+- Signals de Angular 20
+- `ChangeDetectionStrategy.OnPush`
+- Valores dinámicos de Firestore
+
+**Solución:**
+```html
+<!-- ✅ CORRECTO: usar ngModel para binding reactivo -->
+<select
+  [ngModel]="itemsPerPage"
+  (ngModelChange)="onChange($event)"
+  class="...tailwind classes...">
+  @for (option of options; track option) {
+    <option [value]="option">{{ option }}</option>
+  }
+</select>
+
+<!-- ❌ INCORRECTO: [value] no se actualiza con signals -->
+<select [value]="itemsPerPage" (change)="onChange($event)">
+  ...
+</select>
+```
+
+**Alternativa:** Usar botones si el select no funciona
+
+### 6. **Commits y Git**
+
+✅ **Commits en español** con formato:
+```
+tipo: Descripción breve
+
+Detalle de los cambios realizados:
+1. Cambio 1
+2. Cambio 2
+3. Cambio 3
+
+Beneficios/Resultado final.
+```
+
+**Tipos:** `feat`, `fix`, `refactor`, `chore`, `style`, `docs`
+
+✅ **Branch naming:** `claude/descripcion-tarea-XXXXX`
+
+### 7. **Código Limpio**
+
+❌ **Eliminar en producción:**
+- `console.log()` de debug (solo mantener `console.error()`)
+- Código comentado
+- Imports no usados
+- Variables no usadas
+
+✅ **Buenas prácticas:**
+- Nombres descriptivos en español
+- Métodos pequeños y enfocados
+- DRY (Don't Repeat Yourself)
+- Comentarios solo cuando la lógica no es obvia
+
+### 8. **Temas de Color por Módulo**
+
+Cada módulo tiene su color distintivo:
+- **Workers:** `amber` (#f59e0b)
+- **Clients:** `purple` (#9333ea)
+- **Materials:** `green` (#10b981)
+
+Usar clases Tailwind correspondientes:
+- `bg-amber-600`, `text-amber-600`, `hover:bg-amber-50`
+- `bg-purple-600`, `text-purple-600`, `hover:bg-purple-50`
+- `bg-green-600`, `text-green-600`, `hover:bg-green-50`
+
+## 📋 Checklist Antes de Commit
+
+- [ ] ¿Usé Tailwind en lugar de Material?
+- [ ] ¿Reutilicé estilos globales de `styles.css`?
+- [ ] ¿Evité `::ng-deep`?
+- [ ] ¿La funcionalidad es compartida? → ¿La moví a componente base?
+- [ ] ¿Usé signals en lugar de Observables?
+- [ ] ¿Agregué `ChangeDetectionStrategy.OnPush`?
+- [ ] ¿Eliminé todos los `console.log()` de debug?
+- [ ] ¿El commit está en español con descripción clara?
+
+## 🔧 Comandos Útiles
+
+```bash
+# Desarrollo
+npm start
+
+# Build
+npm run build
+
+# Linter
+npm run lint
+```
+
+## 🔄 Recursos Compartidos Disponibles
+
+### Para Componentes de Lista (workers-list, clients-list, materials-list)
+
+**Heredan de:** `GenericListBaseComponent<T>`
+
+**Recursos disponibles (NO reimplementar):**
+
+#### Paginación:
+```typescript
+currentPage = signal<number>(0);
+itemsPerPage = computed(() => config.gridConfig.itemsPerPage || 10);
+pageSizeOptions = [10, 25, 50, 100];
+
+goToPage(page: number): void
+changePageSize(newSize: number): Promise<void>  // Guarda en Firestore
+```
+
+#### Filtros:
+```typescript
+filterableFields = computed(() => ...)
+customFieldFilters = signal<Record<string, any>>({})
+openFilterDropdown = signal<string | null>(null)
+filteredOptions = computed(() => ...)
+
+toggleFilterDropdown(fieldName: string): void
+selectFilterValue(fieldName: string, value: any): void
+clearAllFilters(): void
+```
+
+#### Búsqueda:
+```typescript
+searchTerm = signal<string>('')
+onSearch(term: string): void
+```
+
+#### Columnas Visibles:
+```typescript
+visibleColumnIds = signal<string[]>(...)
+columnOptions = computed<ColumnOption[]>(...)
+visibleGridFields = computed(() => ...)
+
+onColumnVisibilityChange(visibleIds: string[]): void
+```
+
+#### Exportación:
+```typescript
+exportToCSV(filteredData: T[], fileName: string): void
+exportToJSON(filteredData: T[], fileName: string): void
+```
+
+#### Ordenamiento:
+```typescript
+currentSort = signal<{ field: string; direction: 'asc' | 'desc' }>()
+sortBy(field: string): void
+```
+
+#### Selección:
+```typescript
+selectedIds = signal<Set<string | number>>(new Set())
+onSelectionChange(selectedIds: Set): void
+clearSelection(): void
+```
+
+### Para Componentes de Configuración
+
+**Nivel 1:** `GenericGridConfigBaseComponent`
+```typescript
+// Solo configuración de tabla (workers-config)
+config = computed(() => configService.config())
+gridConfig = computed(() => config()?.gridConfig)
+pageSizeOptions = [10, 25, 50, 100]
+itemsPerPageSignal = signal<number>(10)
+
+updateGridConfig(key: string, value: any): Promise<void>
+toggleAllFeatures(): void
+loadConfig(): Promise<void>
+```
+
+**Nivel 2:** `GenericConfigBaseComponent` (hereda Nivel 1 + agrega)
+```typescript
+// Configuración completa con formularios (client-config, material-config)
+customFields = computed(() => ...)
+formConfig = computed(() => ...)
+
+updateCustomField(fieldId: string, updates: any): Promise<void>
+toggleFieldActive(fieldId: string): Promise<void>
+```
+
+### Para Servicios de Configuración
+
+**Heredan de:** `ModuleConfigBaseService<TConfig>`
+
+```typescript
+config = signal<TConfig | null>(null)  // ← USAR ESTE
+isLoading = signal<boolean>(false)
+error = signal<string | null>(null)
+
+async initialize(): Promise<void>
+async updateConfig(updates: Partial<TConfig>): Promise<void>  // ← USAR ESTE
+```
+
+**Ejemplo de uso correcto:**
+```typescript
+// ✅ Servicio hijo solo define el tipo y paths
+export class ClientConfigServiceRefactored extends ModuleConfigBaseService<ClientConfig> {
+  protected override configPath = 'modules/clients/config';
+
+  // Métodos específicos de clientes (si los hay)
+  getGridFields(): FieldConfig[] {
+    return this.config()?.fields?.filter(f => f.gridConfig?.showInGrid) || [];
+  }
+}
+```
+
+## 📁 Estructura de Archivos Importante
+
+```
+src/
+├── app/
+│   ├── core/                    # Servicios core (auth, etc)
+│   ├── shared/
+│   │   ├── components/
+│   │   │   ├── generic-list-base/          # Base para listas
+│   │   │   ├── generic-grid-config-base/   # Base para config grid
+│   │   │   ├── generic-config-base/        # Base para config completa
+│   │   │   ├── pagination/
+│   │   │   ├── data-table/
+│   │   │   └── ...
+│   │   └── modules/
+│   │       └── dynamic-form-builder/
+│   ├── modules/
+│   │   ├── workers/
+│   │   ├── clients/
+│   │   └── materials/
+│   └── styles.css               # ⭐ SIEMPRE REVISAR PRIMERO
+```
+
+## ⚠️ Errores Comunes y Soluciones
+
+### Error: "Esta funcionalidad solo está en workers, debería estar en todos"
+**Problema:** Implementaste algo (ej: itemsPerPage) solo en un módulo
+**Solución:**
+1. DETENER inmediatamente
+2. Mover a componente base (`GenericListBaseComponent` o `GenericGridConfigBaseComponent`)
+3. Eliminar código duplicado de módulos hijos
+4. Verificar que herencia funciona en todos los módulos
+
+**Checklist de recursos compartidos:**
+- [ ] ¿Paginación? → `GenericListBaseComponent.itemsPerPage` (computed)
+- [ ] ¿Filtros? → `GenericListBaseComponent.customFieldFilters`
+- [ ] ¿Búsqueda? → `GenericListBaseComponent.searchTerm`
+- [ ] ¿Columnas? → `GenericListBaseComponent.visibleColumnIds`
+- [ ] ¿Config grid? → `GenericGridConfigBaseComponent.updateGridConfig()`
+
+### Error: Select no se actualiza
+**Problema:** `<select [value]="signal()">` no reacciona a cambios
+**Solución:** Usar `[ngModel]` + `(ngModelChange)` con `FormsModule`
+
+```html
+<!-- ✅ CORRECTO -->
+<select [ngModel]="itemsPerPage" (ngModelChange)="onChange($event)">
+
+<!-- ❌ INCORRECTO -->
+<select [value]="itemsPerPage" (change)="onChange($event)">
+```
+
+### Error: Código duplicado entre módulos
+**Problema:** Misma lógica en workers, clients, materials
+**Solución:** Mover a `GenericListBaseComponent` o `GenericConfigBaseComponent`
+
+**Pasos:**
+1. Identificar código duplicado
+2. Mover a componente base apropiado
+3. Hacer que sea `public` o `protected` (no `private`)
+4. Verificar herencia: `extends GenericListBaseComponent<Client>`
+5. Eliminar código de hijos
+
+### Error: Estilos no aplicándose
+**Problema:** Usar CSS custom que ya existe en `styles.css`
+**Solución:** Revisar `styles.css` primero, reutilizar clases existentes
+
+### Error: TypeScript con signals
+**Problema:** `Type 'Signal<T>' is not assignable to type 'T'`
+**Solución:** Llamar el signal como función: `signal()` no `signal`
+
+## 🎓 Filosofía del Proyecto
+
+1. **Compartir, no duplicar**: Si algo se repite, heredar de un base component
+2. **Tailwind primero**: Material solo cuando no hay alternativa
+3. **Signals everywhere**: Angular 20 reactive programming
+4. **Clean y simple**: Menos código, más mantenible
+5. **Usuario primero**: UX intuitiva sobre complejidad técnica
+
+---
+
+**Última actualización:** 2026-01-28
