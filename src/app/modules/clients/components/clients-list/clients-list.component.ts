@@ -1,6 +1,6 @@
 // src/app/modules/clients/components/clients-list/clients-list.component.ts
 
-import { Component, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -47,7 +47,8 @@ import { GenericListBaseComponent } from '../../../../shared/components/generic-
     PaginationComponent,
   ],
   templateUrl: './clients-list.component.html',
-  styleUrl: './clients-list.component.css'
+  styleUrl: './clients-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ClientsListComponent extends GenericListBaseComponent<Client> implements AfterViewInit {
   // Implementar propiedades abstractas requeridas

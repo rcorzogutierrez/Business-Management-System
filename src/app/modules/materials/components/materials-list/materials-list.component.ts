@@ -1,4 +1,4 @@
-import { Component, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef } from '@angular/core';
+import { Component, AfterViewInit, inject, signal, computed, effect, ViewChild, TemplateRef, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -43,7 +43,8 @@ import { GenericListBaseComponent } from '../../../../shared/components/generic-
     ColumnVisibilityControlComponent
   ],
   templateUrl: './materials-list.component.html',
-  styleUrl: './materials-list.component.css'
+  styleUrl: './materials-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MaterialsListComponent extends GenericListBaseComponent<Material> implements AfterViewInit {
   // Implementar propiedades abstractas requeridas
