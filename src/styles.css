@@ -1,5 +1,5 @@
 /* =====================================================
-   ARCHIVO: src/styles.css 
+   ARCHIVO: src/styles.css
    ARQUITECTURA: Material + Tailwind Optimizada
    ===================================================== */
 
@@ -7,6 +7,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 1.5. ESTILOS BASE DEL SISTEMA - Importaciones centralizadas */
+@import './styles/form-base.css';
+@import './styles/config-base.css';
 
 /* 2. CSS VARIABLES GLOBALES */
 :root {

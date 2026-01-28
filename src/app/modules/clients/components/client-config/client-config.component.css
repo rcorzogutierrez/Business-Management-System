@@ -6,52 +6,14 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+  /* Background heredado del body global - NO duplicar aquí */
 }
 
 /* ============================================
-   CUSTOM ANIMATIONS (no disponibles en Tailwind)
+   CUSTOM ANIMATIONS
    ============================================ */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-.animate-fadeInUp {
-  animation: fadeInUp 0.4s ease-out;
-}
+/* Animaciones ya definidas globalmente en styles.css */
+/* Usar: animate-fadeIn, animate-fadeInUp, animate-fadeInScale */
 
 /* ============================================
    GRADIENTS (complejos para Tailwind inline)
@@ -71,6 +33,8 @@
 /* ============================================
    DRAG & DROP (CDK específico)
    ============================================ */
+/* Estilos base disponibles en config-base.css */
+/* Usar prefijos CDK nativos para mayor compatibilidad */
 .cdk-drag-preview {
   box-shadow: 0 12px 40px rgba(139, 92, 246, 0.25) !important;
   border: 2px solid #8b5cf6 !important;
@@ -127,9 +91,7 @@
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
   .field-card,
-  .cdk-drag-animating,
-  .animate-fadeIn,
-  .animate-fadeInUp {
+  .cdk-drag-animating {
     animation: none !important;
     transition: none !important;
   }
