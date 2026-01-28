@@ -27,7 +27,7 @@
   <!-- ============================================
        CONTENT
        ============================================ -->
-  <mat-dialog-content class="dialog-content p-6">
+  <div class="dialog-content p-6">
     <div class="grid grid-cols-1 gap-4 mb-6">
       
       <!-- ID del Log -->
@@ -107,26 +107,25 @@
         <pre class="json-content">{{ formatJSON(data.log.detailsObject) }}</pre>
       </div>
     }
-  </mat-dialog-content>
+  </div>
 
   <!-- ============================================
        ACTIONS
        ============================================ -->
-  <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
-    <button 
-      mat-button 
-      class="!px-4 !py-2 !rounded-xl !text-sm !font-semibold !text-slate-600 hover:!bg-slate-100"
-      (click)="copyToClipboard()">
-      <mat-icon class="!mr-2">content_copy</mat-icon>
+  <div class="px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+    <button
+      type="button"
+      (click)="copyToClipboard()"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 bg-white border-2 border-slate-200 hover:bg-slate-100 hover:border-slate-300 transition-all">
+      <mat-icon class="!text-lg">content_copy</mat-icon>
       Copiar JSON
     </button>
-    <button 
-      mat-raised-button 
-      class="!px-5 !py-2.5 !rounded-xl !text-sm !font-semibold !bg-gradient-to-br !from-purple-500 !to-purple-600 !text-white !shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:!shadow-[0_6px_16px_rgba(139,92,246,0.35)]"
-      color="primary"
-      (click)="close()">
+    <button
+      type="button"
+      (click)="close()"
+      class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-[0_4px_12px_rgba(139,92,246,0.25)] hover:shadow-[0_6px_16px_rgba(139,92,246,0.35)] transition-all">
       Cerrar
     </button>
-  </mat-dialog-actions>
-  
+  </div>
+
 </div>

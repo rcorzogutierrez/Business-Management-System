@@ -386,14 +386,14 @@
   <!-- ============================================
        FOOTER
        ============================================ -->
-  <mat-dialog-actions class="dialog-modern-footer m-0 p-0 border-t border-slate-200 bg-slate-50">
+  <div class="dialog-modern-footer m-0 p-0 border-t border-slate-200 bg-slate-50">
     <div class="footer-content flex justify-between items-center px-8 py-6 gap-4">
 
       <!-- Navegación -->
       <div class="footer-navigation flex-1">
         @if (selectedTabIndex > 0) {
           <button
-            mat-button
+            type="button"
             (click)="previousTab()"
             class="nav-button flex items-center gap-2 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
             <mat-icon>arrow_back</mat-icon>
@@ -403,10 +403,10 @@
 
         @if (hasChanges()) {
           <button
-            mat-button
+            type="button"
             (click)="resetChanges()"
             [disabled]="isLoading"
-            class="ml-3 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+            class="ml-3 text-slate-500 font-medium px-4 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             <mat-icon>undo</mat-icon>
             Deshacer cambios
           </button>
@@ -416,20 +416,19 @@
       <!-- Acciones -->
       <div class="footer-actions flex items-center gap-3">
         <button
-          mat-button
+          type="button"
           (click)="onCancel()"
           [disabled]="isLoading"
-          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all">
+          class="cancel-button-modern text-slate-500 font-medium px-5 py-2 rounded-lg hover:bg-slate-200 hover:text-slate-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
           Cancelar
         </button>
 
         @if (selectedTabIndex < 4 && !hasChanges()) {
           <button
-            mat-raised-button
+            type="button"
             (click)="nextTab()"
             [disabled]="!canProceedToNextTab()"
-            class="next-button flex items-center gap-2 font-semibold px-6 py-2.5 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white hover:!shadow-[0_6px_16px_rgba(59,130,246,0.3)] hover:!-translate-y-0.5 transition-all"
-            color="primary">
+            class="next-button flex items-center gap-2 font-semibold px-6 py-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg hover:shadow-[0_6px_16px_rgba(59,130,246,0.3)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
             Siguiente
             <mat-icon>arrow_forward</mat-icon>
           </button>
@@ -437,12 +436,10 @@
 
         @if (hasChanges() || selectedTabIndex === 4) {
           <button
-            mat-raised-button
             type="button"
             (click)="onSave()"
             [disabled]="userForm.invalid || isLoading || !hasChanges()"
-            class="create-button-modern flex items-center gap-2 font-semibold px-7 py-3 rounded-lg !bg-gradient-to-br !from-blue-500 !to-blue-600 !text-white !shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:!shadow-[0_8px_20px_rgba(59,130,246,0.4)] hover:!-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-            color="primary">
+            class="create-button-modern flex items-center gap-2 font-semibold px-7 py-3 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-[0_4px_12px_rgba(59,130,246,0.3)] hover:shadow-[0_8px_20px_rgba(59,130,246,0.4)] hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed">
             @if (!isLoading) {
               <mat-icon>save</mat-icon>
             }
@@ -454,6 +451,6 @@
         }
       </div>
     </div>
-  </mat-dialog-actions>
+  </div>
 
 </div>

@@ -6,11 +6,11 @@
     <div class="header-icon-simple">
       <mat-icon>warning_amber</mat-icon>
     </div>
-    <h2 mat-dialog-title>Confirmar Eliminación</h2>
+    <h2 class="text-xl font-bold text-slate-800 m-0">Confirmar Eliminación</h2>
   </div>
 
   <!-- Content -->
-  <mat-dialog-content class="dialog-content">
+  <div class="dialog-content">
     <div class="warning-message">
       <p class="main-warning">
         Estás a punto de <strong>eliminar permanentemente</strong> este {{ data.config.entityName }}:
@@ -93,10 +93,10 @@
         }
       </div>
     </div>
-  </mat-dialog-content>
+  </div>
 
   <!-- Actions -->
-  <mat-dialog-actions class="dialog-actions">
+  <div class="dialog-actions">
     <button
       type="button"
       class="btn-cancel"
@@ -118,5 +118,5 @@
       }
       <span>{{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.config.entityName }}</span>
     </button>
-  </mat-dialog-actions>
+  </div>
 </div>

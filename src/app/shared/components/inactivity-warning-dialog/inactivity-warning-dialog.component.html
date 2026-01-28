@@ -33,17 +33,17 @@
   <!-- Actions -->
   <div class="dialog-actions">
     <button
-      mat-stroked-button
-      class="btn-logout"
+      type="button"
+      class="btn-logout inline-flex items-center gap-2 px-5 py-2.5 border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-semibold bg-white hover:bg-slate-50 hover:border-slate-300 transition-all"
       (click)="logout()">
-      <mat-icon>logout</mat-icon>
+      <mat-icon class="!text-lg">logout</mat-icon>
       Cerrar sesión
     </button>
     <button
-      mat-raised-button
-      class="btn-continue"
+      type="button"
+      class="btn-continue inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
       (click)="continueSession()">
-      <mat-icon>check_circle</mat-icon>
+      <mat-icon class="!text-lg">check_circle</mat-icon>
       Continuar sesión
     </button>
   </div>

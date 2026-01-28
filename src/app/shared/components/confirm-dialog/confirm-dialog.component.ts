@@ -2,7 +2,6 @@
 import { Component, Inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 
 export interface ConfirmDialogData {
@@ -19,58 +18,39 @@ export interface ConfirmDialogData {
   imports: [
     CommonModule,
     MatDialogModule,
-    MatButtonModule,
     MatIconModule
   ],
   template: `
-    <div class="confirm-dialog">
-      <h2 mat-dialog-title class="flex items-center gap-3">
-        <mat-icon [class]="getIconClass()">{{ getIcon() }}</mat-icon>
-        {{ data.title }}
-      </h2>
+    <div class="min-w-[300px] max-w-[500px]">
+      <!-- Header con icono y título -->
+      <div class="flex items-center gap-3 px-6 pt-6 pb-4">
+        <mat-icon [class]="getIconClass()" class="!text-3xl">{{ getIcon() }}</mat-icon>
+        <h2 class="text-xl font-semibold text-slate-800">{{ data.title }}</h2>
+      </div>
 
-      <mat-dialog-content>
-        <p class="text-base text-gray-700">{{ data.message }}</p>
-      </mat-dialog-content>
+      <!-- Contenido del mensaje -->
+      <div class="px-6 py-4">
+        <p class="text-base text-slate-700">{{ data.message }}</p>
+      </div>
 
-      <mat-dialog-actions align="end" class="gap-2">
+      <!-- Botones de acción -->
+      <div class="flex items-center justify-end gap-2 px-6 pb-6 pt-4">
         <button
-          mat-button
-          (click)="onCancel()">
+          type="button"
+          (click)="onCancel()"
+          class="px-4 py-2 rounded-lg text-sm font-medium text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 hover:border-slate-400 transition-colors">
           {{ data.cancelText || 'Cancelar' }}
         </button>
         <button
-          mat-raised-button
-          [color]="data.type === 'danger' ? 'warn' : 'primary'"
-          (click)="onConfirm()">
+          type="button"
+          (click)="onConfirm()"
+          [class]="getConfirmButtonClass()">
           {{ data.confirmText || 'Confirmar' }}
         </button>
-      </mat-dialog-actions>
+      </div>
     </div>
   `,
-  styles: [`
-    .confirm-dialog {
-      min-width: 300px;
-      max-width: 500px;
-    }
-
-    mat-dialog-content {
-      padding: 20px 0;
-      min-height: 60px;
-    }
-
-    .icon-warning {
-      color: #f59e0b;
-    }
-
-    .icon-danger {
-      color: #ef4444;
-    }
-
-    .icon-info {
-      color: #3b82f6;
-    }
-  `]
+  styles: []
 })
 export class ConfirmDialogComponent {
   constructor(
@@ -93,12 +73,26 @@ export class ConfirmDialogComponent {
   getIconClass(): string {
     switch (this.data.type) {
       case 'warning':
-        return 'icon-warning';
+        return 'text-amber-500';
       case 'danger':
-        return 'icon-danger';
+        return 'text-red-500';
       case 'info':
       default:
-        return 'icon-info';
+        return 'text-blue-500';
+    }
+  }
+
+  getConfirmButtonClass(): string {
+    const baseClasses = 'px-4 py-2 rounded-lg text-sm font-semibold text-white transition-colors shadow-sm';
+
+    switch (this.data.type) {
+      case 'danger':
+        return `${baseClasses} bg-red-600 hover:bg-red-700`;
+      case 'warning':
+        return `${baseClasses} bg-amber-600 hover:bg-amber-700`;
+      case 'info':
+      default:
+        return `${baseClasses} bg-blue-600 hover:bg-blue-700`;
     }
   }
 
