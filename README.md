@@ -7,8 +7,8 @@
 [![TypeScript](https://img.shields.io/badge/Built%20with-TypeScript-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 ![Angular](https://img.shields.io/badge/Framework-Angular_20-red?logo=angular&logoColor=white&style=for-the-badge)
 ![Firebase](https://img.shields.io/badge/Backend-Firebase-ffca28?logo=firebase&logoColor=white&style=for-the-badge)
-![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
-![Angular Material](https://img.shields.io/badge/UI-Angular_Material-C3002F?style=for-the-badge&logo=angular&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/UI_Framework-Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
+![Angular Material](https://img.shields.io/badge/Components-Angular_Material-C3002F?style=for-the-badge&logo=angular&logoColor=white)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge&logo=opensourceinitiative&logoColor=white)](https://opensource.org/licenses/MIT)
 
 ---
@@ -37,6 +37,8 @@
 - 📊 **Propuestas y Estimados**: Creación de presupuestos profesionales con conversión a facturas
 - 👷 **Gestión de Trabajadores**: Control de personal y asignación a proyectos
 - 📦 **Catálogo de Materiales**: Inventario y uso de materiales en proyectos
+- 📅 **Planificación de Trabajo**: Calendario semanal con gestión de tareas y estados
+- 💰 **Tesorería y Finanzas**: Control de cobros, pagos y flujo de caja
 - 🔐 **Control de Acceso Robusto**: Sistema RBAC (Role-Based Access Control)
 - 🌍 **Multi-idioma**: Soporte completo para Español e Inglés
 - ⚙️ **Configuración Dinámica**: Campos personalizables por módulo sin tocar código
@@ -115,6 +117,28 @@ Este sistema está diseñado para empresas de:
 - **Campos Dinámicos Opcionales**: categoría, stock, proveedor, fecha de expiración, etc.
 - **Uso en Proyectos**: Registra materiales usados en facturas
 - **Control de Inventario**: (configurable según necesidades)
+
+### 📅 Planificación de Trabajo
+
+- **Vista de Calendario Semanal**: Visualiza planes organizados por día de la semana
+- **Vista de Lista**: Tabla completa con todos los detalles de cada plan
+- **Vista de Timeline**: Línea de tiempo cronológica de todos los planes
+- **Gestión de Planes**:
+  - Asignación de trabajadores a planes
+  - Vinculación con propuestas/proyectos
+  - Ubicación del trabajo
+  - Duración (días y horas)
+  - Notas y descripción del trabajo
+- **Estados de Planes**:
+  - `Planificado` (Scheduled)
+  - `En Progreso` (In Progress)
+  - `Completado` (Completed)
+  - `Cancelado` (Cancelled)
+- **Estadísticas en Tiempo Real**: Total de planes, planificados, en progreso, completados, duración total
+- **Navegación de Semanas**: Navega fácilmente entre semanas y vuelve a "hoy"
+- **Filtrado Avanzado**: Por estado, trabajador, proyecto, ubicación
+- **Selección Múltiple**: Elimina varios planes a la vez
+- **UI con Tailwind CSS**: Diseño moderno completamente estilizado con Tailwind
 
 ### 💰 Tesorería y Finanzas
 
@@ -216,8 +240,8 @@ Este sistema está diseñado para empresas de:
 |-----------|---------|-----|
 | **Angular** | 20.0.0 | Framework principal (standalone components) |
 | **TypeScript** | 5.8.2 | Lenguaje de programación |
-| **Angular Material** | 20.0.0 | Componentes UI (Material Design) |
-| **Tailwind CSS** | 3.4.0 | Utilidades CSS y diseño responsivo |
+| **Tailwind CSS** | 3.4.0 | Framework CSS principal (utilidades y componentes) |
+| **Angular Material** | 20.0.0 | Componentes UI complementarios (menús, tooltips, dialogs) |
 | **RxJS** | 7.8.1 | Programación reactiva |
 | **@ngx-translate** | 15.0.0 | Internacionalización |
 
@@ -257,6 +281,7 @@ Este sistema está diseñado para empresas de:
 │   ├── projects/            # Propuestas y estimados
 │   ├── workers/             # Gestión de trabajadores
 │   ├── materials/           # Gestión de materiales
+│   ├── work-planning/       # Planificación de trabajo
 │   ├── treasury/            # Tesorería y finanzas
 │   └── user-modules/        # Vista de módulos asignados al usuario
 └── shared/                  # Código compartido
@@ -286,6 +311,7 @@ Este sistema está diseñado para empresas de:
 ├── catalog_items             # Catálogo de items
 ├── workers                   # Trabajadores
 ├── materials                 # Materiales
+├── work_plans                # Planes de trabajo (calendario)
 ├── cobros                    # Cobros (cuentas por cobrar)
 ├── pagos                     # Pagos (cuentas por pagar)
 ├── roles                     # Roles personalizados
@@ -486,12 +512,41 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Editar material**: Modificar información
 - **Configuración**: Panel admin para campos personalizados
 
-### 6. Tesorería
+### 6. Planificación de Trabajo
+
+**Ruta**: `/modules/work-planning`
+
+- **Vista Calendario**:
+  - Visualización semanal (7 días)
+  - Navegación entre semanas (anterior/siguiente/hoy)
+  - Planes agrupados por día
+  - Indicadores de estado con colores
+- **Vista Lista**:
+  - Tabla completa con todos los campos
+  - Ordenamiento y filtrado avanzado
+  - Selección múltiple para acciones masivas
+- **Vista Timeline**:
+  - Línea de tiempo cronológica
+  - Visualización detallada de cada plan
+- **Crear/Editar Plan**:
+  - Formulario con validaciones
+  - Asignación de trabajador
+  - Vinculación a propuesta/proyecto
+  - Fecha del plan
+  - Duración (días y horas)
+  - Ubicación del trabajo
+  - Descripción y notas
+  - Color personalizado
+- **Gestión de Estados**: Cambiar estado desde la vista (Planificado/En Progreso/Completado/Cancelado)
+- **Filtros**: Por estado, búsqueda por trabajador/proyecto/ubicación/descripción
+- **Estadísticas**: Total, Planificados, En Progreso, Completados, Duración Total
+
+### 7. Tesorería
 
 **Ruta**: `/modules/treasury`
 
 - **Dashboard Financiero**: Resumen de cobros, pagos y flujo de caja
-- **Gestión de Cobros**: 
+- **Gestión de Cobros**:
   - Listar cobros con filtros por estado, fecha y cliente
   - Registrar nuevos cobros vinculados a facturas
   - Marcar cobros como pagados o parcialmente pagados
@@ -503,7 +558,7 @@ Usa el email y contraseña que creaste en Firebase Authentication.
   - Control de pagos pendientes
 - **Reportes**: Análisis de ingresos, egresos y balance del período
 
-### 7. Módulos del Usuario
+### 8. Módulos del Usuario
 
 **Ruta**: `/user-modules`
 
@@ -513,7 +568,7 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Información de Acceso**: Solo muestra módulos activos y autorizados para el usuario
 - **Navegación Rápida**: Acceso directo desde cualquier parte del sistema
 
-### 8. Administración
+### 9. Administración
 
 **Ruta**: `/admin` (solo para usuarios con rol `admin`)
 
@@ -576,6 +631,13 @@ service cloud.firestore {
 
     // Materiales
     match /materials/{materialId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Planes de Trabajo
+    match /work_plans/{planId} {
       allow read: if isAuthenticated();
       allow create, update: if isAuthenticated();
       allow delete: if isAdmin();
@@ -803,6 +865,8 @@ Usa prefijos descriptivos:
 - [x] Conversión de propuestas a facturas
 - [x] Gestión de trabajadores
 - [x] Gestión de materiales
+- [x] Módulo de Planificación de Trabajo (calendario semanal, 3 vistas)
+- [x] Tesorería y Finanzas (cobros y pagos)
 - [x] Control de acceso basado en roles (RBAC)
 - [x] Internacionalización (ES/EN)
 - [x] Constructor de formularios dinámicos
@@ -810,6 +874,7 @@ Usa prefijos descriptivos:
 - [x] Catálogo de items reutilizables
 - [x] Cálculo automático de totales
 - [x] Vista de impresión profesional
+- [x] Migración progresiva a Tailwind CSS puro (sin directivas Material)
 
 ### 🚧 En Desarrollo
 
