@@ -9,13 +9,13 @@
       <div class="w-11 h-11 bg-gradient-to-br from-red-200 to-pink-200 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm">
         <mat-icon class="!text-[24px] text-red-500">warning</mat-icon>
       </div>
-      <h2 mat-dialog-title class="text-xl font-semibold text-rose-900 m-0">Eliminar Módulo</h2>
+      <h2 class="text-xl font-semibold text-rose-900 m-0">Eliminar Módulo</h2>
     </div>
   
     <!-- ============================================
          CONTENT
          ============================================ -->
-    <mat-dialog-content class="px-6 pb-6">
+    <div class="px-6 pb-6">
       <div class="flex flex-col gap-5">
         
         <!-- Module Info -->
@@ -135,30 +135,32 @@
             </div>
           }
         </div>
-  
+
       </div>
-    </mat-dialog-content>
-  
+    </div>
+
     <!-- ============================================
          ACTIONS
          ============================================ -->
-    <mat-dialog-actions class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
-      <button 
-        mat-stroked-button 
+    <div class="px-6 py-4 border-t border-slate-200 flex gap-3 justify-end">
+      <button
+        type="button"
         (click)="onCancel()"
         [disabled]="isDeleting"
-        class="!px-5 !py-2.5">
-        <mat-icon>close</mat-icon>
+        class="inline-flex items-center gap-2 px-5 py-2.5 border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-semibold bg-white hover:bg-slate-50 hover:border-slate-300 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+        <mat-icon class="!text-lg">close</mat-icon>
         Cancelar
       </button>
-      
-      <button 
-        mat-raised-button 
+
+      <button
+        type="button"
         (click)="onConfirm()"
         [disabled]="isDeleting"
-        [class.!bg-amber-500]="deleteMethod === 'soft'"
-        [class.!bg-red-600]="deleteMethod === 'hard'"
-        class="!text-white !px-5 !py-2.5">
+        [ngClass]="{
+          'bg-amber-500 hover:bg-amber-600': deleteMethod === 'soft',
+          'bg-red-600 hover:bg-red-700': deleteMethod === 'hard'
+        }"
+        class="inline-flex items-center gap-2 px-5 py-2.5 text-white rounded-xl text-sm font-semibold shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed">
         @if (isDeleting) {
           <mat-spinner diameter="20"></mat-spinner>
         } @else {
@@ -166,6 +168,6 @@
         }
         {{ getActionLabel() }}
       </button>
-    </mat-dialog-actions>
-    
+    </div>
+
   </div>

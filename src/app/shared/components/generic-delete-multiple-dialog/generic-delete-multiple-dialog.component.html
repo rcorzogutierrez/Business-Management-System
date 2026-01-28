@@ -7,11 +7,11 @@
     <div class="header-icon-simple">
       <mat-icon>warning_amber</mat-icon>
     </div>
-    <h2 mat-dialog-title>Eliminar Múltiples {{ data.config.entityNamePlural }}</h2>
+    <h2 class="text-xl font-bold text-slate-800 m-0">Eliminar Múltiples {{ data.config.entityNamePlural }}</h2>
   </div>
 
   <!-- CONTENT -->
-  <mat-dialog-content class="dialog-content">
+  <div class="dialog-content">
     <div class="warning-message">
 
       <!-- Mensaje principal -->
@@ -143,10 +143,10 @@
       </div>
 
     </div>
-  </mat-dialog-content>
+  </div>
 
   <!-- ACTIONS -->
-  <mat-dialog-actions class="dialog-actions">
+  <div class="dialog-actions">
     <!-- Botón cancelar -->
     <button
       type="button"
@@ -170,6 +170,6 @@
       }
       <span>{{ isDeleting ? 'Eliminando...' : 'Eliminar ' + data.count + ' ' + (data.count === 1 ? data.config.entityName : data.config.entityNamePlural) }}</span>
     </button>
-  </mat-dialog-actions>
+  </div>
 
 </div>

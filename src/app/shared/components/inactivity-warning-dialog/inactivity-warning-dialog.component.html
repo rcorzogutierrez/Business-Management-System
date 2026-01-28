@@ -55,25 +55,21 @@
       ¿Deseas continuar con tu sesión?
     </p>
 
-    <!-- Botones de acción -->
-    <div class="flex flex-col sm:flex-row gap-3 animate-fadeInUp">
-      <!-- Botón cerrar sesión -->
-      <button
-        mat-stroked-button
-        (click)="logout()"
-        class="flex-1 !px-6 !py-4 !border-2 !border-slate-300 !text-slate-700 hover:!bg-slate-50 hover:!border-slate-400 !rounded-xl !font-semibold !transition-all !duration-200 !min-h-[52px] flex items-center justify-center gap-2 group">
-        <mat-icon class="!w-5 !h-5 !text-[20px] group-hover:rotate-12 transition-transform duration-200">logout</mat-icon>
-        <span>Cerrar sesión</span>
-      </button>
-
-      <!-- Botón continuar sesión con gradiente azul -->
-      <button
-        mat-raised-button
-        (click)="continueSession()"
-        class="flex-1 !px-6 !py-4 !bg-gradient-to-br !from-blue-500 !to-blue-600 hover:!from-blue-600 hover:!to-blue-700 !text-white !rounded-xl !font-semibold !shadow-lg hover:!shadow-xl !shadow-blue-500/30 hover:!shadow-blue-600/40 !transition-all !duration-200 hover:!-translate-y-0.5 !min-h-[52px] flex items-center justify-center gap-2 group">
-        <mat-icon class="!w-5 !h-5 !text-[20px] group-hover:scale-110 transition-transform duration-200">check_circle</mat-icon>
-        <span>Continuar sesión</span>
-      </button>
-    </div>
+  <!-- Actions -->
+  <div class="dialog-actions">
+    <button
+      type="button"
+      class="btn-logout inline-flex items-center gap-2 px-5 py-2.5 border-2 border-slate-200 text-slate-600 rounded-xl text-sm font-semibold bg-white hover:bg-slate-50 hover:border-slate-300 transition-all"
+      (click)="logout()">
+      <mat-icon class="!text-lg">logout</mat-icon>
+      Cerrar sesión
+    </button>
+    <button
+      type="button"
+      class="btn-continue inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
+      (click)="continueSession()">
+      <mat-icon class="!text-lg">check_circle</mat-icon>
+      Continuar sesión
+    </button>
   </div>
 </div>
