@@ -1,64 +1,3 @@
-/* Stat Chips */
-.stat-chip {
-  @apply flex items-center gap-3 px-4 py-3 rounded-xl border transition-all;
-}
-
-.stat-chip-slate {
-  @apply bg-slate-50 border-slate-200;
-}
-
-.stat-chip-blue {
-  @apply bg-blue-50 border-blue-200;
-}
-
-.stat-chip-amber {
-  @apply bg-amber-50 border-amber-200;
-}
-
-.stat-chip-green {
-  @apply bg-green-50 border-green-200;
-}
-
-.stat-chip-purple {
-  @apply bg-purple-50 border-purple-200;
-}
-
-.stat-icon {
-  @apply text-xl;
-}
-
-.stat-chip-slate .stat-icon {
-  @apply text-slate-600;
-}
-
-.stat-chip-blue .stat-icon {
-  @apply text-blue-600;
-}
-
-.stat-chip-amber .stat-icon {
-  @apply text-amber-600;
-}
-
-.stat-chip-green .stat-icon {
-  @apply text-green-600;
-}
-
-.stat-chip-purple .stat-icon {
-  @apply text-purple-600;
-}
-
-.stat-content {
-  @apply flex flex-col;
-}
-
-.stat-value {
-  @apply text-lg font-bold text-slate-800;
-}
-
-.stat-label {
-  @apply text-xs font-semibold text-slate-500 uppercase;
-}
-
 /* Vista Calendario */
 .calendar-view {
   @apply animate-fadeIn;
@@ -574,28 +513,6 @@
   /* Iconos de navegación más pequeños */
   .icon-btn mat-icon {
     font-size: 20px !important;
-  }
-
-  /* Estadísticas más compactas */
-  .stat-chip {
-    @apply gap-1.5 px-2 py-1.5;
-  }
-
-  .stat-icon {
-    font-size: 16px !important;
-  }
-
-  .stat-value {
-    @apply text-base;
-  }
-
-  .stat-label {
-    @apply text-[9px];
-  }
-
-  /* Ocultar estadísticas menos importantes en móviles */
-  .stat-chip:nth-child(n+4) {
-    display: none !important;
   }
 }
 

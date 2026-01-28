@@ -1,18 +1,42 @@
 <div class="work-plans-container p-6 max-w-[1600px] mx-auto">
   <!-- Header con estadísticas -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 mb-6">
-    <div class="flex items-center justify-between gap-4 flex-wrap mb-6">
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
+    <div class="flex items-center justify-between gap-5 flex-wrap">
       <div class="flex items-center gap-3">
-        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-purple">
-          <mat-icon class="text-white text-3xl">event_note</mat-icon>
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+          <mat-icon class="!text-white !text-xl">event_note</mat-icon>
         </div>
         <div>
-          <h1 class="text-2xl font-bold text-slate-800">Planificación de Trabajo</h1>
-          <p class="text-sm text-slate-500">Gestiona y organiza tu calendario de trabajo</p>
+          <h1 class="text-lg font-bold text-slate-800">Planificación de Trabajo</h1>
+          <p class="text-xs text-slate-500">Gestiona y organiza tu calendario de trabajo</p>
         </div>
       </div>
 
-      <div class="flex gap-2">
+      <div class="flex items-center gap-3 flex-wrap">
+        <!-- Stats inline -->
+        <div class="hidden md:flex items-center gap-2">
+          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-slate-50 border border-slate-200">
+            <span class="text-base font-bold leading-tight text-slate-600">{{ stats().total }}</span>
+            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-slate-500">Total</span>
+          </div>
+          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-blue-50 border border-blue-200">
+            <span class="text-base font-bold leading-tight text-blue-600">{{ stats().scheduled }}</span>
+            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-blue-500">Planificados</span>
+          </div>
+          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-amber-50 border border-amber-200">
+            <span class="text-base font-bold leading-tight text-amber-600">{{ stats().inProgress }}</span>
+            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-amber-500">En Progreso</span>
+          </div>
+          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-emerald-50 border border-emerald-200">
+            <span class="text-base font-bold leading-tight text-emerald-600">{{ stats().completed }}</span>
+            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-emerald-500">Completados</span>
+          </div>
+          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[85px] bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 shadow-sm">
+            <span class="text-base font-bold leading-tight text-purple-600">{{ stats().totalDays }}d {{ stats().totalHours }}h</span>
+            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-purple-500">Duración Total</span>
+          </div>
+        </div>
+
         <button
           mat-raised-button
           class="btn-primary"
@@ -28,49 +52,6 @@
           (click)="loadPlans()">
           <mat-icon>refresh</mat-icon>
         </button>
-      </div>
-    </div>
-
-    <!-- Estadísticas -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-      <div class="stat-chip stat-chip-slate">
-        <mat-icon class="stat-icon">event</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats().total }}</span>
-          <span class="stat-label">Total</span>
-        </div>
-      </div>
-
-      <div class="stat-chip stat-chip-blue">
-        <mat-icon class="stat-icon">schedule</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats().scheduled }}</span>
-          <span class="stat-label">Planificados</span>
-        </div>
-      </div>
-
-      <div class="stat-chip stat-chip-amber">
-        <mat-icon class="stat-icon">play_circle</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats().inProgress }}</span>
-          <span class="stat-label">En Progreso</span>
-        </div>
-      </div>
-
-      <div class="stat-chip stat-chip-green">
-        <mat-icon class="stat-icon">check_circle</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats().completed }}</span>
-          <span class="stat-label">Completados</span>
-        </div>
-      </div>
-
-      <div class="stat-chip stat-chip-purple">
-        <mat-icon class="stat-icon">schedule</mat-icon>
-        <div class="stat-content">
-          <span class="stat-value">{{ stats().totalDays }}d {{ stats().totalHours }}h</span>
-          <span class="stat-label">Duración Total</span>
-        </div>
       </div>
     </div>
   </header>
