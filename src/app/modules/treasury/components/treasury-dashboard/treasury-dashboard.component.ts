@@ -16,16 +16,81 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
   ],
   template: `
     <div class="treasury-dashboard">
-      <!-- Header Compacto -->
-      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
+      <!-- ============================================
+           HEADER COMPACTO ESTILO CLIENTES
+           ============================================ -->
+      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
         <div class="flex items-center justify-between gap-4 flex-wrap">
+
+          <!-- Left Section -->
           <div class="flex items-center gap-3">
-            <div class="header-icon-box teal">
-              <mat-icon>account_balance_wallet</mat-icon>
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg shadow-teal-500/30">
+              <mat-icon class="!text-white !text-xl">account_balance_wallet</mat-icon>
             </div>
             <div>
-              <h1 class="text-lg font-bold text-slate-800 m-0">Tesorería</h1>
-              <p class="text-xs text-slate-500 m-0">Gestión de cobros y pagos</p>
+              <h1 class="text-lg font-bold text-slate-800">Tesorería</h1>
+              <p class="text-xs text-slate-500">
+                {{ stats().totalCobros + stats().totalPagos }} registros en el sistema
+              </p>
+            </div>
+          </div>
+
+          <!-- Right Section - Stats & Actions -->
+          <div class="flex items-center gap-3 flex-wrap">
+            <!-- Stats inline -->
+            <div class="hidden md:flex items-center gap-2">
+              <div class="flex flex-col items-center rounded-lg px-3 py-1.5 min-w-[65px] bg-emerald-50 border border-emerald-200">
+                <span class="text-[15px] font-bold leading-none text-emerald-600">{{ stats().totalCobros }}</span>
+                <span class="text-[9px] uppercase tracking-wide mt-0.5 text-emerald-500">Cobros</span>
+              </div>
+              <div class="flex flex-col items-center rounded-lg px-3 py-1.5 min-w-[65px] bg-red-50 border border-red-200">
+                <span class="text-[15px] font-bold leading-none text-red-600">{{ stats().totalPagos }}</span>
+                <span class="text-[9px] uppercase tracking-wide mt-0.5 text-red-500">Pagos</span>
+              </div>
+              <div class="flex flex-col items-center rounded-lg px-3 py-1.5 min-w-[65px]"
+                   [ngClass]="{
+                     'bg-emerald-50 border-emerald-200': stats().balance >= 0,
+                     'bg-red-50 border-red-200': stats().balance < 0
+                   }"
+                   class="border">
+                <span class="text-[15px] font-bold leading-none"
+                      [ngClass]="{
+                        'text-emerald-600': stats().balance >= 0,
+                        'text-red-600': stats().balance < 0
+                      }">{{ stats().balance | currency:'USD':'symbol':'1.0-0' }}</span>
+                <span class="text-[9px] uppercase tracking-wide mt-0.5"
+                      [ngClass]="{
+                        'text-emerald-500': stats().balance >= 0,
+                        'text-red-500': stats().balance < 0
+                      }">Balance</span>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+              <button type="button"
+                      class="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:border-slate-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                      (click)="refresh()"
+                      [disabled]="isLoading()"
+                      title="Actualizar">
+                <mat-icon class="!text-slate-600 !text-lg" [class.animate-spin]="isLoading()">refresh</mat-icon>
+              </button>
+
+              <button type="button"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-teal-500 to-teal-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-lg shadow-teal-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                      (click)="goToCobros('new')"
+                      [disabled]="isLoading()">
+                <mat-icon class="!text-lg">add</mat-icon>
+                Registrar Cobro
+              </button>
+
+              <button type="button"
+                      class="inline-flex items-center gap-1.5 px-4 py-2 bg-gradient-to-br from-red-500 to-red-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-lg shadow-red-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
+                      (click)="goToPagos('new')"
+                      [disabled]="isLoading()">
+                <mat-icon class="!text-lg">add</mat-icon>
+                Registrar Pago
+              </button>
             </div>
           </div>
         </div>
@@ -201,25 +266,20 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       margin: 0 auto;
     }
 
-    /* Header Icon Box */
-    .header-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    /* Animación fadeIn */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-5px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .header-icon-box mat-icon {
-      color: white;
-      font-size: 22px;
-      width: 22px;
-      height: 22px;
-    }
-
-    .header-icon-box.teal {
-      background: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+    .animate-fadeIn {
+      animation: fadeIn 0.3s ease-out;
     }
 
     /* Loading Spinner */
@@ -247,6 +307,10 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
 
     @keyframes spin {
       to { transform: rotate(360deg); }
+    }
+
+    .animate-spin {
+      animation: spin 1s linear infinite;
     }
 
     /* Section Icon Box */
@@ -618,6 +682,10 @@ export class TreasuryDashboardComponent implements OnInit {
   paymentMethodIcons = PAYMENT_METHOD_ICONS;
 
   async ngOnInit(): Promise<void> {
+    await this.treasuryService.initialize();
+  }
+
+  async refresh(): Promise<void> {
     await this.treasuryService.initialize();
   }
 
