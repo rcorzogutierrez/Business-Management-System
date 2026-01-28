@@ -204,12 +204,15 @@ export class AppConfigService implements OnDestroy {
 
   /**
    * Obtiene la información completa de la app
+   * Retorna null para valores no cargados aún
    */
   getAppInfo() {
+    const isLoaded = this._isLoaded();
+
     return {
-      name: this._appName() || 'Business Management System',
-      description: this._appDescription() || 'Sistema de gestión empresarial',
-      supportEmail: this._adminContactEmail() || ''
+      name: isLoaded ? (this._appName() || '') : null,
+      description: isLoaded ? (this._appDescription() || '') : null,
+      supportEmail: isLoaded ? (this._adminContactEmail() || '') : null
     };
   }
 
