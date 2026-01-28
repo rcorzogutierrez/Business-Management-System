@@ -28,8 +28,8 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
   template: `
     <div class="p-4 md:p-6 max-w-7xl mx-auto">
       <!-- Header Compacto -->
-      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
-        <div class="flex items-center justify-between gap-4 flex-wrap">
+      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5">
+        <div class="flex items-center justify-between gap-5 flex-wrap">
           <div class="flex items-center gap-3">
             <button class="btn-icon" (click)="goBack()" title="Volver">
               <mat-icon>arrow_back</mat-icon>
@@ -42,10 +42,25 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
               <p class="text-xs text-slate-500 m-0">{{ filteredCobros().length }} registros</p>
             </div>
           </div>
-          <button class="btn-primary emerald" (click)="openFormDialog()">
-            <mat-icon>add</mat-icon>
-            Nuevo Cobro
-          </button>
+
+          <div class="flex items-center gap-3 flex-wrap">
+            <!-- Stats inline -->
+            <div class="hidden md:flex items-center gap-2">
+              <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-emerald-50 border border-emerald-200">
+                <span class="text-base font-bold leading-tight text-emerald-600">{{ filteredCobros().length }}</span>
+                <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-emerald-500">Registros</span>
+              </div>
+              <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[90px] bg-gradient-to-br from-emerald-50 to-emerald-100 border-2 border-emerald-200 shadow-sm">
+                <span class="text-base font-bold leading-tight text-emerald-600">{{ totalAmount() | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-emerald-500">Total</span>
+              </div>
+            </div>
+
+            <button class="btn-primary emerald" (click)="openFormDialog()">
+              <mat-icon>add</mat-icon>
+              Nuevo Cobro
+            </button>
+          </div>
         </div>
       </header>
 
@@ -76,18 +91,6 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
             <option [value]="method.value">{{ method.label }}</option>
           }
         </select>
-      </div>
-
-      <!-- Summary Bar -->
-      <div class="flex flex-wrap gap-4 md:gap-8 p-4 bg-gradient-to-r from-slate-50 to-white rounded-xl border border-slate-100 mb-6">
-        <div class="flex items-center gap-2">
-          <span class="text-slate-500 text-sm">Total:</span>
-          <span class="font-bold text-emerald-600 text-lg">{{ totalAmount() | currency:'USD':'symbol':'1.2-2' }}</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <span class="text-slate-500 text-sm">Registros:</span>
-          <span class="font-semibold text-slate-700">{{ filteredCobros().length }}</span>
-        </div>
       </div>
 
       <!-- Loading -->
