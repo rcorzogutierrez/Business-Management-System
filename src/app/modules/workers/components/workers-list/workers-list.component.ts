@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, computed, effect } from '@angular/core';
+import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -22,7 +22,13 @@ import { GenericModuleConfig } from '../../../../shared/models/generic-entity.in
 import { CompaniesListDialogComponent } from '../companies-list-dialog/companies-list-dialog.component';
 import { CompaniesService } from '../../companies/services/companies.service';
 import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
+import { GenericListBaseComponent } from '../../../../shared/components/generic-list-base/generic-list-base.component';
+import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models';
 
+/**
+ * Componente de listado de Workers
+ * Ahora hereda de GenericListBaseComponent para reutilizar funcionalidad común
+ */
 @Component({
   selector: 'app-workers-list',
   standalone: true,
@@ -41,54 +47,51 @@ import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shar
     ColumnVisibilityControlComponent
   ],
   templateUrl: './workers-list.component.html',
-  styleUrl: './workers-list.component.css'
+  styleUrl: './workers-list.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class WorkersListComponent implements OnInit {
-  searchTerm = signal<string>('');
-  selectedWorkers = signal<string[]>([]);
-  isLoading = false;
+export class WorkersListComponent extends GenericListBaseComponent<Worker> implements OnInit {
+  // Implementar propiedades abstractas requeridas por la base
+  configService = inject(WorkersConfigService);
+  override storageKey = 'workers-visible-columns';
+  override modulePath = '/modules/workers';
+
+  // Servicios específicos de workers
+  private workersService = inject(WorkersService);
+  private authService = inject(AuthService);
+  private companiesService = inject(CompaniesService);
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private snackBarService = inject(MatSnackBar);
+
+  // Proveer datos requeridos por la clase base
+  data = this.workersService.workers;
+
+  // gridFields para workers (hardcoded ya que no usa configuración dinámica como clients/materials)
+  gridFields = computed<FieldConfig[]>(() => {
+    return [
+      { id: 'fullName', name: 'fullName', label: 'Nombre', type: 'text', isActive: true, gridConfig: { showInGrid: true, filterable: false } },
+      { id: 'workerType', name: 'workerType', label: 'Tipo', type: 'text', isActive: true, gridConfig: { showInGrid: true, filterable: false } },
+      { id: 'phone', name: 'phone', label: 'Teléfono', type: 'phone', isActive: true, gridConfig: { showInGrid: true, filterable: false } },
+      { id: 'companyName', name: 'companyName', label: 'Empresa', type: 'text', isActive: true, gridConfig: { showInGrid: true, filterable: false } },
+      { id: 'isActive', name: 'isActive', label: 'Estado', type: 'boolean', isActive: true, gridConfig: { showInGrid: true, filterable: false } }
+    ] as FieldConfig[];
+  });
+
+  // Filtros específicos de workers
   filterType = signal<WorkerType | 'all'>('all');
   filterCompanyId = signal<string | null>(null);
   filterCompanyName = signal<string | null>(null);
 
-  // Paginación
-  currentPage = signal<number>(0);
-  itemsPerPage = signal<number>(25); // Se actualiza desde gridConfig en ngOnInit
-
-  // Math para templates
-  Math = Math;
+  // Estado de carga específico de workers
+  isLoading = this.workersService.isLoading;
 
   // Labels para tipos
   workerTypeLabels = WORKER_TYPE_LABELS;
 
-  workers = this.workersService.workers;
-
-  // === COLUMNAS VISIBLES ===
-  // Columnas disponibles (hardcoded)
-  private readonly AVAILABLE_COLUMNS = [
-    { id: 'fullName', label: 'Nombre', alwaysVisible: true },
-    { id: 'workerType', label: 'Tipo', alwaysVisible: false },
-    { id: 'phone', label: 'Teléfono', alwaysVisible: false },
-    { id: 'companyName', label: 'Empresa', alwaysVisible: false },
-    { id: 'isActive', label: 'Estado', alwaysVisible: false }
-  ];
-
-  // Columnas por defecto (visible al inicio)
-  private readonly DEFAULT_VISIBLE_COLUMNS = ['fullName', 'workerType', 'phone', 'isActive'];
-
-  // Signal para columnas visibles (inicializar desde localStorage)
-  visibleColumnIds = signal<string[]>(this.loadVisibleColumnsFromStorage());
-
-  // Opciones de columnas para el control de visibilidad
-  columnOptions = computed<ColumnOption[]>(() => {
-    const visible = this.visibleColumnIds();
-    return this.AVAILABLE_COLUMNS.map(col => ({
-      id: col.id,
-      label: col.label,
-      visible: visible.includes(col.id),
-      disabled: col.alwaysVisible // fullName siempre visible
-    }));
-  });
+  // Math para templates
+  Math = Math;
 
   // Computed para verificar si el usuario es admin
   isAdmin = computed(() => {
@@ -99,9 +102,9 @@ export class WorkersListComponent implements OnInit {
   // Exponer configuración del servicio para uso reactivo en el template
   config = this.workersConfigService.config;
 
-  // Workers filtrados
-  filteredWorkers = computed(() => {
-    let workers = this.workers();
+  // Workers paginados (override del base para aplicar filtros específicos)
+  paginatedWorkers = computed(() => {
+    let workers = this.data();
     const search = this.searchTerm().toLowerCase();
     const typeFilter = this.filterType();
     const companyId = this.filterCompanyId();
@@ -128,12 +131,7 @@ export class WorkersListComponent implements OnInit {
       });
     }
 
-    return workers;
-  });
-
-  // Workers paginados
-  paginatedWorkers = computed(() => {
-    const workers = this.filteredWorkers();
+    // Aplicar paginación
     const page = this.currentPage();
     const perPage = this.itemsPerPage();
     const start = page * perPage;
@@ -142,10 +140,69 @@ export class WorkersListComponent implements OnInit {
     return workers.slice(start, end);
   });
 
-  totalPages = computed(() => {
-    const total = this.filteredWorkers().length;
+  // Total de páginas (override del base)
+  override totalPages = computed(() => {
+    let workers = this.data();
+    const search = this.searchTerm().toLowerCase();
+    const typeFilter = this.filterType();
+    const companyId = this.filterCompanyId();
+
+    // Filtrar por empresa
+    if (companyId) {
+      workers = workers.filter(w => w.companyId === companyId);
+    }
+
+    // Filtrar por tipo
+    if (typeFilter !== 'all') {
+      workers = workers.filter(w => w.workerType === typeFilter);
+    }
+
+    // Filtrar por búsqueda
+    if (search) {
+      workers = workers.filter(worker => {
+        if (worker.fullName?.toLowerCase().includes(search)) return true;
+        if (worker.phone?.includes(search)) return true;
+        if (worker.idOrLicense?.toLowerCase().includes(search)) return true;
+        if (worker.companyName?.toLowerCase().includes(search)) return true;
+        if (worker.address?.toLowerCase().includes(search)) return true;
+        return false;
+      });
+    }
+
     const perPage = this.itemsPerPage();
-    return Math.ceil(total / perPage);
+    return Math.ceil(workers.length / perPage);
+  });
+
+  // Workers filtrados (para stats y export)
+  filteredWorkers = computed(() => {
+    let workers = this.data();
+    const search = this.searchTerm().toLowerCase();
+    const typeFilter = this.filterType();
+    const companyId = this.filterCompanyId();
+
+    // Filtrar por empresa
+    if (companyId) {
+      workers = workers.filter(w => w.companyId === companyId);
+    }
+
+    // Filtrar por tipo
+    if (typeFilter !== 'all') {
+      workers = workers.filter(w => w.workerType === typeFilter);
+    }
+
+    // Filtrar por búsqueda
+    if (search) {
+      workers = workers.filter(worker => {
+        if (worker.fullName?.toLowerCase().includes(search)) return true;
+        if (worker.phone?.includes(search)) return true;
+        if (worker.idOrLicense?.toLowerCase().includes(search)) return true;
+        if (worker.companyName?.toLowerCase().includes(search)) return true;
+        if (worker.address?.toLowerCase().includes(search)) return true;
+        return false;
+      });
+    }
+
+    return workers;
   });
 
   // Config para diálogos de eliminación
@@ -162,35 +219,27 @@ export class WorkersListComponent implements OnInit {
     deleteDialogFieldsCount: 3
   };
 
-  constructor(
-    private workersService: WorkersService,
-    private workersConfigService: WorkersConfigService,
-    private companiesService: CompaniesService,
-    private dialog: MatDialog,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute,
-    private authService: AuthService
-  ) {
+  // Alias para selectedWorkers (compatibilidad con template)
+  selectedWorkers = computed(() => Array.from(this.selectedIds()));
+
+  constructor() {
+    super();
+
     // Effect para resetear página cuando cambia itemsPerPage
-    // (itemsPerPage ahora es un computed que lee de la config automáticamente)
     effect(() => {
       const itemsPerPageValue = this.itemsPerPage();
-      // Cuando cambia, resetear a primera página
       this.currentPage.set(0);
     });
   }
 
-  async ngOnInit() {
-    this.isLoading = true;
+  override async ngOnInit() {
+    super.ngOnInit();
 
     // Cargar configuración y trabajadores en paralelo
     await Promise.all([
       this.workersService.initialize(),
-      this.workersConfigService.initialize()
+      this.configService.initialize()
     ]);
-
-    // itemsPerPage ahora es un computed que se sincroniza automáticamente con la config
 
     // Leer queryParam companyId para filtrar
     this.route.queryParams.subscribe(async params => {
@@ -208,54 +257,9 @@ export class WorkersListComponent implements OnInit {
         this.filterCompanyName.set(null);
       }
     });
-
-    this.isLoading = false;
   }
 
-  // === MÉTODOS DE COLUMNAS VISIBLES ===
-
-  /**
-   * Cargar columnas visibles desde localStorage
-   */
-  private loadVisibleColumnsFromStorage(): string[] {
-    const storageKey = 'workers-visible-columns';
-    const stored = localStorage.getItem(storageKey);
-
-    if (stored) {
-      try {
-        const columnIds = JSON.parse(stored) as string[];
-        if (columnIds && columnIds.length > 0) {
-          return columnIds;
-        }
-      } catch (error) {
-        console.error('Error cargando columnas desde localStorage:', error);
-      }
-    }
-
-    // Retornar columnas por defecto si no hay nada en localStorage
-    return this.DEFAULT_VISIBLE_COLUMNS;
-  }
-
-  /**
-   * Manejar cambio de visibilidad de columnas
-   */
-  onColumnVisibilityChange(visibleIds: string[]) {
-    // Asegurar que fullName siempre esté visible
-    if (!visibleIds.includes('fullName')) {
-      visibleIds.unshift('fullName');
-    }
-
-    this.visibleColumnIds.set(visibleIds);
-  }
-
-  /**
-   * Verificar si una columna está visible
-   */
-  isColumnVisible(columnId: string): boolean {
-    return this.visibleColumnIds().includes(columnId);
-  }
-
-  // === MÉTODOS EXISTENTES ===
+  // === MÉTODOS ESPECÍFICOS DE WORKERS ===
 
   clearCompanyFilter() {
     this.filterCompanyId.set(null);
@@ -264,20 +268,9 @@ export class WorkersListComponent implements OnInit {
     this.router.navigate(['/modules/workers']);
   }
 
-  onSearch(term: string) {
-    this.searchTerm.set(term);
-    this.currentPage.set(0);
-  }
-
   setFilterType(type: WorkerType | 'all') {
     this.filterType.set(type);
     this.currentPage.set(0);
-  }
-
-  goToPage(page: number) {
-    if (page >= 0 && page < this.totalPages()) {
-      this.currentPage.set(page);
-    }
   }
 
   createWorker() {
@@ -292,14 +285,10 @@ export class WorkersListComponent implements OnInit {
     this.router.navigate(['/modules/workers', worker.id]);
   }
 
-  goToConfig() {
-    this.router.navigate(['/modules/workers/config']);
-  }
-
   async toggleActive(worker: Worker) {
     const currentUser = this.authService.authorizedUser();
     if (!currentUser?.uid) {
-      this.snackBar.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
+      this.snackBarService.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
       return;
     }
 
@@ -307,9 +296,9 @@ export class WorkersListComponent implements OnInit {
     const result = await this.workersService.toggleActive(worker.id, newStatus, currentUser.uid);
 
     if (result.success) {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      this.snackBarService.open(result.message, 'Cerrar', { duration: 3000 });
     } else {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+      this.snackBarService.open(result.message, 'Cerrar', { duration: 4000 });
     }
   }
 
@@ -326,22 +315,22 @@ export class WorkersListComponent implements OnInit {
       if (result?.confirmed) {
         const deleteResult = await this.workersService.deleteWorker(worker.id);
         if (deleteResult.success) {
-          this.snackBar.open('Trabajador eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.snackBarService.open('Trabajador eliminado exitosamente', 'Cerrar', { duration: 3000 });
         } else {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
       }
     });
   }
 
   async deleteSelectedWorkers() {
-    const selectedIds = this.selectedWorkers();
+    const selectedIds = Array.from(this.selectedIds());
     if (selectedIds.length === 0) {
-      this.snackBar.open('Selecciona al menos un trabajador', 'Cerrar', { duration: 3000 });
+      this.snackBarService.open('Selecciona al menos un trabajador', 'Cerrar', { duration: 3000 });
       return;
     }
 
-    const selectedList = this.workers().filter(w => selectedIds.includes(w.id));
+    const selectedList = this.data().filter(w => selectedIds.includes(w.id));
 
     const dialogRef = this.dialog.open(GenericDeleteMultipleDialogComponent, {
       width: '700px',
@@ -354,63 +343,58 @@ export class WorkersListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.confirmed) {
-        const deleteResult = await this.workersService.deleteMultipleWorkers(selectedIds);
+        const deleteResult = await this.workersService.deleteMultipleWorkers(selectedIds as string[]);
 
         if (deleteResult.success) {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
-          this.selectedWorkers.set([]);
+          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 3000 });
+          this.selectedIds.set(new Set());
         } else {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 4000 });
         }
       }
     });
   }
 
   toggleSelection(workerId: string) {
-    const selected = this.selectedWorkers();
-    if (selected.includes(workerId)) {
-      this.selectedWorkers.set(selected.filter(id => id !== workerId));
+    const selected = new Set(this.selectedIds());
+    if (selected.has(workerId)) {
+      selected.delete(workerId);
     } else {
-      this.selectedWorkers.set([...selected, workerId]);
+      selected.add(workerId);
     }
+    this.selectedIds.set(selected);
   }
 
   isSelected(workerId: string): boolean {
-    return this.selectedWorkers().includes(workerId);
+    return this.selectedIds().has(workerId);
   }
 
   toggleSelectAll() {
-    const selected = this.selectedWorkers();
+    const selected = this.selectedIds();
     const paginated = this.paginatedWorkers();
 
-    if (selected.length === paginated.length) {
+    if (selected.size === paginated.length) {
       this.clearSelection();
     } else {
-      this.selectedWorkers.set(paginated.map(worker => worker.id));
+      this.selectedIds.set(new Set(paginated.map(worker => worker.id)));
     }
   }
 
   isAllSelected(): boolean {
-    const selected = this.selectedWorkers();
+    const selected = this.selectedIds();
     const paginated = this.paginatedWorkers();
-    return paginated.length > 0 && selected.length === paginated.length;
+    return paginated.length > 0 && selected.size === paginated.length;
   }
 
   isIndeterminate(): boolean {
-    const selected = this.selectedWorkers();
+    const selected = this.selectedIds();
     const paginated = this.paginatedWorkers();
-    return selected.length > 0 && selected.length < paginated.length;
+    return selected.size > 0 && selected.size < paginated.length;
   }
 
-  clearSelection() {
-    this.selectedWorkers.set([]);
-  }
-
-  async refreshData() {
-    this.isLoading = true;
+  override async refreshData() {
     await this.workersService.forceReload();
-    this.isLoading = false;
-    this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+    this.snackBarService.open('Datos actualizados', 'Cerrar', { duration: 2000 });
   }
 
   trackById(index: number, worker: Worker): string {
@@ -418,7 +402,7 @@ export class WorkersListComponent implements OnInit {
   }
 
   getActiveWorkers(): Worker[] {
-    return this.workers().filter(w => w.isActive);
+    return this.data().filter(w => w.isActive);
   }
 
   getActiveWorkersCount(): number {
@@ -426,11 +410,11 @@ export class WorkersListComponent implements OnInit {
   }
 
   getInternalCount(): number {
-    return this.workers().filter(w => w.workerType === 'internal').length;
+    return this.data().filter(w => w.workerType === 'internal').length;
   }
 
   getContractorCount(): number {
-    return this.workers().filter(w => w.workerType === 'contractor').length;
+    return this.data().filter(w => w.workerType === 'contractor').length;
   }
 
   getWorkerTypeBadgeClass(type: WorkerType): string {
@@ -447,81 +431,22 @@ export class WorkersListComponent implements OnInit {
     });
   }
 
-  // ==========================================
-  // MÉTODOS DE EXPORTACIÓN
-  // ==========================================
-
-  /**
-   * Exportar trabajadores filtrados a CSV
-   */
-  exportToCSV(): void {
-    const workers = this.filteredWorkers();
-    if (workers.length === 0) {
-      this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    try {
-      // Convertir datos a CSV
-      const headers = ['ID', 'Nombre Completo', 'Tipo', 'Teléfono', 'Empresa', 'Estado'];
-      const csvData = workers.map(w => [
-        w.id,
-        w.fullName || '',
-        this.workerTypeLabels[w.workerType],
-        w.phone || '',
-        w.companyName || '',
-        w.isActive ? 'Activo' : 'Inactivo'
-      ]);
-
-      const csvContent = [
-        headers.join(','),
-        ...csvData.map(row => row.map(cell => `"${cell}"`).join(','))
-      ].join('\n');
-
-      // Descargar archivo
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `trabajadores_${new Date().toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      this.snackBar.open('✅ Datos exportados a CSV correctamente', '', { duration: 3000 });
-    } catch (error) {
-      console.error('Error exportando a CSV:', error);
-      this.snackBar.open('❌ Error al exportar los datos', '', { duration: 3000 });
-    }
+  // Verificar si una columna está visible (compatibilidad con template)
+  isColumnVisible(columnId: string): boolean {
+    return this.visibleColumnIds().includes(columnId);
   }
 
-  /**
-   * Exportar trabajadores filtrados a JSON
-   */
+  // ==========================================
+  // MÉTODOS DE EXPORTACIÓN (usar los de base)
+  // ==========================================
+
+  exportToCSV(): void {
+    const workers = this.filteredWorkers();
+    super.exportToCSV(workers, 'trabajadores');
+  }
+
   exportToJSON(): void {
     const workers = this.filteredWorkers();
-    if (workers.length === 0) {
-      this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
-      return;
-    }
-
-    try {
-      const jsonContent = JSON.stringify(workers, null, 2);
-      const blob = new Blob([jsonContent], { type: 'application/json' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `trabajadores_${new Date().toISOString().split('T')[0]}.json`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      this.snackBar.open('✅ Datos exportados a JSON correctamente', '', { duration: 3000 });
-    } catch (error) {
-      console.error('Error exportando a JSON:', error);
-      this.snackBar.open('❌ Error al exportar los datos', '', { duration: 3000 });
-    }
+    super.exportToJSON(workers, 'trabajadores');
   }
 }
