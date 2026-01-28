@@ -100,6 +100,15 @@ export class WorkersConfigService {
   }
 
   /**
+   * Actualizar configuración (compatible con GenericListBaseComponent)
+   */
+  async updateConfig(updates: Partial<WorkersConfig>): Promise<void> {
+    if (updates.gridConfig) {
+      await this.updateGridConfig(updates.gridConfig);
+    }
+  }
+
+  /**
    * Actualizar configuración del grid en Firestore
    */
   async updateGridConfig(gridConfig: GridConfiguration): Promise<void> {

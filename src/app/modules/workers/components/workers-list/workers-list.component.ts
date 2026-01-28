@@ -52,7 +52,7 @@ import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/mod
 })
 export class WorkersListComponent extends GenericListBaseComponent<Worker> implements OnInit {
   // Implementar propiedades abstractas requeridas por la base
-  configService = inject(WorkersConfigService);
+  configService = inject(WorkersConfigService) as any; // WorkersConfigService compatible con ModuleConfigBaseService
   override storageKey = 'workers-visible-columns';
   override modulePath = '/modules/workers';
 
@@ -61,7 +61,7 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   private authService = inject(AuthService);
   private companiesService = inject(CompaniesService);
   private dialog = inject(MatDialog);
-  private router = inject(Router);
+  override router = inject(Router);
   private route = inject(ActivatedRoute);
   private snackBarService = inject(MatSnackBar);
 
@@ -100,7 +100,7 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   });
 
   // Exponer configuración del servicio para uso reactivo en el template
-  config = this.workersConfigService.config;
+  config = this.configService.config;
 
   // Workers paginados (override del base para aplicar filtros específicos)
   paginatedWorkers = computed(() => {
@@ -440,13 +440,13 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   // MÉTODOS DE EXPORTACIÓN (usar los de base)
   // ==========================================
 
-  exportToCSV(): void {
-    const workers = this.filteredWorkers();
-    super.exportToCSV(workers, 'trabajadores');
+  override exportToCSV(data?: Worker[], fileName?: string): void {
+    const workers = data || this.filteredWorkers();
+    super.exportToCSV(workers, fileName || 'trabajadores');
   }
 
-  exportToJSON(): void {
-    const workers = this.filteredWorkers();
-    super.exportToJSON(workers, 'trabajadores');
+  override exportToJSON(data?: Worker[], fileName?: string): void {
+    const workers = data || this.filteredWorkers();
+    super.exportToJSON(workers, fileName || 'trabajadores');
   }
 }
