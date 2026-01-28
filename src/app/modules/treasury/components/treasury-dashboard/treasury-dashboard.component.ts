@@ -63,6 +63,18 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
                         'text-red-500': stats().balance < 0
                       }">Balance</span>
               </div>
+
+              <!-- Este Mes Badge -->
+              <div class="flex gap-2 items-center rounded-lg px-4 py-2 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200">
+                <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg shadow-sm">
+                  <mat-icon class="!text-white !text-lg">calendar_month</mat-icon>
+                </div>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-[9px] uppercase tracking-wider font-bold text-amber-600">Este Mes</span>
+                  <span class="text-sm font-bold leading-tight text-emerald-600">+{{ stats().cobrosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                  <span class="text-sm font-bold leading-tight text-red-600">-{{ stats().pagosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                </div>
+              </div>
             </div>
 
             <!-- Action Buttons -->
@@ -102,57 +114,6 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
           <p>Cargando datos...</p>
         </div>
       } @else {
-        <!-- Stats Cards -->
-        <div class="stats-grid">
-          <!-- Total Cobros -->
-          <div class="stat-card cobros">
-            <div class="stat-icon">
-              <mat-icon>arrow_downward</mat-icon>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Total Cobros</span>
-              <span class="stat-value">{{ stats().sumaCobros | currency:'USD':'symbol':'1.2-2' }}</span>
-              <span class="stat-count">{{ stats().totalCobros }} registros</span>
-            </div>
-          </div>
-
-          <!-- Total Pagos -->
-          <div class="stat-card pagos">
-            <div class="stat-icon">
-              <mat-icon>arrow_upward</mat-icon>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Total Pagos</span>
-              <span class="stat-value">{{ stats().sumaPagos | currency:'USD':'symbol':'1.2-2' }}</span>
-              <span class="stat-count">{{ stats().totalPagos }} registros</span>
-            </div>
-          </div>
-
-          <!-- Balance -->
-          <div class="stat-card balance" [class.positive]="stats().balance >= 0" [class.negative]="stats().balance < 0">
-            <div class="stat-icon">
-              <mat-icon>{{ stats().balance >= 0 ? 'trending_up' : 'trending_down' }}</mat-icon>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Balance</span>
-              <span class="stat-value">{{ stats().balance | currency:'USD':'symbol':'1.2-2' }}</span>
-              <span class="stat-count">Cobros - Pagos</span>
-            </div>
-          </div>
-
-          <!-- Este Mes -->
-          <div class="stat-card month">
-            <div class="stat-icon">
-              <mat-icon>calendar_month</mat-icon>
-            </div>
-            <div class="stat-content">
-              <span class="stat-label">Este Mes</span>
-              <span class="stat-value positive-text">+{{ stats().cobrosEsteMes | currency:'USD':'symbol':'1.2-2' }}</span>
-              <span class="stat-value negative-text">-{{ stats().pagosEsteMes | currency:'USD':'symbol':'1.2-2' }}</span>
-            </div>
-          </div>
-        </div>
-
         <!-- Quick Actions -->
         <div class="sections-grid">
           <!-- Cobros Section -->
@@ -411,104 +372,6 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
       background: #e2e8f0;
     }
 
-    /* Stats Grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 16px;
-      padding: 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      border: 1px solid #e2e8f0;
-    }
-
-    .stat-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .stat-icon mat-icon {
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
-    }
-
-    .stat-card.cobros .stat-icon {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .stat-card.pagos .stat-icon {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .stat-card.balance .stat-icon {
-      background: #e0e7ff;
-      color: #4f46e5;
-    }
-
-    .stat-card.balance.positive .stat-icon {
-      background: #dcfce7;
-      color: #16a34a;
-    }
-
-    .stat-card.balance.negative .stat-icon {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .stat-card.month .stat-icon {
-      background: #fef3c7;
-      color: #d97706;
-    }
-
-    .stat-content {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      color: #64748b;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .stat-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #1e293b;
-    }
-
-    .stat-count {
-      font-size: 0.8rem;
-      color: #94a3b8;
-    }
-
-    .positive-text {
-      color: #16a34a !important;
-      font-size: 1rem !important;
-    }
-
-    .negative-text {
-      color: #dc2626 !important;
-      font-size: 1rem !important;
-    }
-
     /* Sections Grid */
     .sections-grid {
       display: grid;
@@ -640,20 +503,8 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
     }
 
     @media (max-width: 768px) {
-      .treasury-dashboard {
-        padding: 1rem;
-      }
-
       .sections-grid {
         grid-template-columns: 1fr;
-      }
-
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .stat-value {
-        font-size: 1.25rem;
       }
     }
   `]
