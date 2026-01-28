@@ -19,7 +19,7 @@
         <!-- Stats inline -->
         <div class="flex items-center gap-2 ml-2">
           <div class="stat-chip slate">
-            <span class="stat-value">{{ workers().length }}</span>
+            <span class="stat-value">{{ data().length }}</span>
             <span class="stat-label">Total</span>
           </div>
           <div class="stat-chip green">
@@ -42,7 +42,7 @@
         <button type="button"
                 class="icon-btn"
                 (click)="refreshData()"
-                [disabled]="isLoading"
+                [disabled]="isLoading()"
                 title="Actualizar">
           <mat-icon>refresh</mat-icon>
         </button>
@@ -62,7 +62,7 @@
           <button type="button"
                   class="icon-btn"
                   [matMenuTriggerFor]="exportMenu"
-                  [disabled]="isLoading || filteredWorkers().length === 0"
+                  [disabled]="isLoading() || filteredWorkers().length === 0"
                   title="Exportar datos">
             <mat-icon>download</mat-icon>
           </button>
@@ -91,7 +91,7 @@
         <button type="button"
                 class="btn-secondary"
                 (click)="openCompaniesDialog()"
-                [disabled]="isLoading">
+                [disabled]="isLoading()">
           <mat-icon>business</mat-icon>
           <span>Empresas</span>
         </button>
@@ -99,7 +99,7 @@
         <button type="button"
                 class="btn-primary"
                 (click)="createWorker()"
-                [disabled]="isLoading">
+                [disabled]="isLoading()">
           <mat-icon>add</mat-icon>
           <span>Nuevo Trabajador</span>
         </button>
@@ -216,7 +216,7 @@
   <!-- ========== TABLA DE TRABAJADORES ========== -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.2s">
 
-    @if (isLoading) {
+    @if (isLoading()) {
       <!-- Loading State -->
       <div class="flex flex-col items-center justify-center py-12">
         <div class="loading-spinner"></div>
