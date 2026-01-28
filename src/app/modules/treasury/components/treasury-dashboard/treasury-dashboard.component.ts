@@ -65,14 +65,17 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
               </div>
 
               <!-- Este Mes Badge -->
-              <div class="flex gap-2 items-center rounded-lg px-4 py-2 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200">
-                <div class="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-lg shadow-sm">
-                  <mat-icon class="!text-white !text-lg">calendar_month</mat-icon>
+              <div class="flex items-center gap-3 rounded-lg px-4 py-2 bg-gradient-to-br from-amber-50 via-amber-50 to-orange-50 border-2 border-amber-200 shadow-sm">
+                <div class="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-md">
+                  <mat-icon class="!text-white !text-[22px]">calendar_month</mat-icon>
                 </div>
-                <div class="flex flex-col gap-0.5">
-                  <span class="text-[9px] uppercase tracking-wider font-bold text-amber-600">Este Mes</span>
-                  <span class="text-sm font-bold leading-tight text-emerald-600">+{{ stats().cobrosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
-                  <span class="text-sm font-bold leading-tight text-red-600">-{{ stats().pagosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                <div class="flex flex-col gap-1">
+                  <span class="text-[10px] uppercase tracking-[0.1em] font-bold text-amber-700 leading-none">Este Mes</span>
+                  <div class="flex items-baseline gap-2">
+                    <span class="text-sm font-bold text-emerald-600 leading-none">+{{ stats().cobrosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                    <span class="text-xs text-slate-400 font-medium">/</span>
+                    <span class="text-sm font-bold text-red-600 leading-none">-{{ stats().pagosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+                  </div>
                 </div>
               </div>
             </div>
