@@ -21,14 +21,14 @@ export class AppConfigService implements OnDestroy {
   private isInitialized = false; // ✅ Evitar inicializaciones duplicadas
   private logger = inject(LoggerService);
 
-  // Signals privados (writable) - Valores vacíos iniciales, se cargan desde Firestore
-  private _appName = signal<string>('');
-  private _appDescription = signal<string>('');
-  private _logoUrl = signal<string>('');
+  // Signals privados (writable) - Valores null iniciales hasta cargar desde Firestore
+  private _appName = signal<string | null>(null);
+  private _appDescription = signal<string | null>(null);
+  private _logoUrl = signal<string | null>(null);
   private _logoBackgroundColor = signal<string>('transparent');
-  private _faviconUrl = signal<string>('');
-  private _adminContactEmail = signal<string>('');
-  private _footerText = signal<string>('');
+  private _faviconUrl = signal<string | null>(null);
+  private _adminContactEmail = signal<string | null>(null);
+  private _footerText = signal<string | null>(null);
   private _footerColor = signal<string>('#1e293b');
   private _footerTextColor = signal<string>('#94a3b8');
   private _isLoaded = signal<boolean>(false);
@@ -108,13 +108,13 @@ export class AppConfigService implements OnDestroy {
   private updateSignals(config: SystemConfig) {
     this.logger.debug('Actualizando signals con configuración', config);
 
-    this._appName.set(config.appName || '');
-    this._appDescription.set(config.appDescription || '');
-    this._logoUrl.set(config.logoUrl || '');
+    this._appName.set(config.appName || null);
+    this._appDescription.set(config.appDescription || null);
+    this._logoUrl.set(config.logoUrl || null);
     this._logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
-    this._faviconUrl.set(config.faviconUrl || config.logoUrl || '');
-    this._adminContactEmail.set(config.adminContactEmail || '');
-    this._footerText.set(config.footerText || '');
+    this._faviconUrl.set(config.faviconUrl || config.logoUrl || null);
+    this._adminContactEmail.set(config.adminContactEmail || null);
+    this._footerText.set(config.footerText || null);
     this._footerColor.set(config.footerColor || '#1e293b');
     this._footerTextColor.set(config.footerTextColor || '#94a3b8');
 
@@ -122,17 +122,17 @@ export class AppConfigService implements OnDestroy {
   }
 
   /**
-   * Establece valores por defecto (vacíos - se usa skeleton loaders en UI)
+   * Establece valores por defecto (null - indica que no hay configuración)
    */
   private setDefaultValues() {
-    this.logger.info('Estableciendo valores por defecto vacíos');
-    this._appName.set('');
-    this._appDescription.set('');
-    this._logoUrl.set('');
+    this.logger.info('Estableciendo valores por defecto (null)');
+    this._appName.set(null);
+    this._appDescription.set(null);
+    this._logoUrl.set(null);
     this._logoBackgroundColor.set('transparent');
-    this._faviconUrl.set('');
-    this._adminContactEmail.set('');
-    this._footerText.set('');
+    this._faviconUrl.set(null);
+    this._adminContactEmail.set(null);
+    this._footerText.set(null);
     this._footerColor.set('#1e293b');
     this._footerTextColor.set('#94a3b8');
   }
@@ -195,6 +195,10 @@ export class AppConfigService implements OnDestroy {
    */
   updateDocumentTitle(suffix?: string) {
     const appName = this._appName();
+    if (!appName) {
+      document.title = suffix || 'Dashboard';
+      return;
+    }
     document.title = suffix ? `${suffix} - ${appName}` : appName;
   }
 
@@ -203,9 +207,9 @@ export class AppConfigService implements OnDestroy {
    */
   getAppInfo() {
     return {
-      name: this._appName(),
-      description: this._appDescription(),
-      supportEmail: this._adminContactEmail()
+      name: this._appName() || 'Business Management System',
+      description: this._appDescription() || 'Sistema de gestión empresarial',
+      supportEmail: this._adminContactEmail() || ''
     };
   }
 

@@ -7,18 +7,19 @@ import { AppConfigService } from './app-config.service';
 /**
  * Estrategia personalizada para títulos de página
  *
- * Obtiene el nombre de la aplicación dinámicamente desde Firebase con fallback:
- * 1. appConfig.appName (nombre de la aplicación)
- * 2. "Mi Aplicación" (fallback final)
+ * Obtiene el nombre de la aplicación dinámicamente desde Firebase:
+ * 1. appConfig.appName (nombre configurado en Firebase)
+ * 2. Si no hay configuración, muestra solo el título de la ruta
+ * 3. Durante la carga inicial, muestra "Loading..."
  *
  * Formato: "[Nombre App] | [Título de la Ruta]"
  *
  * @example
- * Si appName = "Generic Admin Login"
- * Ruta con title: 'Dashboard' → Se muestra: "Generic Admin Login | Dashboard"
+ * Si appName = "Business Management"
+ * Ruta con title: 'Dashboard' → Se muestra: "Business Management | Dashboard"
  *
- * Si no hay appName configurado:
- * Ruta con title: 'Dashboard' → Se muestra: "Mi Aplicación | Dashboard"
+ * Si no hay appName configurado en Firebase:
+ * Ruta con title: 'Dashboard' → Se muestra: "Dashboard"
  *
  * El título se actualiza automáticamente cuando cambia la configuración
  */
@@ -26,7 +27,6 @@ import { AppConfigService } from './app-config.service';
 export class CustomTitleStrategy extends TitleStrategy {
   private readonly title = inject(Title);
   private readonly appConfigService = inject(AppConfigService);
-  private readonly fallbackName = 'Mi Aplicación';
   private currentRouteTitle: string | undefined;
 
   constructor() {
@@ -34,16 +34,24 @@ export class CustomTitleStrategy extends TitleStrategy {
 
     // Efecto reactivo: actualiza el título cuando cambia appConfig
     effect(() => {
-      const appConfig = this.appConfigService.appName();
+      const appName = this.appConfigService.appName();
+      const isLoaded = this.appConfigService.isLoaded();
 
-      // Usar appName de la configuración o fallback
-      const appName = appConfig || this.fallbackName;
+      // Si aún no ha cargado, mostrar "Loading..."
+      if (!isLoaded) {
+        this.title.setTitle('Loading...');
+        return;
+      }
 
-      // Actualizar título con el nombre dinámico
+      // Una vez cargado, usar appName si existe o solo el título de la ruta
       if (this.currentRouteTitle) {
-        this.title.setTitle(`${appName} | ${this.currentRouteTitle}`);
+        if (appName) {
+          this.title.setTitle(`${appName} | ${this.currentRouteTitle}`);
+        } else {
+          this.title.setTitle(this.currentRouteTitle);
+        }
       } else {
-        this.title.setTitle(appName);
+        this.title.setTitle(appName || 'Dashboard');
       }
     });
   }
@@ -55,14 +63,24 @@ export class CustomTitleStrategy extends TitleStrategy {
     const routeTitle = this.buildTitle(snapshot);
     this.currentRouteTitle = routeTitle;
 
-    // Obtener el nombre de la aplicación con fallback
-    const appConfig = this.appConfigService.appName();
-    const appName = appConfig || this.fallbackName;
+    const appName = this.appConfigService.appName();
+    const isLoaded = this.appConfigService.isLoaded();
 
+    // Si aún no ha cargado, mostrar "Loading..."
+    if (!isLoaded) {
+      this.title.setTitle('Loading...');
+      return;
+    }
+
+    // Una vez cargado, usar appName si existe o solo el título de la ruta
     if (routeTitle) {
-      this.title.setTitle(`${appName} | ${routeTitle}`);
+      if (appName) {
+        this.title.setTitle(`${appName} | ${routeTitle}`);
+      } else {
+        this.title.setTitle(routeTitle);
+      }
     } else {
-      this.title.setTitle(appName);
+      this.title.setTitle(appName || 'Dashboard');
     }
   }
 }
