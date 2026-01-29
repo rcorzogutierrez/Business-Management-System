@@ -265,8 +265,137 @@
       }
     </div>
 
+    <!-- ========== CONFIGURACIÓN DE LA TABLA ========== -->
+    @if (gridConfig()) {
+      <div class="config-section animate-fadeIn" style="animation-delay: 0.25s">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <mat-icon>table_chart</mat-icon>
+          </div>
+          <div class="flex-1">
+            <h2>Configuración de la Tabla</h2>
+            <p>Personaliza el comportamiento de la tabla de datos</p>
+          </div>
+          <button
+            type="button"
+            class="btn-icon-sm"
+            (click)="toggleAllFeatures()"
+            [matTooltip]="gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'Desactivar Todas' : 'Activar Todas'">
+            <mat-icon>
+              {{ gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'toggle_on' : 'toggle_off' }}
+            </mat-icon>
+          </button>
+        </div>
+
+        <div class="features-grid">
+          <!-- Selector de Columnas -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">view_column</mat-icon>
+            <div class="feature-info">
+              <h3>Selector de Columnas</h3>
+              <p>Permite ocultar/mostrar columnas</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().enableColumnSelector"
+              (change)="updateGridConfig('enableColumnSelector', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Filtros -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">filter_list</mat-icon>
+            <div class="feature-info">
+              <h3>Filtros</h3>
+              <p>Habilitar filtros de datos</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().enableFilters"
+              (change)="updateGridConfig('enableFilters', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Exportar -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">download</mat-icon>
+            <div class="feature-info">
+              <h3>Exportar</h3>
+              <p>Permitir exportar datos</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().enableExport"
+              (change)="updateGridConfig('enableExport', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Acciones Masivas -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">done_all</mat-icon>
+            <div class="feature-info">
+              <h3>Acciones Masivas</h3>
+              <p>Habilitar selección múltiple</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().enableBulkActions"
+              (change)="updateGridConfig('enableBulkActions', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Búsqueda -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">search</mat-icon>
+            <div class="feature-info">
+              <h3>Búsqueda</h3>
+              <p>Habilitar búsqueda global</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().enableSearch"
+              (change)="updateGridConfig('enableSearch', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+
+          <!-- Modo Compacto -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">compress</mat-icon>
+            <div class="feature-info">
+              <h3>Modo Compacto</h3>
+              <p>Reducir espaciado de filas</p>
+            </div>
+            <mat-slide-toggle
+              [checked]="gridConfig().compactMode"
+              (change)="updateGridConfig('compactMode', $event.checked)"
+              color="primary">
+            </mat-slide-toggle>
+          </div>
+        </div>
+
+        <!-- Elementos por Página -->
+        <div class="form-group mt-4">
+          <label class="form-label">
+            <mat-icon class="mr-2">format_list_numbered</mat-icon>
+            Elementos por Página
+          </label>
+          <div class="flex gap-2">
+            @for (option of pageSizeOptions; track option) {
+              <button
+                type="button"
+                class="page-size-btn"
+                [class.active]="itemsPerPageSignal() === option"
+                (click)="onItemsPerPageChange(option)">
+                {{ option }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- ========== TÉRMINOS Y CONDICIONES ========== -->
-    <div class="config-section animate-fadeIn" style="animation-delay: 0.275s">
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.3s">
       <div class="section-header">
         <div class="section-icon green">
           <mat-icon>description</mat-icon>
@@ -287,7 +416,7 @@
     </div>
 
     <!-- ========== BOTONES DE ACCIÓN ========== -->
-    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.3s">
+    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.35s">
       <div class="flex gap-2">
         <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSaving()">
           <mat-icon>close</mat-icon>
