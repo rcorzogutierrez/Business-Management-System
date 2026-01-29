@@ -301,6 +301,33 @@ export class ProposalConfigService {
   }
 
   /**
+   * Obtener configuración del grid
+   */
+  getGridConfig() {
+    const config = this.config();
+    return config?.gridConfig ?? DEFAULT_PROPOSAL_CONFIG.gridConfig;
+  }
+
+  /**
+   * Actualizar configuración del grid
+   */
+  async updateGridConfig(gridConfig: any): Promise<void> {
+    const currentConfig = this.config();
+    if (!currentConfig) {
+      throw new Error('No hay configuración cargada');
+    }
+
+    const updatedGridConfig = {
+      ...(currentConfig.gridConfig || DEFAULT_PROPOSAL_CONFIG.gridConfig),
+      ...gridConfig
+    };
+
+    await this.updateConfig({
+      gridConfig: updatedGridConfig as any
+    });
+  }
+
+  /**
    * Refrescar la configuración desde Firestore
    */
   async refresh(): Promise<void> {

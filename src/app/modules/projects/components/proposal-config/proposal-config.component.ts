@@ -5,16 +5,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
-// Material imports
-import { MatButtonModule } from '@angular/material/button';
+// Material imports (solo MatIcon según CLAUDE.md)
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ProposalConfigService } from '../../services/proposal-config.service';
@@ -43,15 +37,9 @@ interface FieldMappingConfig {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatCheckboxModule
+    MatTooltipModule
   ],
   templateUrl: './proposal-config.component.html',
   styleUrl: './proposal-config.component.css',
@@ -71,6 +59,11 @@ export class ProposalConfigComponent implements OnInit {
   availableFields = signal<FieldConfig[]>([]);
   markupCategories = signal<MaterialMarkupCategory[]>([]);
   markupEnabled = signal<boolean>(false);
+
+  // Grid Config Signals
+  pageSizeOptions = [10, 25, 50, 100];
+  itemsPerPageSignal = signal<number>(10);
+  gridConfig = signal<any>(null);
 
   // Form
   configForm!: FormGroup;
@@ -107,6 +100,9 @@ export class ProposalConfigComponent implements OnInit {
 
     // Cargar configuración actual
     this.loadCurrentConfig();
+
+    // Cargar configuración del grid
+    this.loadGridConfig();
   }
 
   /**
@@ -536,5 +532,82 @@ export class ProposalConfigComponent implements OnInit {
       isActive: c.id === categoryId
     }));
     this.markupCategories.set(categories);
+  }
+
+  /**
+   * Cargar configuración del grid
+   */
+  loadGridConfig() {
+    const config = this.proposalConfigService.getGridConfig();
+    if (config) {
+      this.gridConfig.set(config);
+      this.itemsPerPageSignal.set(config.itemsPerPage || 10);
+    }
+  }
+
+  /**
+   * Actualizar configuración del grid
+   */
+  async updateGridConfig(key: string, value: any): Promise<void> {
+    try {
+      const currentConfig = this.gridConfig();
+      const updatedConfig = {
+        ...currentConfig,
+        [key]: value
+      };
+
+      await this.proposalConfigService.updateGridConfig(updatedConfig);
+      this.gridConfig.set(updatedConfig);
+
+      this.snackBar.open('Configuración actualizada', 'Cerrar', {
+        duration: 2000
+      });
+    } catch (error) {
+      console.error('Error actualizando configuración del grid:', error);
+      this.snackBar.open('Error al actualizar la configuración', 'Cerrar', {
+        duration: 3000,
+        panelClass: ['error-snackbar']
+      });
+    }
+  }
+
+  /**
+   * Cambiar elementos por página
+   */
+  async onItemsPerPageChange(newSize: number): Promise<void> {
+    this.itemsPerPageSignal.set(newSize);
+    await this.updateGridConfig('itemsPerPage', newSize);
+  }
+
+  /**
+   * Activar/desactivar todas las funcionalidades
+   */
+  async toggleAllFeatures(): Promise<void> {
+    const currentConfig = this.gridConfig();
+    const allEnabled = currentConfig.enableSearch &&
+                       currentConfig.enableFilters &&
+                       currentConfig.enableExport &&
+                       currentConfig.enableBulkActions &&
+                       currentConfig.enableColumnSelector;
+
+    const newValue = !allEnabled;
+
+    const updatedConfig = {
+      ...currentConfig,
+      enableSearch: newValue,
+      enableFilters: newValue,
+      enableExport: newValue,
+      enableBulkActions: newValue,
+      enableColumnSelector: newValue
+    };
+
+    await this.proposalConfigService.updateGridConfig(updatedConfig);
+    this.gridConfig.set(updatedConfig);
+
+    this.snackBar.open(
+      newValue ? 'Todas las funcionalidades activadas' : 'Todas las funcionalidades desactivadas',
+      'Cerrar',
+      { duration: 2000 }
+    );
   }
 }

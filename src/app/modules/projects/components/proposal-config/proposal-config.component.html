@@ -166,17 +166,29 @@
         <div class="section-icon orange">
           <mat-icon>trending_up</mat-icon>
         </div>
-        <div>
+        <div class="flex-1">
           <h2>Categorías de Markup de Materiales</h2>
           <p>Sistema de markup por categorías para el costo de materiales en facturas</p>
         </div>
-        <mat-slide-toggle
-          [checked]="markupEnabled()"
-          (change)="toggleMarkupEnabled()"
-          color="primary"
-          class="ml-auto">
-          {{ markupEnabled() ? 'Habilitado' : 'Deshabilitado' }}
-        </mat-slide-toggle>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium" [class.text-blue-600]="markupEnabled()" [class.text-slate-600]="!markupEnabled()">
+            {{ markupEnabled() ? 'Habilitado' : 'Deshabilitado' }}
+          </span>
+          <button
+            type="button"
+            (click)="toggleMarkupEnabled()"
+            role="switch"
+            [attr.aria-checked]="markupEnabled()"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            [class.bg-blue-600]="markupEnabled()"
+            [class.bg-slate-300]="!markupEnabled()">
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+              [class.translate-x-6]="markupEnabled()"
+              [class.translate-x-1]="!markupEnabled()">
+            </span>
+          </button>
+        </div>
       </div>
 
       @if (markupEnabled()) {
@@ -193,12 +205,20 @@
               <div class="category-item" [class.active]="category.isActive">
                 <div class="category-content">
                   <!-- Radio button para seleccionar por defecto -->
-                  <mat-checkbox
-                    [checked]="category.isActive"
-                    (change)="toggleCategoryActive(category.id)"
-                    color="primary"
-                    matTooltip="Categoría por defecto">
-                  </mat-checkbox>
+                  <button
+                    type="button"
+                    (click)="toggleCategoryActive(category.id)"
+                    [matTooltip]="'Categoría por defecto'"
+                    class="flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    [class.border-blue-600]="category.isActive"
+                    [class.bg-blue-600]="category.isActive"
+                    [class.border-slate-300]="!category.isActive">
+                    @if (category.isActive) {
+                      <svg class="w-3 h-3 mx-auto text-white" fill="currentColor" viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="3"/>
+                      </svg>
+                    }
+                  </button>
 
                   <!-- Nombre de la categoría -->
                   <div class="category-field">
@@ -265,8 +285,191 @@
       }
     </div>
 
+    <!-- ========== CONFIGURACIÓN DE LA TABLA ========== -->
+    @if (gridConfig()) {
+      <div class="config-section animate-fadeIn" style="animation-delay: 0.25s">
+        <div class="section-header">
+          <div class="section-icon blue">
+            <mat-icon>table_chart</mat-icon>
+          </div>
+          <div class="flex-1">
+            <h2>Configuración de la Tabla</h2>
+            <p>Personaliza el comportamiento de la tabla de datos</p>
+          </div>
+          <button
+            type="button"
+            class="btn-icon-sm"
+            (click)="toggleAllFeatures()"
+            [matTooltip]="gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'Desactivar Todas' : 'Activar Todas'">
+            <mat-icon>
+              {{ gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'toggle_on' : 'toggle_off' }}
+            </mat-icon>
+          </button>
+        </div>
+
+        <div class="features-grid">
+          <!-- Selector de Columnas -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">view_column</mat-icon>
+            <div class="feature-info">
+              <h3>Selector de Columnas</h3>
+              <p>Permite ocultar/mostrar columnas</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableColumnSelector', !gridConfig().enableColumnSelector)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableColumnSelector"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableColumnSelector"
+              [class.bg-slate-300]="!gridConfig().enableColumnSelector">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableColumnSelector"
+                [class.translate-x-1]="!gridConfig().enableColumnSelector">
+              </span>
+            </button>
+          </div>
+
+          <!-- Filtros -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">filter_list</mat-icon>
+            <div class="feature-info">
+              <h3>Filtros</h3>
+              <p>Habilitar filtros de datos</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableFilters', !gridConfig().enableFilters)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableFilters"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableFilters"
+              [class.bg-slate-300]="!gridConfig().enableFilters">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableFilters"
+                [class.translate-x-1]="!gridConfig().enableFilters">
+              </span>
+            </button>
+          </div>
+
+          <!-- Exportar -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">download</mat-icon>
+            <div class="feature-info">
+              <h3>Exportar</h3>
+              <p>Permitir exportar datos</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableExport', !gridConfig().enableExport)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableExport"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableExport"
+              [class.bg-slate-300]="!gridConfig().enableExport">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableExport"
+                [class.translate-x-1]="!gridConfig().enableExport">
+              </span>
+            </button>
+          </div>
+
+          <!-- Acciones Masivas -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">done_all</mat-icon>
+            <div class="feature-info">
+              <h3>Acciones Masivas</h3>
+              <p>Habilitar selección múltiple</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableBulkActions', !gridConfig().enableBulkActions)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableBulkActions"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableBulkActions"
+              [class.bg-slate-300]="!gridConfig().enableBulkActions">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableBulkActions"
+                [class.translate-x-1]="!gridConfig().enableBulkActions">
+              </span>
+            </button>
+          </div>
+
+          <!-- Búsqueda -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">search</mat-icon>
+            <div class="feature-info">
+              <h3>Búsqueda</h3>
+              <p>Habilitar búsqueda global</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableSearch', !gridConfig().enableSearch)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableSearch"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableSearch"
+              [class.bg-slate-300]="!gridConfig().enableSearch">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableSearch"
+                [class.translate-x-1]="!gridConfig().enableSearch">
+              </span>
+            </button>
+          </div>
+
+          <!-- Modo Compacto -->
+          <div class="feature-card">
+            <mat-icon class="feature-icon blue">compress</mat-icon>
+            <div class="feature-info">
+              <h3>Modo Compacto</h3>
+              <p>Reducir espaciado de filas</p>
+            </div>
+            <button
+              type="button"
+              (click)="updateGridConfig('compactMode', !gridConfig().compactMode)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().compactMode"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().compactMode"
+              [class.bg-slate-300]="!gridConfig().compactMode">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().compactMode"
+                [class.translate-x-1]="!gridConfig().compactMode">
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Elementos por Página -->
+        <div class="form-group mt-4">
+          <label class="form-label">
+            <mat-icon class="mr-2">format_list_numbered</mat-icon>
+            Elementos por Página
+          </label>
+          <div class="flex gap-2">
+            @for (option of pageSizeOptions; track option) {
+              <button
+                type="button"
+                class="page-size-btn"
+                [class.active]="itemsPerPageSignal() === option"
+                (click)="onItemsPerPageChange(option)">
+                {{ option }}
+              </button>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
     <!-- ========== TÉRMINOS Y CONDICIONES ========== -->
-    <div class="config-section animate-fadeIn" style="animation-delay: 0.275s">
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.3s">
       <div class="section-header">
         <div class="section-icon green">
           <mat-icon>description</mat-icon>
@@ -287,7 +490,7 @@
     </div>
 
     <!-- ========== BOTONES DE ACCIÓN ========== -->
-    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.3s">
+    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.35s">
       <div class="flex gap-2">
         <button type="button" class="btn-cancel" (click)="goBack()" [disabled]="isSaving()">
           <mat-icon>close</mat-icon>

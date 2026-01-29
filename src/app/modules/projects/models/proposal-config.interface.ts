@@ -1,6 +1,7 @@
 // src/app/modules/projects/models/proposal-config.interface.ts
 
 import { Timestamp } from 'firebase/firestore';
+import { GridConfiguration } from '../../../shared/modules/dynamic-form-builder/models/module-config.interface';
 
 /**
  * Mapeo de campos básicos del cliente
@@ -105,6 +106,9 @@ export interface ProposalModuleConfig {
   // Configuración de markup de materiales
   materialMarkupConfig?: MaterialMarkupConfig;  // Sistema de categorías de markup
 
+  // Configuración de la tabla/grid
+  gridConfig?: GridConfiguration;       // Configuración de visualización de tabla
+
   // Metadata del sistema
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -123,6 +127,7 @@ export interface CreateProposalConfigData {
   defaultWorkType?: 'residential' | 'commercial';
   defaultTerms?: string;
   materialMarkupConfig?: MaterialMarkupConfig;
+  gridConfig?: GridConfiguration;
 }
 
 /**
@@ -181,5 +186,18 @@ export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'created
       }
     ],
     defaultCategoryId: 'standard'
+  },
+  gridConfig: {
+    defaultView: 'table',
+    itemsPerPage: 10,
+    sortBy: 'createdAt',
+    sortOrder: 'desc',
+    enableSearch: true,
+    enableFilters: true,
+    enableExport: true,
+    enableBulkActions: true,
+    enableColumnSelector: true,
+    showThumbnails: false,
+    compactMode: false
   }
 };
