@@ -52,6 +52,7 @@
           <app-column-visibility-control
             [columns]="columnOptions()"
             [storageKey]="'workers-visible-columns'"
+            [defaultVisibleColumns]="defaultVisibleColumnIds()"
             [themeColor]="'amber'"
             (visibilityChange)="onColumnVisibilityChange($event)">
           </app-column-visibility-control>
