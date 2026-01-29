@@ -21,6 +21,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { formatFieldValue, getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
 import { filterData, paginateData } from '../../../../shared/utils';
 import { GenericListBaseComponent } from '../../../../shared/components/generic-list-base/generic-list-base.component';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 /**
  * Componente de listado de Materiales
@@ -37,6 +38,7 @@ import { GenericListBaseComponent } from '../../../../shared/components/generic-
     MatTooltipModule,
     MatMenuModule,
     MatDividerModule,
+    ModuleHeaderComponent,
     PaginationComponent,
     GenericSearchBarComponent,
     GenericDataTableComponent,
@@ -69,6 +71,38 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
   // Estado específico de materiales
   isLoading = signal(false);
   templatesReady = signal(false);
+
+  // Computed para verificar si el usuario es admin
+  isAdmin = computed(() => {
+    const user = this.authService.authorizedUser();
+    return user?.role === 'admin';
+  });
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const mats = this.materials();
+    return [
+      { value: mats.length, label: 'TOTAL', color: 'info' as const },
+      { value: this.getActiveMaterialsCount(), label: 'ACTIVOS', color: 'success' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => {
+    const actions: ActionButton[] = [
+      { icon: 'refresh', tooltip: 'Actualizar', action: () => this.refreshData() }
+    ];
+
+    // Botón de configuración (solo para admin)
+    if (this.isAdmin()) {
+      actions.push({
+        icon: 'settings',
+        tooltip: 'Configurar módulo',
+        action: () => this.goToConfig()
+      });
+    }
+
+    return actions;
+  });
 
   // Configuración de la tabla
   tableConfig = signal<TableConfig<Material>>({

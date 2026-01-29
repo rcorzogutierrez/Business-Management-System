@@ -18,6 +18,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
 import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
 import { GenericDataTableComponent } from '../../../../shared/components/data-table/data-table.component';
 import { ColumnVisibilityControlComponent } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 import { Client } from '../../models';
 import { createGenericConfig } from '../../clients-config';
 import { TableColumn, TableConfig } from '../../../../shared/components/data-table/models';
@@ -41,6 +42,7 @@ import { GenericListBaseComponent } from '../../../../shared/components/generic-
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
+    ModuleHeaderComponent,
     GenericSearchBarComponent,
     GenericDataTableComponent,
     ColumnVisibilityControlComponent,
@@ -82,6 +84,33 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   isAdmin = computed(() => {
     const user = this.authService.authorizedUser();
     return user?.role === 'admin';
+  });
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const currentStats = this.stats();
+    return [
+      { value: currentStats.active, label: 'ACTIVOS', color: 'success' as const },
+      { value: currentStats.potential, label: 'POTENCIALES', color: 'warning' as const },
+      { value: currentStats.inactive, label: 'INACTIVOS', color: 'info' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => {
+    const actions: ActionButton[] = [
+      { icon: 'refresh', tooltip: 'Actualizar', action: () => this.refresh() }
+    ];
+
+    // Botón de configuración (solo para admin)
+    if (this.isAdmin()) {
+      actions.push({
+        icon: 'settings',
+        tooltip: 'Configurar módulo',
+        action: () => this.goToConfig()
+      });
+    }
+
+    return actions;
   });
 
   // Configuración de la tabla

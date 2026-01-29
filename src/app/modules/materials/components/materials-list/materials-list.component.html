@@ -2,94 +2,53 @@
 
 <div class="materials-container">
 
-  <!-- ========== HEADER COMPACTO ========== -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
+  <!-- ========== HEADER COMPACTO - Usando ModuleHeaderComponent ========== -->
+  <app-module-header
+    icon="inventory_2"
+    title="Gestión de Materiales"
+    subtitle="Control y seguimiento de inventario"
+    moduleColor="green"
+    [stats]="headerStats()"
+    [actionButtons]="headerActions()"
+    primaryButtonLabel="Nuevo Material"
+    (primaryAction)="createMaterial()">
 
-      <!-- Left: Icon + Title + Stats -->
-      <div class="flex items-center gap-4">
-        <div class="header-icon-box green">
-          <mat-icon>inventory_2</mat-icon>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-800">Gestión de Materiales</h1>
-          <p class="text-xs text-slate-500">Control y seguimiento de inventario</p>
-        </div>
+    <!-- Acciones personalizadas proyectadas -->
+    <div slot="actions" class="flex items-center gap-2">
+      <!-- Selector de Columnas -->
+      @if (config()?.gridConfig?.enableColumnSelector !== false) {
+        <app-column-visibility-control
+          [columns]="columnOptions()"
+          [storageKey]="'materials-visible-columns'"
+          [defaultVisibleColumns]="defaultVisibleColumnIds()"
+          [themeColor]="'green'"
+          (visibilityChange)="onColumnVisibilityChange($event)">
+        </app-column-visibility-control>
+      }
 
-        <!-- Stats inline -->
-        <div class="flex items-center gap-2 ml-2">
-          <div class="stat-chip slate">
-            <span class="stat-value">{{ materials().length }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-chip green">
-            <span class="stat-value">{{ getActiveMaterialsCount() }}</span>
-            <span class="stat-label">Activos</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Actions -->
-      <div class="flex items-center gap-2">
+      <!-- Botón Exportar -->
+      @if (config()?.gridConfig?.enableExport !== false) {
         <button type="button"
                 class="icon-btn"
-                (click)="refreshData()"
-                [disabled]="isLoading()"
-                title="Actualizar">
-          <mat-icon>refresh</mat-icon>
+                [matMenuTriggerFor]="exportMenu"
+                [disabled]="isLoading() || filteredMaterials().length === 0"
+                title="Exportar datos">
+          <mat-icon>download</mat-icon>
         </button>
 
-        <!-- Selector de Columnas -->
-        @if (config()?.gridConfig?.enableColumnSelector !== false) {
-          <app-column-visibility-control
-            [columns]="columnOptions()"
-            [storageKey]="'materials-visible-columns'"
-            [defaultVisibleColumns]="defaultVisibleColumnIds()"
-            [themeColor]="'green'"
-            (visibilityChange)="onColumnVisibilityChange($event)">
-          </app-column-visibility-control>
-        }
-
-        <!-- Botón Exportar -->
-        @if (config()?.gridConfig?.enableExport !== false) {
-          <button type="button"
-                  class="icon-btn"
-                  [matMenuTriggerFor]="exportMenu"
-                  [disabled]="isLoading() || filteredMaterials().length === 0"
-                  title="Exportar datos">
-            <mat-icon>download</mat-icon>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportToCSV()">
+            <mat-icon>table_chart</mat-icon>
+            <span>Exportar a CSV</span>
           </button>
-
-          <mat-menu #exportMenu="matMenu">
-            <button mat-menu-item (click)="exportToCSV()">
-              <mat-icon>table_chart</mat-icon>
-              <span>Exportar a CSV</span>
-            </button>
-            <button mat-menu-item (click)="exportToJSON()">
-              <mat-icon>code</mat-icon>
-              <span>Exportar a JSON</span>
-            </button>
-          </mat-menu>
-        }
-
-        <button type="button"
-                class="icon-btn"
-                (click)="goToConfig()"
-                title="Configurar módulo">
-          <mat-icon>settings</mat-icon>
-        </button>
-
-        <button type="button"
-                class="btn-primary"
-                (click)="createMaterial()"
-                [disabled]="isLoading()">
-          <mat-icon>add</mat-icon>
-          <span>Nuevo Material</span>
-        </button>
-      </div>
-
+          <button mat-menu-item (click)="exportToJSON()">
+            <mat-icon>code</mat-icon>
+            <span>Exportar a JSON</span>
+          </button>
+        </mat-menu>
+      }
     </div>
-  </header>
+  </app-module-header>
 
   <!-- ========== BÚSQUEDA Y FILTROS ========== -->
   @if (config()?.gridConfig?.enableSearch !== false || config()?.gridConfig?.enableFilters !== false) {

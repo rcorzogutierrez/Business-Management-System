@@ -31,6 +31,7 @@ import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats 
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/models/generic-entity.interface';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
   selector: 'app-proposals-list',
@@ -49,6 +50,7 @@ import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/mode
     MatDividerModule,
     MatDialogModule,
     MatCheckboxModule,
+    ModuleHeaderComponent,
     PaginationComponent
   ],
   templateUrl: './proposals-list.component.html',
@@ -72,6 +74,34 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
   // Verificar si el usuario es admin
   isAdmin = computed(() => this.authService.authorizedUser()?.role === 'admin');
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const stats = this.dateFilteredStats();
+    return [
+      { value: stats.total, label: 'TOTAL', color: 'info' as const },
+      { value: stats.byStatus.sent, label: 'ENVIADOS', color: 'warning' as const },
+      { value: stats.byStatus.approved, label: 'APROBADOS', color: 'success' as const },
+      { value: stats.byStatus.converted_to_invoice, label: 'FACTURADOS', color: 'purple' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => {
+    const actions: ActionButton[] = [
+      { icon: 'refresh', tooltip: 'Actualizar', action: () => this.refresh() }
+    ];
+
+    // Botón de configuración (solo para admin)
+    if (this.isAdmin()) {
+      actions.push({
+        icon: 'settings',
+        tooltip: 'Configuración',
+        action: () => this.openConfig()
+      });
+    }
+
+    return actions;
+  });
 
   // Señales locales
   searchTerm = signal<string>('');

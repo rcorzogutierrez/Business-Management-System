@@ -429,6 +429,34 @@ src/
 **Problema:** `Type 'Signal<T>' is not assignable to type 'T'`
 **Solución:** Llamar el signal como función: `signal()` no `signal`
 
+## 📏 Ancho Estándar de Contenedores
+
+**IMPORTANTE:** Todos los módulos principales deben usar el mismo ancho máximo para uniformidad.
+
+### Ancho Estándar: `1400px`
+
+```css
+/* CSS tradicional */
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+```
+
+```html
+<!-- Tailwind inline -->
+<div class="max-w-[1400px] mx-auto p-5">
+```
+
+**Módulos actualizados:**
+- ✅ `clients-list` - 1400px
+- ✅ `workers-list` - 1400px
+- ✅ `materials-list` - 1400px
+- ✅ `proposals-list` - 1400px (referencia)
+
+**Razón:** Mejor aprovechamiento de pantallas modernas sin sacrificar legibilidad.
+
 ## 🎓 Filosofía del Proyecto
 
 1. **Compartir, no duplicar**: Si algo se repite, heredar de un base component
@@ -439,4 +467,4 @@ src/
 
 ---
 
-**Última actualización:** 2026-01-28
+**Última actualización:** 2026-01-29

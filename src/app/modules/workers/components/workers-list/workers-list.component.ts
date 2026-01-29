@@ -24,6 +24,7 @@ import { CompaniesService } from '../../companies/services/companies.service';
 import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
 import { GenericListBaseComponent } from '../../../../shared/components/generic-list-base/generic-list-base.component';
 import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 /**
  * Componente de listado de Workers
@@ -44,6 +45,7 @@ import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/mod
     MatDividerModule,
     MatChipsModule,
     MatDialogModule,
+    ModuleHeaderComponent,
     ColumnVisibilityControlComponent
   ],
   templateUrl: './workers-list.component.html',
@@ -97,6 +99,34 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   isAdmin = computed(() => {
     const user = this.authService.authorizedUser();
     return user?.role === 'admin';
+  });
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const workers = this.data();
+    return [
+      { value: workers.length, label: 'TOTAL', color: 'info' as const },
+      { value: this.getActiveWorkersCount(), label: 'ACTIVOS', color: 'success' as const },
+      { value: this.getInternalCount(), label: 'PROPIOS', color: 'primary' as const },
+      { value: this.getContractorCount(), label: 'SUBCONTRAT.', color: 'purple' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => {
+    const actions: ActionButton[] = [
+      { icon: 'refresh', tooltip: 'Actualizar', action: () => this.refreshData() }
+    ];
+
+    // Botón de configuración (solo para admin)
+    if (this.isAdmin()) {
+      actions.push({
+        icon: 'settings',
+        tooltip: 'Configurar módulo',
+        action: () => this.goToConfig()
+      });
+    }
+
+    return actions;
   });
 
   // Exponer configuración del servicio para uso reactivo en el template
