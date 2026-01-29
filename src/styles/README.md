@@ -265,6 +265,31 @@ grep -r "\.back-btn\s*{" src/app --include="*.css"
 
 ---
 
+## 🧩 Componentes Compartidos Reutilizables
+
+### ModuleHeaderComponent
+**Ubicación:** `src/app/shared/components/module-header/`
+
+Componente genérico para headers de módulos que elimina duplicación de código.
+
+**Uso:**
+```typescript
+import { ModuleHeaderComponent } from '@shared/components/module-header';
+```
+
+**Documentación completa:** [MODULE-HEADER-USAGE.md](../app/shared/components/module-header/MODULE-HEADER-USAGE.md)
+
+**Reemplaza código duplicado en:**
+- `clients-list`
+- `workers-list`
+- `materials-list`
+- `dashboard`
+- Cualquier módulo con header similar
+
+**Reducción de código:** ~50 líneas → ~10 líneas por módulo
+
+---
+
 ## 🚀 Beneficios
 
 - **Mantenibilidad:** Fácil localizar y modificar estilos
@@ -273,3 +298,4 @@ grep -r "\.back-btn\s*{" src/app --include="*.css"
 - **Colaboración:** Estructura clara para todo el equipo
 - **Reutilización:** Estilos compartidos entre componentes
 - **DRY:** Sin código duplicado en el sistema
+- **Componentes Compartidos:** Headers, formularios, configuraciones reutilizables

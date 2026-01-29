@@ -5,6 +5,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 @Component({
   selector: 'app-treasury-dashboard',
@@ -12,103 +13,67 @@ import { PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS } from '../../models';
   imports: [
     CommonModule,
     CurrencyPipe,
-    MatIconModule
+    MatIconModule,
+    ModuleHeaderComponent
   ],
   template: `
-    <div class="max-w-[1200px] mx-auto p-5">
+    <div class="max-w-[1400px] mx-auto p-5">
       <!-- ============================================
-           HEADER COMPACTO ESTILO CLIENTES
+           HEADER COMPACTO - Usando ModuleHeaderComponent
            ============================================ -->
-      <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-5 animate-fadeIn">
-        <div class="flex items-center justify-between gap-5 flex-wrap">
+      <app-module-header
+        icon="account_balance_wallet"
+        title="Tesorería"
+        [subtitle]="(stats().totalCobros + stats().totalPagos) + ' registros en el sistema'"
+        moduleColor="teal"
+        [stats]="headerStats()"
+        [actionButtons]="headerActions()"
+        primaryButtonLabel="Registrar Cobro"
+        (primaryAction)="goToCobros('new')"
+        (secondaryAction)="goToPagos('new')">
 
-          <!-- Left Section -->
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-to-br from-teal-500 to-teal-600 shadow-lg shadow-teal-500/30">
-              <mat-icon class="!text-white !text-xl">account_balance_wallet</mat-icon>
-            </div>
-            <div>
-              <h1 class="text-lg font-bold text-slate-800">Tesorería</h1>
-              <p class="text-xs text-slate-500">
-                {{ stats().totalCobros + stats().totalPagos }} registros en el sistema
-              </p>
-            </div>
+        <!-- Stats especiales: Balance y Este Mes -->
+        <div slot="extra-stats" class="hidden md:flex items-center gap-2">
+          <!-- Balance Badge - Dimensiones exactas de stat-chip estándar -->
+          <div class="flex flex-col items-center justify-center rounded-[10px] px-3 py-1.5 min-w-[65px] border"
+               [ngClass]="{
+                 'bg-emerald-50 border-emerald-200': stats().balance >= 0,
+                 'bg-red-50 border-red-200': stats().balance < 0
+               }">
+            <span class="text-base font-bold leading-[1.2]"
+                  [ngClass]="{
+                    'text-emerald-600': stats().balance >= 0,
+                    'text-red-600': stats().balance < 0
+                  }">{{ stats().balance | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+            <span class="text-[9px] uppercase tracking-[0.3px] font-semibold"
+                  [ngClass]="{
+                    'text-emerald-500': stats().balance >= 0,
+                    'text-red-500': stats().balance < 0
+                  }">Balance</span>
           </div>
 
-          <!-- Right Section - Stats & Actions -->
-          <div class="flex items-center gap-3 flex-wrap">
-            <!-- Stats inline -->
-            <div class="hidden md:flex items-center gap-2">
-              <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-emerald-50 border border-emerald-200">
-                <span class="text-base font-bold leading-tight text-emerald-600">{{ stats().totalCobros }}</span>
-                <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-emerald-500">Cobros</span>
-              </div>
-              <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-red-50 border border-red-200">
-                <span class="text-base font-bold leading-tight text-red-600">{{ stats().totalPagos }}</span>
-                <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-red-500">Pagos</span>
-              </div>
-              <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[85px] border"
-                   [ngClass]="{
-                     'bg-emerald-50 border-emerald-200': stats().balance >= 0,
-                     'bg-red-50 border-red-200': stats().balance < 0
-                   }">
-                <span class="text-base font-bold leading-tight"
-                      [ngClass]="{
-                        'text-emerald-600': stats().balance >= 0,
-                        'text-red-600': stats().balance < 0
-                      }">{{ stats().balance | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
-                <span class="text-[10px] uppercase tracking-wider font-medium mt-1"
-                      [ngClass]="{
-                        'text-emerald-500': stats().balance >= 0,
-                        'text-red-500': stats().balance < 0
-                      }">Balance</span>
-              </div>
-
-              <!-- Este Mes Badge -->
-              <div class="flex items-center gap-3 rounded-lg px-4 py-2 bg-gradient-to-br from-amber-50 via-amber-50 to-orange-50 border-2 border-amber-200 shadow-sm">
-                <div class="flex items-center justify-center w-9 h-9 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg shadow-md">
-                  <mat-icon class="!text-white !text-lg">calendar_month</mat-icon>
-                </div>
-                <div class="flex flex-col gap-1">
-                  <span class="text-[10px] uppercase tracking-[0.1em] font-bold text-amber-700 leading-none">Este Mes</span>
-                  <div class="flex items-baseline gap-2">
-                    <span class="text-sm font-bold text-emerald-600 leading-none">+{{ stats().cobrosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
-                    <span class="text-xs text-slate-400 font-medium">/</span>
-                    <span class="text-sm font-bold text-red-600 leading-none">-{{ stats().pagosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
-                  </div>
-                </div>
-              </div>
+          <!-- Este Mes Badge - Compacto y proporcional -->
+          <div class="flex flex-col items-center rounded-[10px] px-2.5 py-1.5 bg-gradient-to-br from-amber-50 to-orange-50 border border-amber-200 min-w-[65px]">
+            <div class="flex items-center gap-1">
+              <mat-icon class="!text-amber-600 !text-sm !w-3.5 !h-3.5">calendar_month</mat-icon>
+              <span class="text-[9px] uppercase tracking-[0.3px] font-semibold text-amber-700 leading-none">Este Mes</span>
             </div>
-
-            <!-- Action Buttons -->
-            <div class="flex items-center gap-2">
-              <button type="button"
-                      class="w-10 h-10 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:border-slate-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                      (click)="refresh()"
-                      [disabled]="isLoading()"
-                      title="Actualizar">
-                <mat-icon class="!text-slate-600 !text-xl" [class.animate-spin]="isLoading()">refresh</mat-icon>
-              </button>
-
-              <button type="button"
-                      class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-teal-500 to-teal-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-lg shadow-teal-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-teal-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
-                      (click)="goToCobros('new')"
-                      [disabled]="isLoading()">
-                <mat-icon class="!text-lg">add</mat-icon>
-                Registrar Cobro
-              </button>
-
-              <button type="button"
-                      class="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-br from-red-500 to-red-600 text-white border-none rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-lg shadow-red-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-red-500/40 disabled:opacity-60 disabled:cursor-not-allowed"
-                      (click)="goToPagos('new')"
-                      [disabled]="isLoading()">
-                <mat-icon class="!text-lg">add</mat-icon>
-                Registrar Pago
-              </button>
+            <div class="flex items-center gap-1 mt-1">
+              <span class="text-[11px] font-bold text-emerald-600 leading-none">+{{ stats().cobrosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
+              <span class="text-[9px] text-slate-400 font-medium">/</span>
+              <span class="text-[11px] font-bold text-red-600 leading-none">-{{ stats().pagosEsteMes | currency:'USD':'symbol-narrow':'1.0-0' }}</span>
             </div>
           </div>
         </div>
-      </header>
+
+        <!-- Botón Registrar Pago (rojo) en slot de acciones -->
+        <button slot="actions"
+                class="inline-flex items-center gap-2 border-2 border-red-600 text-red-600 hover:bg-red-50 rounded-xl font-semibold text-sm px-4 py-2 transition-colors duration-200"
+                (click)="goToPagos('new')">
+          <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
+          Registrar Pago
+        </button>
+      </app-module-header>
 
       <!-- Loading -->
       @if (isLoading()) {
@@ -520,6 +485,19 @@ export class TreasuryDashboardComponent implements OnInit {
   stats = this.treasuryService.stats;
   cobros = this.treasuryService.activeCobros;
   pagos = this.treasuryService.activePagos;
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const currentStats = this.stats();
+    return [
+      { value: currentStats.totalCobros, label: 'COBROS', color: 'success' as const },
+      { value: currentStats.totalPagos, label: 'PAGOS', color: 'warning' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => [
+    { icon: 'refresh', tooltip: 'Actualizar', action: () => this.refresh() }
+  ]);
 
   // Recent items (last 5)
   recentCobros = computed(() => this.cobros().slice(0, 5));

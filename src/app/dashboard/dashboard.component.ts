@@ -7,6 +7,7 @@ import { AuthService } from '../core/services/auth.service';
 import { UserDashboardService, UserDashboardData } from './services/user-dashboard.service';
 import { AppConfigService } from '../core/services/app-config.service';
 import { getPermissionIcon, fromFirestoreTimestamp } from '../shared/utils';
+import { ModuleHeaderComponent, StatChip } from '../shared/components/module-header/module-header.component';
 
 /**
  * Acción rápida del dashboard
@@ -48,6 +49,7 @@ interface KeyMetric {
   imports: [
     CommonModule,
     MatIconModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
@@ -125,6 +127,27 @@ export class DashboardComponent implements OnInit {
    * Contador de notificaciones (placeholder para futura implementación)
    */
   readonly notificationCount = computed(() => 0);
+
+  /**
+   * Stats para el header
+   */
+  headerStats = computed<StatChip[]>(() => {
+    const dashboard = this.userDashboard();
+    if (!dashboard) return [];
+
+    return [
+      { value: dashboard.userStats.totalPermissions, label: 'PERMISOS', color: 'primary' as const },
+      { value: dashboard.userStats.totalModules, label: 'MÓDULOS', color: 'info' as const }
+    ];
+  });
+
+  /**
+   * Subtítulo dinámico del header
+   */
+  headerSubtitle = computed(() => {
+    if (this.loading()) return 'Cargando información...';
+    return `Última sesión: ${this.getLastSession()}`;
+  });
 
   // ============================================
   // SHARED UTILITIES (Angular 20 pattern)

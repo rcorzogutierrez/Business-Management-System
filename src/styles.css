@@ -257,18 +257,21 @@
     justify-content: center;
   }
 
-  /* ========== HEADER ICON BOX (Compact 40px) ========== */
+  /* ========== HEADER ICON BOX (Compact 42px) ========== */
   .header-icon-box {
-    @apply w-10 h-10 flex items-center justify-center rounded-xl flex-shrink-0;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    @apply flex items-center justify-center flex-shrink-0;
     @apply bg-gradient-to-br from-blue-500 to-blue-600;
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
   }
 
   .header-icon-box mat-icon {
     @apply text-white;
-    font-size: 20px;
-    width: 20px;
-    height: 20px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;

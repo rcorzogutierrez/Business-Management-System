@@ -2,70 +2,17 @@
 
 <div class="proposals-container">
 
-  <!-- ========== HEADER COMPACTO ========== -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-
-      <!-- Left: Icon + Title + Stats -->
-      <div class="flex items-center gap-4">
-        <div class="header-icon-box blue">
-          <mat-icon>description</mat-icon>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-800">Gestión de Estimados</h1>
-          <p class="text-xs text-slate-500">Control y seguimiento de propuestas</p>
-        </div>
-
-        <!-- Stats inline -->
-        <div class="flex items-center gap-2 ml-2">
-          <div class="stat-chip slate">
-            <span class="stat-value">{{ dateFilteredStats().total }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-chip amber">
-            <span class="stat-value">{{ dateFilteredStats().byStatus.sent }}</span>
-            <span class="stat-label">Enviados</span>
-          </div>
-          <div class="stat-chip green">
-            <span class="stat-value">{{ dateFilteredStats().byStatus.approved }}</span>
-            <span class="stat-label">Aprobados</span>
-          </div>
-          <div class="stat-chip purple">
-            <span class="stat-value">{{ dateFilteredStats().byStatus.converted_to_invoice }}</span>
-            <span class="stat-label">Facturados</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Actions -->
-      <div class="flex items-center gap-2">
-        <button type="button"
-                class="icon-btn"
-                (click)="openConfig()"
-                [disabled]="isLoading()"
-                title="Configuración">
-          <mat-icon>settings</mat-icon>
-        </button>
-
-        <button type="button"
-                class="icon-btn"
-                (click)="refresh()"
-                [disabled]="isLoading()"
-                title="Actualizar">
-          <mat-icon>refresh</mat-icon>
-        </button>
-
-        <button type="button"
-                class="btn-primary"
-                (click)="createProposal()"
-                [disabled]="isLoading()">
-          <mat-icon>add</mat-icon>
-          <span>Nuevo Estimado</span>
-        </button>
-      </div>
-
-    </div>
-  </header>
+  <!-- ========== HEADER COMPACTO - Usando ModuleHeaderComponent ========== -->
+  <app-module-header
+    icon="description"
+    title="Gestión de Estimados"
+    subtitle="Control y seguimiento de propuestas"
+    moduleColor="blue"
+    [stats]="headerStats()"
+    [actionButtons]="headerActions()"
+    primaryButtonLabel="Nuevo Estimado"
+    (primaryAction)="createProposal()">
+  </app-module-header>
 
   <!-- ========== FILTRO DE RANGO DE FECHAS ========== -->
   <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-4 animate-fadeIn" style="animation-delay: 0.025s">

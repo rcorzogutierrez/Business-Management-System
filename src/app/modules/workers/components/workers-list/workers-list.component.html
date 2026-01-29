@@ -2,111 +2,55 @@
 
 <div class="workers-container">
 
-  <!-- ========== HEADER COMPACTO ========== -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
+  <!-- ========== HEADER COMPACTO - Usando ModuleHeaderComponent ========== -->
+  <app-module-header
+    icon="engineering"
+    title="Gestión de Trabajadores"
+    subtitle="Control y administración de personal"
+    moduleColor="amber"
+    [stats]="headerStats()"
+    [actionButtons]="headerActions()"
+    secondaryButtonLabel="Empresas"
+    secondaryButtonIcon="business"
+    primaryButtonLabel="Nuevo Trabajador"
+    (secondaryAction)="openCompaniesDialog()"
+    (primaryAction)="createWorker()">
 
-      <!-- Left: Icon + Title + Stats -->
-      <div class="flex items-center gap-4">
-        <div class="header-icon-box amber">
-          <mat-icon>engineering</mat-icon>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-800">Gestión de Trabajadores</h1>
-          <p class="text-xs text-slate-500">Control y administración de personal</p>
-        </div>
+    <!-- Acciones personalizadas proyectadas -->
+    <div slot="actions" class="flex items-center gap-2">
+      <!-- Selector de Columnas -->
+      @if (config().gridConfig.enableColumnSelector !== false) {
+        <app-column-visibility-control
+          [columns]="columnOptions()"
+          [storageKey]="'workers-visible-columns'"
+          [themeColor]="'amber'"
+          (visibilityChange)="onColumnVisibilityChange($event)">
+        </app-column-visibility-control>
+      }
 
-        <!-- Stats inline -->
-        <div class="flex items-center gap-2 ml-2">
-          <div class="stat-chip slate">
-            <span class="stat-value">{{ data().length }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-chip green">
-            <span class="stat-value">{{ getActiveWorkersCount() }}</span>
-            <span class="stat-label">Activos</span>
-          </div>
-          <div class="stat-chip blue">
-            <span class="stat-value">{{ getInternalCount() }}</span>
-            <span class="stat-label">Propios</span>
-          </div>
-          <div class="stat-chip purple">
-            <span class="stat-value">{{ getContractorCount() }}</span>
-            <span class="stat-label">Subcontrat.</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: Actions -->
-      <div class="flex items-center gap-2">
+      <!-- Botón de Exportar -->
+      @if (config().gridConfig.enableExport !== false) {
         <button type="button"
                 class="icon-btn"
-                (click)="refreshData()"
-                [disabled]="isLoading()"
-                title="Actualizar">
-          <mat-icon>refresh</mat-icon>
+                [matMenuTriggerFor]="exportMenu"
+                [disabled]="isLoading() || filteredWorkers().length === 0"
+                title="Exportar datos">
+          <mat-icon>download</mat-icon>
         </button>
 
-        <!-- Selector de Columnas -->
-        @if (config().gridConfig.enableColumnSelector !== false) {
-          <app-column-visibility-control
-            [columns]="columnOptions()"
-            [storageKey]="'workers-visible-columns'"
-            [themeColor]="'amber'"
-            (visibilityChange)="onColumnVisibilityChange($event)">
-          </app-column-visibility-control>
-        }
-
-        <!-- Botón de Exportar -->
-        @if (config().gridConfig.enableExport !== false) {
-          <button type="button"
-                  class="icon-btn"
-                  [matMenuTriggerFor]="exportMenu"
-                  [disabled]="isLoading() || filteredWorkers().length === 0"
-                  title="Exportar datos">
-            <mat-icon>download</mat-icon>
+        <mat-menu #exportMenu="matMenu">
+          <button mat-menu-item (click)="exportToCSV()">
+            <mat-icon>table_chart</mat-icon>
+            <span>Exportar a CSV</span>
           </button>
-
-          <mat-menu #exportMenu="matMenu">
-            <button mat-menu-item (click)="exportToCSV()">
-              <mat-icon>table_chart</mat-icon>
-              <span>Exportar a CSV</span>
-            </button>
-            <button mat-menu-item (click)="exportToJSON()">
-              <mat-icon>code</mat-icon>
-              <span>Exportar a JSON</span>
-            </button>
-          </mat-menu>
-        }
-
-        @if (isAdmin()) {
-          <button type="button"
-                  class="icon-btn"
-                  (click)="goToConfig()"
-                  title="Configurar módulo">
-            <mat-icon>settings</mat-icon>
+          <button mat-menu-item (click)="exportToJSON()">
+            <mat-icon>code</mat-icon>
+            <span>Exportar a JSON</span>
           </button>
-        }
-
-        <button type="button"
-                class="btn-secondary"
-                (click)="openCompaniesDialog()"
-                [disabled]="isLoading()">
-          <mat-icon>business</mat-icon>
-          <span>Empresas</span>
-        </button>
-
-        <button type="button"
-                class="btn-primary"
-                (click)="createWorker()"
-                [disabled]="isLoading()">
-          <mat-icon>add</mat-icon>
-          <span>Nuevo Trabajador</span>
-        </button>
-      </div>
-
+        </mat-menu>
+      }
     </div>
-  </header>
+  </app-module-header>
 
   <!-- ========== FILTROS Y BÚSQUEDA ========== -->
   @if (config().gridConfig.enableSearch !== false || config().gridConfig.enableFilters !== false) {
