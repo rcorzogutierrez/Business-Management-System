@@ -15,6 +15,9 @@ import { ProposalConfigService } from '../../services/proposal-config.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
+// Base Component
+import { GenericGridConfigBaseComponent } from '../../../../shared/components/generic-grid-config-base/generic-grid-config-base.component';
+
 // Models
 import { ProposalClientFieldsMapping, ProposalAddressMapping, MaterialMarkupCategory } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
@@ -45,25 +48,21 @@ interface FieldMappingConfig {
   styleUrl: './proposal-config.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProposalConfigComponent implements OnInit {
+export class ProposalConfigComponent extends GenericGridConfigBaseComponent implements OnInit {
+  // Implementar propiedades abstractas requeridas por GenericGridConfigBaseComponent
+  configService = inject(ProposalConfigService);
+  override modulePath = '/modules/projects';
+
+  // Servicios específicos de proposals
   private fb = inject(FormBuilder);
-  private proposalConfigService = inject(ProposalConfigService);
   private clientsService = inject(ClientsService);
   private clientConfigService = inject(ClientConfigServiceRefactored);
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
 
-  // Signals
-  isLoading = signal<boolean>(false);
+  // Signals específicos de proposals
   isSaving = signal<boolean>(false);
   availableFields = signal<FieldConfig[]>([]);
   markupCategories = signal<MaterialMarkupCategory[]>([]);
   markupEnabled = signal<boolean>(false);
-
-  // Grid Config Signals
-  pageSizeOptions = [10, 25, 50, 100];
-  itemsPerPageSignal = signal<number>(10);
-  gridConfig = signal<any>(null);
 
   // Form
   configForm!: FormGroup;
@@ -85,13 +84,17 @@ export class ProposalConfigComponent implements OnInit {
   ];
 
   constructor() {
+    super();
     this.initForm();
   }
 
-  async ngOnInit() {
-    // Cargar servicios necesarios
+  override async ngOnInit() {
+    // Llamar a la inicialización del componente base (carga gridConfig)
+    super.ngOnInit();
+
+    // Inicializar servicios específicos de proposals
     await Promise.all([
-      this.proposalConfigService.initialize(),
+      this.configService.initialize(),
       this.clientConfigService.initialize()
     ]);
 
@@ -100,9 +103,6 @@ export class ProposalConfigComponent implements OnInit {
 
     // Cargar configuración actual
     this.loadCurrentConfig();
-
-    // Cargar configuración del grid
-    this.loadGridConfig();
   }
 
   /**
@@ -133,7 +133,8 @@ export class ProposalConfigComponent implements OnInit {
    */
   loadAvailableFields() {
     try {
-      this.isLoading.set(true);
+      this.isLoading = true;
+      this.cdr.markForCheck();
 
       // Obtener todos los campos configurados en el módulo de clientes
       const fields = this.clientConfigService.getFieldsInUse();
@@ -159,7 +160,8 @@ export class ProposalConfigComponent implements OnInit {
     } catch (error) {
       console.error('❌ Error cargando campos disponibles:', error);
     } finally {
-      this.isLoading.set(false);
+      this.isLoading = false;
+      this.cdr.markForCheck();
     }
   }
 
@@ -211,7 +213,7 @@ export class ProposalConfigComponent implements OnInit {
    * Cargar configuración actual o usar sugerencias inteligentes
    */
   loadCurrentConfig() {
-    const config = this.proposalConfigService.config();
+    const config = this.configService.config();
 
     if (config) {
       // Cargar configuración existente
@@ -227,7 +229,7 @@ export class ProposalConfigComponent implements OnInit {
         defaultTaxPercentage: config.defaultTaxPercentage || 0,
         defaultValidityDays: config.defaultValidityDays || 30,
         defaultWorkType: config.defaultWorkType || 'residential',
-        defaultTerms: config.defaultTerms || this.proposalConfigService.getDefaultTerms()
+        defaultTerms: config.defaultTerms || this.configService.getDefaultTerms()
       });
 
       // Cargar configuración de markup
@@ -250,11 +252,11 @@ export class ProposalConfigComponent implements OnInit {
         defaultTaxPercentage: 0,
         defaultValidityDays: 30,
         defaultWorkType: 'residential',
-        defaultTerms: this.proposalConfigService.getDefaultTerms()
+        defaultTerms: this.configService.getDefaultTerms()
       });
 
       // Cargar configuración de markup por defecto
-      const markupConfig = this.proposalConfigService.getMaterialMarkupConfig();
+      const markupConfig = this.configService.getMaterialMarkupConfig();
       if (markupConfig) {
         this.markupEnabled.set(markupConfig.enabled);
         this.markupCategories.set([...markupConfig.categories]);
@@ -341,7 +343,7 @@ export class ProposalConfigComponent implements OnInit {
       const categories = this.markupCategories();
       const defaultCategory = categories.find(c => c.isActive);
 
-      await this.proposalConfigService.updateConfig({
+      await this.configService.updateConfig({
         clientFieldsMapping: clientFieldsMapping,
         clientAddressMapping: addressMapping,
         defaultTaxPercentage: formValue.defaultTaxPercentage,
@@ -387,19 +389,12 @@ export class ProposalConfigComponent implements OnInit {
       defaultTaxPercentage: 0,
       defaultValidityDays: 30,
       defaultWorkType: 'residential',
-      defaultTerms: this.proposalConfigService.getDefaultTerms()
+      defaultTerms: this.configService.getDefaultTerms()
     });
 
     this.snackBar.open('💡 Valores restablecidos con sugerencias automáticas', 'Cerrar', {
       duration: 3000
     });
-  }
-
-  /**
-   * Volver a la lista de estimados
-   */
-  goBack() {
-    this.router.navigate(['/modules/projects']);
   }
 
   /**
@@ -534,80 +529,11 @@ export class ProposalConfigComponent implements OnInit {
     this.markupCategories.set(categories);
   }
 
-  /**
-   * Cargar configuración del grid
-   */
-  loadGridConfig() {
-    const config = this.proposalConfigService.getGridConfig();
-    if (config) {
-      this.gridConfig.set(config);
-      this.itemsPerPageSignal.set(config.itemsPerPage || 10);
-    }
-  }
-
-  /**
-   * Actualizar configuración del grid
-   */
-  async updateGridConfig(key: string, value: any): Promise<void> {
-    try {
-      const currentConfig = this.gridConfig();
-      const updatedConfig = {
-        ...currentConfig,
-        [key]: value
-      };
-
-      await this.proposalConfigService.updateGridConfig(updatedConfig);
-      this.gridConfig.set(updatedConfig);
-
-      this.snackBar.open('Configuración actualizada', 'Cerrar', {
-        duration: 2000
-      });
-    } catch (error) {
-      console.error('Error actualizando configuración del grid:', error);
-      this.snackBar.open('Error al actualizar la configuración', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
-    }
-  }
-
-  /**
-   * Cambiar elementos por página
-   */
-  async onItemsPerPageChange(newSize: number): Promise<void> {
-    this.itemsPerPageSignal.set(newSize);
-    await this.updateGridConfig('itemsPerPage', newSize);
-  }
-
-  /**
-   * Activar/desactivar todas las funcionalidades
-   */
-  async toggleAllFeatures(): Promise<void> {
-    const currentConfig = this.gridConfig();
-    const allEnabled = currentConfig.enableSearch &&
-                       currentConfig.enableFilters &&
-                       currentConfig.enableExport &&
-                       currentConfig.enableBulkActions &&
-                       currentConfig.enableColumnSelector;
-
-    const newValue = !allEnabled;
-
-    const updatedConfig = {
-      ...currentConfig,
-      enableSearch: newValue,
-      enableFilters: newValue,
-      enableExport: newValue,
-      enableBulkActions: newValue,
-      enableColumnSelector: newValue
-    };
-
-    await this.proposalConfigService.updateGridConfig(updatedConfig);
-    this.gridConfig.set(updatedConfig);
-
-    this.snackBar.open(
-      newValue ? 'Todas las funcionalidades activadas' : 'Todas las funcionalidades desactivadas',
-      'Cerrar',
-      { duration: 2000 }
-    );
-  }
+  // Los siguientes métodos ya están implementados en GenericGridConfigBaseComponent:
+  // - updateGridConfig()
+  // - toggleAllFeatures()
+  // - gridConfig (computed)
+  // - itemsPerPageSignal
+  // - pageSizeOptions
+  // - goBack()
 }

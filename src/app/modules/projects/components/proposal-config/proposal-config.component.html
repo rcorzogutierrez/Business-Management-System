@@ -459,7 +459,7 @@
                 type="button"
                 class="page-size-btn"
                 [class.active]="itemsPerPageSignal() === option"
-                (click)="onItemsPerPageChange(option)">
+                (click)="updateGridConfig('itemsPerPage', option)">
                 {{ option }}
               </button>
             }
