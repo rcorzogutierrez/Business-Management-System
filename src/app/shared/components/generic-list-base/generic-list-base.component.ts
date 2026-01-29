@@ -46,7 +46,8 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   // SIGNALS COMPARTIDOS - Columnas Visibles
   // ==============================================
 
-  visibleColumnIds = signal<string[]>(this.loadVisibleColumnsFromStorage());
+  // Inicializar vacío - se cargará en ngOnInit cuando storageKey esté definido
+  visibleColumnIds = signal<string[]>([]);
 
   defaultVisibleColumnIds = computed(() => {
     return this.gridFields()
@@ -189,8 +190,15 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   Object = Object;
 
   ngOnInit(): void {
-    // itemsPerPage ahora es un computed que se sincroniza automáticamente
-    // No es necesario hacer .set() manualmente
+    // Cargar columnas visibles desde localStorage
+    // Se hace aquí porque storageKey es una propiedad abstracta
+    // que solo está disponible después de que el componente hijo se construye
+    const stored = this.loadVisibleColumnsFromStorage();
+    if (stored.length > 0) {
+      this.visibleColumnIds.set(stored);
+    }
+    // Si stored.length === 0, visibleColumnIds queda [], y columnOptions/visibleGridFields
+    // automáticamente usarán las columnas por defecto (showInGrid: true)
   }
 
   // ==============================================
@@ -219,9 +227,13 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
 
   /**
    * Manejar cambio de visibilidad de columnas
+   * Actualiza el signal y persiste en localStorage para mantener sincronización
    */
   onColumnVisibilityChange(visibleIds: string[]): void {
     this.visibleColumnIds.set(visibleIds);
+    // Guardar en localStorage para mantener sincronización
+    // (column-visibility-control también guarda, pero esto asegura consistencia)
+    localStorage.setItem(this.storageKey, JSON.stringify(visibleIds));
   }
 
   // ==============================================
