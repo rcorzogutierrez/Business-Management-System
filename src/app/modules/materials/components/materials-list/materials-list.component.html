@@ -20,6 +20,7 @@
         <app-column-visibility-control
           [columns]="columnOptions()"
           [storageKey]="'materials-visible-columns'"
+          [defaultVisibleColumns]="defaultVisibleColumnIds()"
           [themeColor]="'green'"
           (visibilityChange)="onColumnVisibilityChange($event)">
         </app-column-visibility-control>

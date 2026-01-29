@@ -55,10 +55,16 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   });
 
   columnOptions = computed<ColumnOption[]>(() => {
+    const visibleIds = this.visibleColumnIds();
+    const defaultIds = this.defaultVisibleColumnIds();
+
+    // Si no hay columnas seleccionadas (primera carga), usar las por defecto
+    const activeIds = visibleIds.length === 0 ? defaultIds : visibleIds;
+
     return this.gridFields().map(field => ({
       id: field.id,
       label: field.label,
-      visible: this.visibleColumnIds().includes(field.id)
+      visible: activeIds.includes(field.id)
     }));
   });
 
