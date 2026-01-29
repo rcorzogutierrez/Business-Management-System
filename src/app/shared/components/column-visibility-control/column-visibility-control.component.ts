@@ -63,6 +63,7 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   visibleColumnIds = signal<Set<string>>(new Set());
   private loadedFromStorage = false;
   private isInitialized = false;
+  private shouldEmitChanges = false; // Control para evitar emisiones prematuras
 
   // Computed
   visibleCount = computed(() => this.visibleColumnIds().size);
@@ -70,9 +71,12 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
 
   constructor() {
     // Effect para emitir cambios cuando visibleColumnIds cambia
+    // SOLO emite después de la inicialización completa
     effect(() => {
-      const visible = Array.from(this.visibleColumnIds());
-      this.visibilityChange.emit(visible);
+      if (this.shouldEmitChanges) {
+        const visible = Array.from(this.visibleColumnIds());
+        this.visibilityChange.emit(visible);
+      }
     });
   }
 
@@ -81,9 +85,16 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // Cuando las columnas disponibles cambian, validar y filtrar IDs inválidos
-    if (changes['columns'] && this.loadedFromStorage) {
-      this.validateAndFilterInvalidIds();
+    // Cuando las columnas disponibles cambian
+    if (changes['columns']) {
+      // Si ya cargamos desde storage, validar y filtrar IDs inválidos
+      if (this.loadedFromStorage) {
+        this.validateAndFilterInvalidIds();
+      }
+      // Si NO hemos inicializado aún, sincronizar con el campo 'visible' del input
+      else if (!this.isInitialized && this.columns.length > 0) {
+        this.syncWithColumnsInput();
+      }
     }
 
     // Cuando defaultVisibleColumns cambia y no hemos inicializado
@@ -108,6 +119,24 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
           }
         }
       }
+    }
+  }
+
+  /**
+   * Sincronizar estado interno con el campo 'visible' del input columns
+   * Se usa cuando no hay datos en localStorage y las columnas ya vienen
+   * con el campo 'visible' configurado por el parent
+   */
+  private syncWithColumnsInput() {
+    const visibleIds = this.columns
+      .filter(col => col.visible)
+      .map(col => col.id);
+
+    if (visibleIds.length > 0) {
+      this.visibleColumnIds.set(new Set(visibleIds));
+      this.isInitialized = true;
+      // Activar emisión de cambios
+      this.shouldEmitChanges = true;
     }
   }
 
@@ -148,6 +177,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
             this.visibleColumnIds.set(new Set(columnIds));
             this.loadedFromStorage = true;
             this.isInitialized = true;
+            // Activar emisión de cambios DESPUÉS de cargar
+            this.shouldEmitChanges = true;
             return;
           }
         } catch (error) {
@@ -168,6 +199,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
       this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
       this.isInitialized = true;
       this.saveToStorage();
+      // Activar emisión de cambios DESPUÉS de inicializar
+      this.shouldEmitChanges = true;
     }
     // NO usar fallback de "todas las columnas" - esto causaba el bug
   }
@@ -214,6 +247,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
 
     this.visibleColumnIds.set(visible);
     this.saveToStorage();
+    // Asegurar que los cambios se emitan
+    this.shouldEmitChanges = true;
   }
 
   /**
