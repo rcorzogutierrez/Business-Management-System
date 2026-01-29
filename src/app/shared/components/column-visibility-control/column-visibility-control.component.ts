@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, signal, computed, effect, OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, signal, computed, effect, OnInit, OnChanges, AfterViewInit, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -29,7 +29,7 @@ export interface ColumnOption {
   templateUrl: './column-visibility-control.component.html',
   styleUrl: './column-visibility-control.component.css'
 })
-export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
+export class ColumnVisibilityControlComponent implements OnInit, OnChanges, AfterViewInit {
   /**
    * Lista de columnas disponibles
    */
@@ -122,6 +122,15 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
     }
   }
 
+  ngAfterViewInit() {
+    // Activar emisión de eventos DESPUÉS de que la vista se haya inicializado completamente
+    // Esto asegura que todas las sincronizaciones iniciales hayan terminado
+    // y solo emitiremos cambios cuando el usuario interactúe manualmente
+    setTimeout(() => {
+      this.shouldEmitChanges = true;
+    }, 0);
+  }
+
   /**
    * Sincronizar estado interno con el campo 'visible' del input columns
    * Se usa cuando no hay datos en localStorage y las columnas ya vienen
@@ -135,8 +144,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
     if (visibleIds.length > 0) {
       this.visibleColumnIds.set(new Set(visibleIds));
       this.isInitialized = true;
-      // Activar emisión de cambios
-      this.shouldEmitChanges = true;
+      // NO activar shouldEmitChanges aquí - esto es una sincronización inicial
+      // El parent ya tiene el estado correcto, no necesitamos emitir de vuelta
     }
   }
 
@@ -177,8 +186,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
             this.visibleColumnIds.set(new Set(columnIds));
             this.loadedFromStorage = true;
             this.isInitialized = true;
-            // Activar emisión de cambios DESPUÉS de cargar
-            this.shouldEmitChanges = true;
+            // NO activar shouldEmitChanges - esto es carga inicial
+            // El parent ya cargó desde storage, no necesitamos emitir de vuelta
             return;
           }
         } catch (error) {
@@ -199,8 +208,8 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
       this.visibleColumnIds.set(new Set(this.defaultVisibleColumns));
       this.isInitialized = true;
       this.saveToStorage();
-      // Activar emisión de cambios DESPUÉS de inicializar
-      this.shouldEmitChanges = true;
+      // NO activar shouldEmitChanges - esto es inicialización
+      // El parent ya tiene estos valores por defecto
     }
     // NO usar fallback de "todas las columnas" - esto causaba el bug
   }
@@ -247,8 +256,7 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges {
 
     this.visibleColumnIds.set(visible);
     this.saveToStorage();
-    // Asegurar que los cambios se emitan
-    this.shouldEmitChanges = true;
+    // shouldEmitChanges ya está activo después de AfterViewInit
   }
 
   /**
