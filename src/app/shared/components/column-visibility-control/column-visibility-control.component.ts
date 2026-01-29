@@ -73,8 +73,11 @@ export class ColumnVisibilityControlComponent implements OnInit, OnChanges, Afte
     // Effect para emitir cambios cuando visibleColumnIds cambia
     // SOLO emite después de la inicialización completa
     effect(() => {
+      // IMPORTANTE: Leer el signal ANTES del if para registrarlo como dependencia
+      const visible = Array.from(this.visibleColumnIds());
+
+      // Solo emitir si ya pasó la inicialización
       if (this.shouldEmitChanges) {
-        const visible = Array.from(this.visibleColumnIds());
         this.visibilityChange.emit(visible);
       }
     });
