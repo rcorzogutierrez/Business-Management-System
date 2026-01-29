@@ -166,17 +166,29 @@
         <div class="section-icon orange">
           <mat-icon>trending_up</mat-icon>
         </div>
-        <div>
+        <div class="flex-1">
           <h2>Categorías de Markup de Materiales</h2>
           <p>Sistema de markup por categorías para el costo de materiales en facturas</p>
         </div>
-        <mat-slide-toggle
-          [checked]="markupEnabled()"
-          (change)="toggleMarkupEnabled()"
-          color="primary"
-          class="ml-auto">
-          {{ markupEnabled() ? 'Habilitado' : 'Deshabilitado' }}
-        </mat-slide-toggle>
+        <div class="flex items-center gap-2">
+          <span class="text-sm font-medium" [class.text-blue-600]="markupEnabled()" [class.text-slate-600]="!markupEnabled()">
+            {{ markupEnabled() ? 'Habilitado' : 'Deshabilitado' }}
+          </span>
+          <button
+            type="button"
+            (click)="toggleMarkupEnabled()"
+            role="switch"
+            [attr.aria-checked]="markupEnabled()"
+            class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            [class.bg-blue-600]="markupEnabled()"
+            [class.bg-slate-300]="!markupEnabled()">
+            <span
+              class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+              [class.translate-x-6]="markupEnabled()"
+              [class.translate-x-1]="!markupEnabled()">
+            </span>
+          </button>
+        </div>
       </div>
 
       @if (markupEnabled()) {
@@ -193,12 +205,20 @@
               <div class="category-item" [class.active]="category.isActive">
                 <div class="category-content">
                   <!-- Radio button para seleccionar por defecto -->
-                  <mat-checkbox
-                    [checked]="category.isActive"
-                    (change)="toggleCategoryActive(category.id)"
-                    color="primary"
-                    matTooltip="Categoría por defecto">
-                  </mat-checkbox>
+                  <button
+                    type="button"
+                    (click)="toggleCategoryActive(category.id)"
+                    [matTooltip]="'Categoría por defecto'"
+                    class="flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    [class.border-blue-600]="category.isActive"
+                    [class.bg-blue-600]="category.isActive"
+                    [class.border-slate-300]="!category.isActive">
+                    @if (category.isActive) {
+                      <svg class="w-3 h-3 mx-auto text-white" fill="currentColor" viewBox="0 0 16 16">
+                        <circle cx="8" cy="8" r="3"/>
+                      </svg>
+                    }
+                  </button>
 
                   <!-- Nombre de la categoría -->
                   <div class="category-field">
@@ -295,11 +315,20 @@
               <h3>Selector de Columnas</h3>
               <p>Permite ocultar/mostrar columnas</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().enableColumnSelector"
-              (change)="updateGridConfig('enableColumnSelector', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableColumnSelector', !gridConfig().enableColumnSelector)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableColumnSelector"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableColumnSelector"
+              [class.bg-slate-300]="!gridConfig().enableColumnSelector">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableColumnSelector"
+                [class.translate-x-1]="!gridConfig().enableColumnSelector">
+              </span>
+            </button>
           </div>
 
           <!-- Filtros -->
@@ -309,11 +338,20 @@
               <h3>Filtros</h3>
               <p>Habilitar filtros de datos</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().enableFilters"
-              (change)="updateGridConfig('enableFilters', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableFilters', !gridConfig().enableFilters)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableFilters"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableFilters"
+              [class.bg-slate-300]="!gridConfig().enableFilters">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableFilters"
+                [class.translate-x-1]="!gridConfig().enableFilters">
+              </span>
+            </button>
           </div>
 
           <!-- Exportar -->
@@ -323,11 +361,20 @@
               <h3>Exportar</h3>
               <p>Permitir exportar datos</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().enableExport"
-              (change)="updateGridConfig('enableExport', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableExport', !gridConfig().enableExport)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableExport"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableExport"
+              [class.bg-slate-300]="!gridConfig().enableExport">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableExport"
+                [class.translate-x-1]="!gridConfig().enableExport">
+              </span>
+            </button>
           </div>
 
           <!-- Acciones Masivas -->
@@ -337,11 +384,20 @@
               <h3>Acciones Masivas</h3>
               <p>Habilitar selección múltiple</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().enableBulkActions"
-              (change)="updateGridConfig('enableBulkActions', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableBulkActions', !gridConfig().enableBulkActions)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableBulkActions"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableBulkActions"
+              [class.bg-slate-300]="!gridConfig().enableBulkActions">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableBulkActions"
+                [class.translate-x-1]="!gridConfig().enableBulkActions">
+              </span>
+            </button>
           </div>
 
           <!-- Búsqueda -->
@@ -351,11 +407,20 @@
               <h3>Búsqueda</h3>
               <p>Habilitar búsqueda global</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().enableSearch"
-              (change)="updateGridConfig('enableSearch', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('enableSearch', !gridConfig().enableSearch)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().enableSearch"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().enableSearch"
+              [class.bg-slate-300]="!gridConfig().enableSearch">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().enableSearch"
+                [class.translate-x-1]="!gridConfig().enableSearch">
+              </span>
+            </button>
           </div>
 
           <!-- Modo Compacto -->
@@ -365,11 +430,20 @@
               <h3>Modo Compacto</h3>
               <p>Reducir espaciado de filas</p>
             </div>
-            <mat-slide-toggle
-              [checked]="gridConfig().compactMode"
-              (change)="updateGridConfig('compactMode', $event.checked)"
-              color="primary">
-            </mat-slide-toggle>
+            <button
+              type="button"
+              (click)="updateGridConfig('compactMode', !gridConfig().compactMode)"
+              role="switch"
+              [attr.aria-checked]="gridConfig().compactMode"
+              class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              [class.bg-blue-600]="gridConfig().compactMode"
+              [class.bg-slate-300]="!gridConfig().compactMode">
+              <span
+                class="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform"
+                [class.translate-x-6]="gridConfig().compactMode"
+                [class.translate-x-1]="!gridConfig().compactMode">
+              </span>
+            </button>
           </div>
         </div>
 

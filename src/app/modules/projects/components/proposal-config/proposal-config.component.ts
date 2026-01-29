@@ -5,16 +5,10 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 
-// Material imports
-import { MatButtonModule } from '@angular/material/button';
+// Material imports (solo MatIcon según CLAUDE.md)
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatCardModule } from '@angular/material/card';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatCheckboxModule } from '@angular/material/checkbox';
 
 // Services
 import { ProposalConfigService } from '../../services/proposal-config.service';
@@ -43,15 +37,9 @@ interface FieldMappingConfig {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatDividerModule,
-    MatTooltipModule,
-    MatCardModule,
-    MatSlideToggleModule,
-    MatCheckboxModule
+    MatTooltipModule
   ],
   templateUrl: './proposal-config.component.html',
   styleUrl: './proposal-config.component.css',
