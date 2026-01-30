@@ -12,6 +12,20 @@
     [actionButtons]="headerActions()"
     primaryButtonLabel="Nuevo Estimado"
     (primaryAction)="createProposal()">
+
+    <!-- Acciones personalizadas proyectadas -->
+    <div slot="actions" class="flex items-center gap-2">
+      <!-- Selector de Columnas -->
+      @if (config()?.gridConfig?.enableColumnSelector !== false) {
+        <app-column-visibility-control
+          [columns]="columnOptions()"
+          [storageKey]="'proposals-visible-columns'"
+          [defaultVisibleColumns]="defaultVisibleColumnIds()"
+          [themeColor]="'blue'"
+          (visibilityChange)="onColumnVisibilityChange($event)">
+        </app-column-visibility-control>
+      }
+    </div>
   </app-module-header>
 
   <!-- ========== FILTRO DE RANGO DE FECHAS ========== -->
@@ -246,32 +260,44 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th class="sortable" (click)="sortBy('proposalNumber')">
-                <span>Número</span>
-                @if (currentSort().field === 'proposalNumber') {
-                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                }
-              </th>
-              <th class="sortable" (click)="sortBy('ownerName')">
-                <span>Cliente</span>
-                @if (currentSort().field === 'ownerName') {
-                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                }
-              </th>
-              <th>Dirección</th>
-              <th class="sortable" (click)="sortBy('date')">
-                <span>Fecha</span>
-                @if (currentSort().field === 'date') {
-                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                }
-              </th>
-              <th class="sortable text-right" (click)="sortBy('total')">
-                <span>Total</span>
-                @if (currentSort().field === 'total') {
-                  <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
-                }
-              </th>
-              <th>Estado</th>
+              @if (visibleColumnIds().includes('proposalNumber')) {
+                <th class="sortable" (click)="sortBy('proposalNumber')">
+                  <span>Número</span>
+                  @if (currentSort().field === 'proposalNumber') {
+                    <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  }
+                </th>
+              }
+              @if (visibleColumnIds().includes('ownerName')) {
+                <th class="sortable" (click)="sortBy('ownerName')">
+                  <span>Cliente</span>
+                  @if (currentSort().field === 'ownerName') {
+                    <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  }
+                </th>
+              }
+              @if (visibleColumnIds().includes('address')) {
+                <th>Dirección</th>
+              }
+              @if (visibleColumnIds().includes('date')) {
+                <th class="sortable" (click)="sortBy('date')">
+                  <span>Fecha</span>
+                  @if (currentSort().field === 'date') {
+                    <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  }
+                </th>
+              }
+              @if (visibleColumnIds().includes('total')) {
+                <th class="sortable text-right" (click)="sortBy('total')">
+                  <span>Total</span>
+                  @if (currentSort().field === 'total') {
+                    <mat-icon>{{ currentSort().direction === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+                  }
+                </th>
+              }
+              @if (visibleColumnIds().includes('status')) {
+                <th>Estado</th>
+              }
               <th class="text-right">Acciones</th>
             </tr>
           </thead>
@@ -280,35 +306,47 @@
             @for (proposal of paginatedProposals(); track proposal.id) {
               <tr class="table-row" (click)="viewProposal(proposal)">
                 <!-- Número -->
-                <td class="proposal-number">{{ proposal.proposalNumber }}</td>
+                @if (visibleColumnIds().includes('proposalNumber')) {
+                  <td class="proposal-number">{{ proposal.proposalNumber }}</td>
+                }
 
                 <!-- Cliente -->
-                <td>
-                  <div class="client-cell">
-                    <div class="client-avatar">
-                      {{ (proposal.ownerName || 'C').charAt(0).toUpperCase() }}
+                @if (visibleColumnIds().includes('ownerName')) {
+                  <td>
+                    <div class="client-cell">
+                      <div class="client-avatar">
+                        {{ (proposal.ownerName || 'C').charAt(0).toUpperCase() }}
+                      </div>
+                      <span>{{ proposal.ownerName }}</span>
                     </div>
-                    <span>{{ proposal.ownerName }}</span>
-                  </div>
-                </td>
+                  </td>
+                }
 
                 <!-- Dirección -->
-                <td class="address-cell">
-                  <span class="truncate">{{ proposal.address }}, {{ proposal.city }}</span>
-                </td>
+                @if (visibleColumnIds().includes('address')) {
+                  <td class="address-cell">
+                    <span class="truncate">{{ proposal.address }}, {{ proposal.city }}</span>
+                  </td>
+                }
 
                 <!-- Fecha -->
-                <td class="date-cell">{{ formatDate(proposal.date) }}</td>
+                @if (visibleColumnIds().includes('date')) {
+                  <td class="date-cell">{{ formatDate(proposal.date) }}</td>
+                }
 
                 <!-- Total -->
-                <td class="total-cell">{{ formatCurrency(getProposalTotal(proposal)) }}</td>
+                @if (visibleColumnIds().includes('total')) {
+                  <td class="total-cell">{{ formatCurrency(getProposalTotal(proposal)) }}</td>
+                }
 
                 <!-- Estado -->
-                <td>
-                  <span [class]="'status-badge ' + getStatusClass(proposal.status)">
+                @if (visibleColumnIds().includes('status')) {
+                  <td>
+                    <span [class]="'status-badge ' + getStatusClass(proposal.status)">
                     {{ getStatusLabel(proposal.status) }}
                   </span>
-                </td>
+                  </td>
+                }
 
                 <!-- Acciones -->
                 <td class="actions-cell" (click)="$event.stopPropagation()">

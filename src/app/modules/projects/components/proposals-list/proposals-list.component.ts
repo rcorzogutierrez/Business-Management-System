@@ -22,6 +22,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 // Services
 import { ProposalsService } from '../../services/proposals.service';
 import { ProposalCalculatorService } from '../../services/proposal-calculator.service';
+import { ProposalConfigService } from '../../services/proposal-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
 
 // Models
@@ -30,6 +31,7 @@ import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats 
 // Shared Components
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
+import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
 import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/models/generic-entity.interface';
 import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
@@ -51,7 +53,8 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
     MatDialogModule,
     MatCheckboxModule,
     ModuleHeaderComponent,
-    PaginationComponent
+    PaginationComponent,
+    ColumnVisibilityControlComponent
   ],
   templateUrl: './proposals-list.component.html',
   styleUrl: './proposals-list.component.css',
@@ -60,6 +63,7 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
 export class ProposalsListComponent implements OnInit, OnDestroy {
   private proposalsService = inject(ProposalsService);
   private proposalCalculator = inject(ProposalCalculatorService);
+  private proposalConfigService = inject(ProposalConfigService);
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
@@ -71,6 +75,9 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   proposals = this.proposalsService.proposals;
   isLoading = this.proposalsService.isLoading;
   stats = this.proposalsService.stats;
+
+  // Configuración del módulo
+  config = this.proposalConfigService.config;
 
   // Verificar si el usuario es admin
   isAdmin = computed(() => this.authService.authorizedUser()?.role === 'admin');
@@ -125,6 +132,29 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
   // Math para templates
   Math = Math;
+
+  // Columnas visibles
+  visibleColumnIds = signal<string[]>([]);
+
+  // Definir columnas disponibles
+  columnOptions = computed<ColumnOption[]>(() => [
+    { id: 'proposalNumber', label: 'Número', visible: this.visibleColumnIds().includes('proposalNumber'), category: 'general' },
+    { id: 'ownerName', label: 'Cliente', visible: this.visibleColumnIds().includes('ownerName'), category: 'general' },
+    { id: 'address', label: 'Dirección', visible: this.visibleColumnIds().includes('address'), category: 'general' },
+    { id: 'date', label: 'Fecha', visible: this.visibleColumnIds().includes('date'), category: 'general' },
+    { id: 'total', label: 'Total', visible: this.visibleColumnIds().includes('total'), category: 'general' },
+    { id: 'status', label: 'Estado', visible: this.visibleColumnIds().includes('status'), category: 'general' }
+  ]);
+
+  // Columnas visibles por defecto
+  defaultVisibleColumnIds = computed(() => [
+    'proposalNumber',
+    'ownerName',
+    'address',
+    'date',
+    'total',
+    'status'
+  ]);
 
   // Proposals filtrados SOLO por fecha (sin status ni búsqueda)
   // Esto se usa para calcular las estadísticas de status correctamente
@@ -357,9 +387,15 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     deleteDialogFieldsCount: 4
   };
 
-  constructor() {}
+  constructor() {
+    // Cargar columnas visibles desde localStorage
+    this.loadVisibleColumns();
+  }
 
   async ngOnInit() {
+    // Inicializar servicio de configuración
+    await this.proposalConfigService.initialize();
+
     await this.loadData();
 
     // Escuchar eventos de navegación para forzar actualización cuando se vuelve a esta ruta
@@ -373,6 +409,34 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
         // Forzar detección de cambios cuando navegamos de vuelta a la lista
         this.cdr.markForCheck();
       });
+  }
+
+  /**
+   * Cargar columnas visibles desde localStorage
+   */
+  private loadVisibleColumns() {
+    const storageKey = 'proposals-visible-columns';
+    const stored = localStorage.getItem(storageKey);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        this.visibleColumnIds.set(Array.isArray(parsed) ? parsed : this.defaultVisibleColumnIds());
+      } catch (e) {
+        this.visibleColumnIds.set(this.defaultVisibleColumnIds());
+      }
+    } else {
+      this.visibleColumnIds.set(this.defaultVisibleColumnIds());
+    }
+  }
+
+  /**
+   * Manejar cambios en visibilidad de columnas
+   */
+  onColumnVisibilityChange(visibleIds: string[]) {
+    this.visibleColumnIds.set(visibleIds);
+    const storageKey = 'proposals-visible-columns';
+    localStorage.setItem(storageKey, JSON.stringify(visibleIds));
+    this.cdr.markForCheck();
   }
 
   ngOnDestroy() {
