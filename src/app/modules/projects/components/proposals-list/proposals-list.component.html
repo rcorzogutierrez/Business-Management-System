@@ -178,31 +178,33 @@
   </div>
 
   <!-- ========== FILTROS Y BÚSQUEDA ========== -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
-    <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
-      <!-- Búsqueda -->
-      <app-search-bar
-        class="min-w-[300px] flex-1"
-        [themeColor]="'blue'"
-        [placeholder]="'Buscar por número, cliente, dirección...'"
-        (searchChange)="onSearch($event)">
-      </app-search-bar>
+  @if (config()?.gridConfig?.enableSearch !== false) {
+    <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-3 mb-4 animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-3">
+        <!-- Búsqueda -->
+        <app-search-bar
+          class="min-w-[300px] flex-1"
+          [themeColor]="'blue'"
+          [placeholder]="'Buscar por número, cliente, dirección...'"
+          (searchChange)="onSearch($event)">
+        </app-search-bar>
 
-      <!-- Filtro activo -->
-      @if (statusFilter() !== 'all') {
-        <div class="status-filter-chip">
-          <mat-icon>filter_list</mat-icon>
-          <span>{{ getStatusLabel(statusFilter()) }}</span>
-          <button type="button"
-                  class="chip-close-btn"
-                  (click)="filterByStatus('all')"
-                  title="Quitar filtro">
-            <mat-icon>close</mat-icon>
-          </button>
-        </div>
-      }
+        <!-- Filtro activo -->
+        @if (statusFilter() !== 'all') {
+          <div class="status-filter-chip">
+            <mat-icon>filter_list</mat-icon>
+            <span>{{ getStatusLabel(statusFilter()) }}</span>
+            <button type="button"
+                    class="chip-close-btn"
+                    (click)="filterByStatus('all')"
+                    title="Quitar filtro">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <!-- ========== TABLA DE PROPOSALS ========== -->
   <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fadeIn" style="animation-delay: 0.15s">
