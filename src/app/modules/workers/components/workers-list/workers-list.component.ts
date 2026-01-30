@@ -22,6 +22,7 @@ import { GenericModuleConfig } from '../../../../shared/models/generic-entity.in
 import { CompaniesListDialogComponent } from '../companies-list-dialog/companies-list-dialog.component';
 import { CompaniesService } from '../../companies/services/companies.service';
 import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
+import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
 import { GenericListBaseComponent } from '../../../../shared/components/generic-list-base/generic-list-base.component';
 import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models';
 import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
@@ -46,7 +47,8 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
     MatChipsModule,
     MatDialogModule,
     ModuleHeaderComponent,
-    ColumnVisibilityControlComponent
+    ColumnVisibilityControlComponent,
+    GenericSearchBarComponent
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css',
