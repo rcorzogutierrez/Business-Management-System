@@ -32,6 +32,7 @@ import { Proposal, ProposalFilters, ProposalSort, ProposalStatus, ProposalStats 
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
+import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
 import { GenericModuleConfig, GenericFieldConfig } from '../../../../shared/models/generic-entity.interface';
 import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
@@ -54,7 +55,8 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
     MatCheckboxModule,
     ModuleHeaderComponent,
     PaginationComponent,
-    ColumnVisibilityControlComponent
+    ColumnVisibilityControlComponent,
+    GenericSearchBarComponent
   ],
   templateUrl: './proposals-list.component.html',
   styleUrl: './proposals-list.component.css',
