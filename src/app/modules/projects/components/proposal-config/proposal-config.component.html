@@ -286,34 +286,40 @@
     </div>
 
     <!-- ========== CONFIGURACIÓN DE LA TABLA ========== -->
-    @if (gridConfig()) {
-      <div class="config-section animate-fadeIn" style="animation-delay: 0.25s">
-        <div class="section-header">
-          <div class="section-icon blue">
-            <mat-icon>table_chart</mat-icon>
+    @if (!isLoading && gridConfig()) {
+      <section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 animate-fadeIn" style="animation-delay: 0.25s">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-100">
+              <mat-icon class="text-blue-600">table_chart</mat-icon>
+            </div>
+            <div>
+              <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
+              <p class="text-xs text-slate-500">Personaliza el comportamiento de la tabla de datos</p>
+            </div>
           </div>
-          <div class="flex-1">
-            <h2>Configuración de la Tabla</h2>
-            <p>Personaliza el comportamiento de la tabla de datos</p>
-          </div>
-          <button
-            type="button"
-            class="btn-icon-sm"
-            (click)="toggleAllFeatures()"
-            [matTooltip]="gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'Desactivar Todas' : 'Activar Todas'">
-            <mat-icon>
-              {{ gridConfig().enableSearch && gridConfig().enableFilters && gridConfig().enableExport && gridConfig().enableBulkActions && gridConfig().enableColumnSelector ? 'toggle_on' : 'toggle_off' }}
-            </mat-icon>
+
+          <button type="button"
+                  [class]="allFeaturesEnabled()
+                    ? 'px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'
+                    : 'px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'"
+                  (click)="toggleAllFeatures()"
+                  [disabled]="isLoading"
+                  [title]="allFeaturesEnabled() ? 'Desactivar todas las funcionalidades' : 'Activar todas las funcionalidades'">
+            <mat-icon class="text-base">{{ allFeaturesEnabled() ? 'cancel' : 'check_circle' }}</mat-icon>
+            <span>{{ allFeaturesEnabled() ? 'Desactivar Todas' : 'Activar Todas' }}</span>
           </button>
         </div>
 
-        <div class="features-grid">
-          <!-- Selector de Columnas -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">view_column</mat-icon>
-            <div class="feature-info">
-              <h3>Selector de Columnas</h3>
-              <p>Permite ocultar/mostrar columnas</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Enable Column Selector -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">view_column</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Selector de Columnas</p>
+                <p class="text-xs text-slate-500">Permite ocultar/mostrar columnas</p>
+              </div>
             </div>
             <button
               type="button"
@@ -331,12 +337,14 @@
             </button>
           </div>
 
-          <!-- Filtros -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">filter_list</mat-icon>
-            <div class="feature-info">
-              <h3>Filtros</h3>
-              <p>Habilitar filtros de datos</p>
+          <!-- Enable Filters -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">filter_list</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Filtros</p>
+                <p class="text-xs text-slate-500">Habilitar filtros de datos</p>
+              </div>
             </div>
             <button
               type="button"
@@ -354,12 +362,14 @@
             </button>
           </div>
 
-          <!-- Exportar -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">download</mat-icon>
-            <div class="feature-info">
-              <h3>Exportar</h3>
-              <p>Permitir exportar datos</p>
+          <!-- Enable Export -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">download</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Exportar</p>
+                <p class="text-xs text-slate-500">Permitir exportar datos</p>
+              </div>
             </div>
             <button
               type="button"
@@ -377,12 +387,14 @@
             </button>
           </div>
 
-          <!-- Acciones Masivas -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">done_all</mat-icon>
-            <div class="feature-info">
-              <h3>Acciones Masivas</h3>
-              <p>Habilitar selección múltiple</p>
+          <!-- Enable Bulk Actions -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">done_all</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Acciones Masivas</p>
+                <p class="text-xs text-slate-500">Habilitar selección múltiple</p>
+              </div>
             </div>
             <button
               type="button"
@@ -400,12 +412,14 @@
             </button>
           </div>
 
-          <!-- Búsqueda -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">search</mat-icon>
-            <div class="feature-info">
-              <h3>Búsqueda</h3>
-              <p>Habilitar búsqueda global</p>
+          <!-- Enable Search -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">search</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Búsqueda</p>
+                <p class="text-xs text-slate-500">Habilitar búsqueda global</p>
+              </div>
             </div>
             <button
               type="button"
@@ -423,12 +437,14 @@
             </button>
           </div>
 
-          <!-- Modo Compacto -->
-          <div class="feature-card">
-            <mat-icon class="feature-icon blue">compress</mat-icon>
-            <div class="feature-info">
-              <h3>Modo Compacto</h3>
-              <p>Reducir espaciado de filas</p>
+          <!-- Compact Mode -->
+          <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 hover:border-blue-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <mat-icon class="text-slate-400">compress</mat-icon>
+              <div>
+                <p class="text-sm font-medium text-slate-700">Modo Compacto</p>
+                <p class="text-xs text-slate-500">Reducir espaciado de filas</p>
+              </div>
             </div>
             <button
               type="button"
@@ -447,25 +463,28 @@
           </div>
         </div>
 
-        <!-- Elementos por Página -->
-        <div class="form-group mt-4">
-          <label class="form-label">
-            <mat-icon class="mr-2">format_list_numbered</mat-icon>
-            Elementos por Página
-          </label>
-          <div class="flex gap-2">
-            @for (option of pageSizeOptions; track option) {
-              <button
-                type="button"
-                class="page-size-btn"
-                [class.active]="itemsPerPageSignal() === option"
-                (click)="updateGridConfig('itemsPerPage', option)">
-                {{ option }}
-              </button>
-            }
+        <!-- Items Per Page -->
+        <div class="mt-4 pt-4 border-t border-slate-200">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <mat-icon class="text-slate-400">format_list_numbered</mat-icon>
+              <span class="text-sm font-medium text-slate-700">Elementos por Página</span>
+            </div>
+            <div class="flex gap-2">
+              @for (option of pageSizeOptions; track option) {
+                <button
+                  type="button"
+                  (click)="updateGridConfig('itemsPerPage', option)"
+                  [class]="itemsPerPageSignal() === option
+                    ? 'px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg transition-colors'
+                    : 'px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg transition-colors'">
+                  {{ option }}
+                </button>
+              }
+            </div>
           </div>
         </div>
-      </div>
+      </section>
     }
 
     <!-- ========== TÉRMINOS Y CONDICIONES ========== -->
