@@ -23,6 +23,7 @@ import { CompaniesListDialogComponent } from '../companies-list-dialog/companies
 import { CompaniesService } from '../../companies/services/companies.service';
 import { ColumnVisibilityControlComponent, ColumnOption } from '../../../../shared/components/column-visibility-control/column-visibility-control.component';
 import { GenericSearchBarComponent } from '../../../../shared/components/search-bar/search-bar.component';
+import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 import { GenericListBaseComponent } from '../../../../shared/components/generic-list-base/generic-list-base.component';
 import { FieldConfig } from '../../../../shared/modules/dynamic-form-builder/models';
 import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
@@ -48,7 +49,8 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
     MatDialogModule,
     ModuleHeaderComponent,
     ColumnVisibilityControlComponent,
-    GenericSearchBarComponent
+    GenericSearchBarComponent,
+    PaginationComponent
   ],
   templateUrl: './workers-list.component.html',
   styleUrl: './workers-list.component.css',

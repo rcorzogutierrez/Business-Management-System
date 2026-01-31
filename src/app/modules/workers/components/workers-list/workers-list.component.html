@@ -320,33 +320,18 @@
       </div>
 
       <!-- Paginación -->
-      @if (totalPages() > 1) {
-        <div class="pagination-bar">
-          <span class="text-xs text-slate-600">
-            {{ (currentPage() * itemsPerPage()) + 1 }}-{{ Math.min((currentPage() + 1) * itemsPerPage(), filteredWorkers().length) }}
-            de {{ filteredWorkers().length }}
-          </span>
-
-          <div class="flex items-center gap-1">
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="goToPage(currentPage() - 1)"
-                    [disabled]="currentPage() === 0">
-              <mat-icon>chevron_left</mat-icon>
-            </button>
-
-            <span class="text-xs font-medium text-slate-700 px-2">
-              {{ currentPage() + 1 }} / {{ totalPages() }}
-            </span>
-
-            <button type="button"
-                    class="pagination-btn"
-                    (click)="goToPage(currentPage() + 1)"
-                    [disabled]="currentPage() >= totalPages() - 1">
-              <mat-icon>chevron_right</mat-icon>
-            </button>
-          </div>
-        </div>
+      @if (filteredWorkers().length > 0) {
+        <app-pagination
+          [mode]="'client'"
+          [currentPage]="currentPage()"
+          [itemsPerPage]="itemsPerPage()"
+          [totalPages]="totalPages()"
+          [totalItems]="filteredWorkers().length"
+          [pageSizeOptions]="pageSizeOptions"
+          [themeColor]="'amber'"
+          (pageChange)="goToPage($event)"
+          (pageSizeChange)="changePageSize($event)">
+        </app-pagination>
       }
     }
 
