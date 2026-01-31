@@ -306,29 +306,7 @@
   @apply bg-slate-100 text-slate-700;
 }
 
-/* Botones de vista */
-.view-mode-btn {
-  @apply px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-600;
-  @apply flex items-center gap-2 transition-all hover:bg-slate-50;
-}
-
-.view-mode-btn.active {
-  @apply bg-purple-50 border-purple-300 text-purple-700 font-semibold;
-}
-
-.view-mode-btn mat-icon {
-  @apply text-xl;
-}
-
-/* Botón Hoy */
-.today-btn {
-  @apply px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700;
-  @apply flex items-center gap-2 transition-all hover:bg-slate-50;
-}
-
-.today-btn mat-icon {
-  @apply text-xl;
-}
+/* Botones de vista - Ahora usando Tailwind inline */
 
 /* Vista Timeline */
 .timeline-view {
@@ -374,35 +352,7 @@
   @apply text-base text-slate-400;
 }
 
-/* Search Box */
-.search-box {
-  @apply relative;
-}
-
-.search-icon {
-  @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xl pointer-events-none;
-}
-
-.search-input {
-  @apply w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-white;
-  @apply text-sm text-slate-700 placeholder-slate-400;
-  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent;
-  @apply transition-all;
-}
-
-/* Filter Buttons */
-.filter-btn {
-  @apply px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-600;
-  @apply flex items-center gap-1.5 transition-all hover:bg-slate-50;
-}
-
-.filter-btn.active {
-  @apply bg-purple-50 border-purple-300 text-purple-700 font-semibold;
-}
-
-.filter-btn mat-icon {
-  @apply text-base;
-}
+/* Búsqueda y Filtros - Ahora usando Tailwind inline */
 
 /* Icon Buttons */
 .icon-btn-sm {

@@ -1,58 +1,23 @@
-<div class="work-plans-container p-6 max-w-[1600px] mx-auto">
-  <!-- Header con estadísticas -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 mb-6">
-    <div class="flex items-center justify-between gap-5 flex-wrap">
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
-          <mat-icon class="!text-white !text-xl">event_note</mat-icon>
-        </div>
-        <div>
-          <h1 class="text-lg font-bold text-slate-800">Planificación de Trabajo</h1>
-          <p class="text-xs text-slate-500">Gestiona y organiza tu calendario de trabajo</p>
-        </div>
-      </div>
+<div class="work-plans-container p-6 max-w-[1400px] mx-auto">
+  <!-- Header - Usando ModuleHeaderComponent -->
+  <app-module-header
+    icon="event_note"
+    title="Planificación de Trabajo"
+    subtitle="Gestiona y organiza tu calendario de trabajo"
+    moduleColor="purple"
+    [stats]="headerStats()"
+    [actionButtons]="headerActions()"
+    primaryButtonLabel="Nuevo Plan"
+    (primaryAction)="openCreateDialog()">
 
-      <div class="flex items-center gap-3 flex-wrap">
-        <!-- Stats inline -->
-        <div class="hidden md:flex items-center gap-2">
-          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-slate-50 border border-slate-200">
-            <span class="text-base font-bold leading-tight text-slate-600">{{ stats().total }}</span>
-            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-slate-500">Total</span>
-          </div>
-          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-blue-50 border border-blue-200">
-            <span class="text-base font-bold leading-tight text-blue-600">{{ stats().scheduled }}</span>
-            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-blue-500">Planificados</span>
-          </div>
-          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-amber-50 border border-amber-200">
-            <span class="text-base font-bold leading-tight text-amber-600">{{ stats().inProgress }}</span>
-            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-amber-500">En Progreso</span>
-          </div>
-          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[75px] bg-emerald-50 border border-emerald-200">
-            <span class="text-base font-bold leading-tight text-emerald-600">{{ stats().completed }}</span>
-            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-emerald-500">Completados</span>
-          </div>
-          <div class="flex flex-col items-center justify-center rounded-lg px-4 py-2 min-w-[85px] bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 shadow-sm">
-            <span class="text-base font-bold leading-tight text-purple-600">{{ stats().totalDays }}d {{ stats().totalHours }}h</span>
-            <span class="text-[10px] uppercase tracking-wider font-medium mt-1 text-purple-500">Duración Total</span>
-          </div>
-        </div>
-
-        <button
-          class="btn-primary"
-          (click)="openCreateDialog()">
-          <mat-icon>add</mat-icon>
-          <span>Nuevo Plan</span>
-        </button>
-
-        <button
-          class="icon-btn"
-          matTooltip="Recargar"
-          (click)="loadPlans()">
-          <mat-icon>refresh</mat-icon>
-        </button>
+    <!-- Badge especial de Duración Total -->
+    <div slot="extra-stats" class="hidden md:flex items-center">
+      <div class="flex flex-col items-center rounded-[10px] px-3 py-1.5 bg-gradient-to-br from-purple-50 to-purple-100 border-2 border-purple-200 min-w-[65px]">
+        <span class="text-base font-bold leading-[1.2] text-purple-600">{{ stats().totalDays }}d {{ stats().totalHours }}h</span>
+        <span class="text-[9px] uppercase tracking-[0.3px] font-semibold text-purple-500">Duración</span>
       </div>
     </div>
-  </header>
+  </app-module-header>
 
   <!-- Barra de acciones masivas -->
   @if (hasSelectedPlans()) {
@@ -80,106 +45,137 @@
     </div>
   }
 
-  <!-- Controles de vista -->
-  <div class="bg-white rounded-xl border border-slate-200 shadow-sm p-4 mb-4">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-      <!-- Selector de vista -->
-      <div class="flex gap-2">
+  <!-- Controles de vista - Diseño moderno y organizado -->
+  <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+    <!-- Fila superior: Vistas y Navegación -->
+    <div class="flex items-center justify-between gap-4 p-4 border-b border-slate-100">
+      <!-- Tabs de vista -->
+      <div class="inline-flex bg-slate-100 rounded-lg p-1">
         <button
-          class="view-mode-btn"
-          [class.active]="viewMode() === 'calendar'"
+          class="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition-all"
+          [ngClass]="{
+            'bg-white text-purple-600 shadow-sm': viewMode() === 'calendar',
+            'text-slate-600 hover:text-slate-900': viewMode() !== 'calendar'
+          }"
           (click)="setViewMode('calendar')"
-          matTooltip="Vista Calendario">
-          <mat-icon>calendar_view_month</mat-icon>
+          title="Vista Calendario">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px]">calendar_view_month</mat-icon>
           <span class="hidden sm:inline">Calendario</span>
         </button>
         <button
-          class="view-mode-btn"
-          [class.active]="viewMode() === 'list'"
+          class="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition-all"
+          [ngClass]="{
+            'bg-white text-purple-600 shadow-sm': viewMode() === 'list',
+            'text-slate-600 hover:text-slate-900': viewMode() !== 'list'
+          }"
           (click)="setViewMode('list')"
-          matTooltip="Vista Lista">
-          <mat-icon>view_list</mat-icon>
+          title="Vista Lista">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px]">view_list</mat-icon>
           <span class="hidden sm:inline">Lista</span>
         </button>
         <button
-          class="view-mode-btn"
-          [class.active]="viewMode() === 'timeline'"
+          class="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md text-sm font-medium transition-all"
+          [ngClass]="{
+            'bg-white text-purple-600 shadow-sm': viewMode() === 'timeline',
+            'text-slate-600 hover:text-slate-900': viewMode() !== 'timeline'
+          }"
           (click)="setViewMode('timeline')"
-          matTooltip="Vista Timeline">
-          <mat-icon>timeline</mat-icon>
+          title="Vista Timeline">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px]">timeline</mat-icon>
           <span class="hidden sm:inline">Timeline</span>
         </button>
       </div>
 
-      <!-- Navegación de semana (solo en vista calendario) -->
+      <!-- Navegación de fecha (solo en calendario) -->
       @if (viewMode() === 'calendar') {
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3">
           <button
-            class="icon-btn"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors"
             (click)="previousWeek()"
-            matTooltip="Semana anterior">
-            <mat-icon>chevron_left</mat-icon>
+            title="Semana anterior">
+            <mat-icon class="!text-[20px] !w-5 !h-5 !leading-5">chevron_left</mat-icon>
           </button>
 
           <button
-            class="today-btn"
+            class="inline-flex items-center justify-center gap-1.5 h-9 px-3 rounded-lg border border-purple-200 bg-purple-50 text-purple-700 text-sm font-medium hover:bg-purple-100 transition-colors"
             (click)="goToToday()">
-            <mat-icon>today</mat-icon>
+            <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px]">today</mat-icon>
             <span>Hoy</span>
           </button>
 
           <button
-            class="icon-btn"
+            class="w-9 h-9 flex items-center justify-center rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 transition-colors"
             (click)="nextWeek()"
-            matTooltip="Semana siguiente">
-            <mat-icon>chevron_right</mat-icon>
+            title="Semana siguiente">
+            <mat-icon class="!text-[20px] !w-5 !h-5 !leading-5">chevron_right</mat-icon>
           </button>
 
-          <span class="text-sm font-semibold text-slate-700 ml-2">
-            {{ dateRange().start | date: 'MMM d' }} - {{ dateRange().end | date: 'MMM d, y' }}
-          </span>
+          <!-- Rango de fecha visible -->
+          <div class="hidden md:flex items-center justify-center gap-2 h-9 px-3 bg-slate-50 border border-slate-200 rounded-lg">
+            <mat-icon class="!text-[18px] !w-[18px] !h-[18px] !leading-[18px] text-slate-400">date_range</mat-icon>
+            <span class="text-sm font-semibold text-slate-700">
+              {{ dateRange().start | date: 'MMM d' }} - {{ dateRange().end | date: 'MMM d, y' }}
+            </span>
+          </div>
         </div>
       }
+    </div>
 
-      <!-- Buscador -->
-      <div class="search-box flex-1 max-w-xs">
-        <mat-icon class="search-icon">search</mat-icon>
-        <input
-          type="text"
-          placeholder="Buscar por trabajador, proyecto, descripción..."
-          [value]="searchTerm()"
-          (input)="searchTerm.set($any($event.target).value)"
-          class="search-input">
+    <!-- Fila inferior: Búsqueda y Filtros -->
+    <div class="flex items-center gap-4 p-4 flex-wrap">
+      <!-- Buscador expandido -->
+      <div class="flex-1 min-w-[250px] max-w-md">
+        <div class="relative">
+          <mat-icon class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 !text-xl">search</mat-icon>
+          <input
+            type="text"
+            placeholder="Buscar por trabajador, proyecto, descripción..."
+            [value]="searchTerm()"
+            (input)="searchTerm.set($any($event.target).value)"
+            class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-shadow">
+        </div>
       </div>
 
-      <!-- Filtros de estado -->
-      <div class="flex gap-2">
+      <!-- Filtros de estado como pills -->
+      <div class="flex items-center gap-2 flex-wrap">
         <button
-          class="filter-btn"
-          [class.active]="filterStatus() === 'all'"
+          class="inline-flex items-center justify-center h-8 px-4 rounded-full text-xs font-medium transition-all"
+          [ngClass]="{
+            'bg-purple-600 text-white shadow-sm': filterStatus() === 'all',
+            'bg-slate-100 text-slate-600 hover:bg-slate-200': filterStatus() !== 'all'
+          }"
           (click)="setFilterStatus('all')">
           Todos
         </button>
         <button
-          class="filter-btn"
-          [class.active]="filterStatus() === 'scheduled'"
+          class="inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-full text-xs font-medium transition-all"
+          [ngClass]="{
+            'bg-blue-600 text-white shadow-sm': filterStatus() === 'scheduled',
+            'bg-blue-50 text-blue-600 hover:bg-blue-100': filterStatus() !== 'scheduled'
+          }"
           (click)="setFilterStatus('scheduled')">
-          <mat-icon class="text-blue-500">schedule</mat-icon>
-          Planificados
+          <mat-icon class="!text-base !w-4 !h-4 !leading-4">schedule</mat-icon>
+          <span>Planificados</span>
         </button>
         <button
-          class="filter-btn"
-          [class.active]="filterStatus() === 'in_progress'"
+          class="inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-full text-xs font-medium transition-all"
+          [ngClass]="{
+            'bg-amber-600 text-white shadow-sm': filterStatus() === 'in_progress',
+            'bg-amber-50 text-amber-600 hover:bg-amber-100': filterStatus() !== 'in_progress'
+          }"
           (click)="setFilterStatus('in_progress')">
-          <mat-icon class="text-amber-500">play_circle</mat-icon>
-          En Progreso
+          <mat-icon class="!text-base !w-4 !h-4 !leading-4">play_circle</mat-icon>
+          <span>En Progreso</span>
         </button>
         <button
-          class="filter-btn"
-          [class.active]="filterStatus() === 'completed'"
+          class="inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-full text-xs font-medium transition-all"
+          [ngClass]="{
+            'bg-green-600 text-white shadow-sm': filterStatus() === 'completed',
+            'bg-green-50 text-green-600 hover:bg-green-100': filterStatus() !== 'completed'
+          }"
           (click)="setFilterStatus('completed')">
-          <mat-icon class="text-green-500">check_circle</mat-icon>
-          Completados
+          <mat-icon class="!text-base !w-4 !h-4 !leading-4">check_circle</mat-icon>
+          <span>Completados</span>
         </button>
       </div>
     </div>
