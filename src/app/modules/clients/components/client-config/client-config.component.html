@@ -1,52 +1,18 @@
 <!-- client-config.component.html - DISEÑO COMPACTO CON TAILWIND -->
 <div class="app-container">
 
-  <!-- ============================================
-       HEADER COMPACTO
-       ============================================ -->
-  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-
-      <!-- Left Section -->
-      <div class="flex items-center gap-3">
-        <button type="button"
-                class="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:border-slate-300 hover:-translate-x-0.5"
-                (click)="goBack()"
-                title="Volver a clientes">
-          <mat-icon class="!text-slate-600 !text-lg">arrow_back</mat-icon>
-        </button>
-
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center bg-gradient-purple shadow-lg shadow-purple-500/30">
-          <mat-icon class="!text-white !text-xl">settings</mat-icon>
-        </div>
-
-        <div>
-          <h1 class="text-lg font-bold text-slate-800">Configuración del Módulo</h1>
-          <p class="text-xs text-slate-500">
-            Administra campos personalizados y diseño del formulario
-          </p>
-        </div>
-      </div>
-
-      <!-- Right Section -->
-      <div class="flex items-center gap-2">
-        <div class="hidden md:flex items-center gap-2">
-          <div class="flex flex-col items-center bg-slate-50 border border-slate-200 rounded-lg px-3.5 py-1.5 min-w-[70px]">
-            <span class="text-base font-bold text-slate-800 leading-none">{{ fields.length }}</span>
-            <span class="text-[10px] text-slate-600 uppercase tracking-wide mt-0.5">Campos</span>
-          </div>
-        </div>
-
-        <button type="button"
-                class="w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center cursor-pointer transition-all hover:bg-slate-100 hover:border-slate-300 hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                (click)="loadConfig()"
-                [disabled]="isLoading"
-                title="Recargar">
-          <mat-icon class="!text-slate-600 !text-lg" [class.animate-spin]="isLoading">refresh</mat-icon>
-        </button>
-      </div>
-    </div>
-  </header>
+  <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+  <app-module-header
+    icon="settings"
+    title="Configuración del Módulo"
+    subtitle="Administra campos personalizados y diseño del formulario"
+    moduleColor="purple"
+    [showBackButton]="true"
+    backButtonTooltip="Volver a clientes"
+    [stats]="headerStats()"
+    [actionButtons]="headerActions()"
+    (backAction)="goBack()">
+  </app-module-header>
 
   <!-- ============================================
        LOADING STATE

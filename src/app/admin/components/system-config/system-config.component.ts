@@ -1,5 +1,5 @@
 // src/app/admin/components/system-config/system-config.component.ts
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -14,6 +14,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
   selector: 'app-system-config',
@@ -29,7 +30,8 @@ import { AuthService } from '../../../core/services/auth.service';
     MatCardModule,
     MatDividerModule,
     MatProgressSpinnerModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './system-config.component.html',
   styleUrl: './system-config.component.css',
@@ -58,6 +60,25 @@ export class SystemConfigComponent implements OnInit {
   // Logo preview
   logoPreviewUrl = signal<string>('');
   logoBackgroundColor = signal<string>('transparent');
+
+  /**
+   * Stats para el header compartido
+   */
+  headerStats = computed<StatChip[]>(() => [
+    { value: 4, label: 'Campos', color: 'primary' },
+    { value: this.logoPreviewUrl() ? '1' : '0', label: 'Logo', color: this.logoPreviewUrl() ? 'success' : 'primary' }
+  ]);
+
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar configuración',
+      action: () => this.loadConfiguration()
+    }
+  ]);
   selectedLogoFile = signal<File | null>(null);
   isUploadingLogo = signal(false);
 

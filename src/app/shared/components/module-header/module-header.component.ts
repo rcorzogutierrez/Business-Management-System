@@ -36,6 +36,8 @@ export interface ActionButton {
  *   [actionButtons]="actions"
  *   primaryButtonLabel="Nuevo Cliente"
  *   (primaryAction)="onNewClient()"
+ *   [showBackButton]="true"
+ *   (backAction)="goBack()"
  * />
  */
 @Component({
@@ -46,8 +48,18 @@ export interface ActionButton {
     <header class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn">
       <div class="flex items-center justify-between gap-4 flex-wrap">
 
-        <!-- Sección izquierda: Icono + Título -->
-        <div class="flex items-center gap-4">
+        <!-- Sección izquierda: Back Button + Icono + Título -->
+        <div class="flex items-center gap-3">
+          <!-- Back button (opcional) -->
+          @if (showBackButton()) {
+            <button
+              type="button"
+              class="icon-btn"
+              [matTooltip]="backButtonTooltip()"
+              (click)="backAction.emit()">
+              <mat-icon>arrow_back</mat-icon>
+            </button>
+          }
           <!-- Icono del módulo -->
           <div [class]="iconBoxClass()">
             <mat-icon>{{ icon() }}</mat-icon>
@@ -214,9 +226,14 @@ export class ModuleHeaderComponent {
   secondaryButtonLabel = input<string>('');
   secondaryButtonIcon = input<string>('');
 
+  // Back button inputs
+  showBackButton = input<boolean>(false);
+  backButtonTooltip = input<string>('Volver');
+
   // Outputs
   primaryAction = output<void>();
   secondaryAction = output<void>();
+  backAction = output<void>();
 
   // Computed
   iconBoxClass = computed(() => {

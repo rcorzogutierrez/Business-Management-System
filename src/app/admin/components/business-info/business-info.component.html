@@ -2,88 +2,54 @@
 <div class="min-h-screen">
   <div class="app-container">
 
-    <!-- ============================================
-         HEADER COMPACTO
-         ============================================ -->
-    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
+    <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+    <app-module-header
+      icon="business"
+      title="Información de Empresa"
+      [subtitle]="headerSubtitle()"
+      moduleColor="blue"
+      [showBackButton]="true"
+      backButtonTooltip="Volver al panel de admin"
+      [stats]="headerStats()"
+      (backAction)="goBack()">
 
-        <!-- Left Section -->
-        <div class="flex items-center gap-3">
+      <!-- Botones de acción contextuales proyectados -->
+      <div slot="actions" class="flex items-center gap-2">
+        @if (!editMode() && businessExists()) {
           <button
             type="button"
-            class="back-btn"
-            (click)="goBack()"
-            title="Volver">
-            <mat-icon>arrow_back</mat-icon>
+            class="btn-primary"
+            (click)="enableEditMode()">
+            <mat-icon>edit</mat-icon>
+            Editar
+          </button>
+        }
+
+        @if (editMode()) {
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="cancelEdit()"
+            [disabled]="saving()">
+            <mat-icon>close</mat-icon>
+            Cancelar
           </button>
 
-          <div class="header-icon-box">
-            <mat-icon>business</mat-icon>
-          </div>
-
-          <div>
-            <h1 class="text-lg font-bold text-slate-800">Información de Empresa</h1>
-            <p class="text-xs text-slate-500">
-              @if (businessExists()) {
-                Gestiona la información de tu empresa
-              } @else {
-                Configura la información de tu empresa
-              }
-            </p>
-          </div>
-        </div>
-
-        <!-- Stats Inline -->
-        <div class="hidden md:flex items-center gap-3">
-          <div class="stat-chip">
-            <span class="stat-value">5</span>
-            <span class="stat-label">Secciones</span>
-          </div>
-          <div class="stat-chip" [class.active]="editMode()">
-            <span class="stat-value">{{ editMode() ? 'Sí' : 'No' }}</span>
-            <span class="stat-label">Editando</span>
-          </div>
-        </div>
-
-        <!-- Right Section - Action Buttons -->
-        <div class="flex items-center gap-2">
-          @if (!editMode() && businessExists()) {
-            <button
-              type="button"
-              class="btn-primary"
-              (click)="enableEditMode()">
-              <mat-icon>edit</mat-icon>
-              Editar
-            </button>
-          }
-
-          @if (editMode()) {
-            <button
-              type="button"
-              class="btn-cancel"
-              (click)="cancelEdit()"
-              [disabled]="saving()">
-              <mat-icon>close</mat-icon>
-              Cancelar
-            </button>
-
-            <button
-              type="button"
-              class="btn-save"
-              (click)="onSubmit()"
-              [disabled]="saving() || businessForm.invalid">
-              @if (saving()) {
-                <mat-spinner diameter="18"></mat-spinner>
-              } @else {
-                <mat-icon>save</mat-icon>
-              }
-              {{ saving() ? 'Guardando...' : 'Guardar' }}
-            </button>
-          }
-        </div>
+          <button
+            type="button"
+            class="btn-save"
+            (click)="onSubmit()"
+            [disabled]="saving() || businessForm.invalid">
+            @if (saving()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <mat-icon>save</mat-icon>
+            }
+            {{ saving() ? 'Guardando...' : 'Guardar' }}
+          </button>
+        }
       </div>
-    </header>
+    </app-module-header>
 
     <!-- ============================================
          LOADING STATE
