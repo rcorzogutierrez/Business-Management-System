@@ -32,9 +32,6 @@
         <!-- Sección: Fecha y Duración -->
         <div class="form-section">
           <div class="section-header">
-            <div class="section-icon purple">
-              <mat-icon>event</mat-icon>
-            </div>
             <div>
               <h2>Fecha y Duración</h2>
               <p>Cuándo y por cuánto tiempo</p>
@@ -46,19 +43,21 @@
             <div class="md:col-span-3">
               <div class="form-group">
                 <label class="form-label required">
-                  <mat-icon>event</mat-icon>
+                  <mat-icon class="!text-base !w-4 !h-4 !leading-4">calendar_month</mat-icon>
                   Fecha del Plan
                 </label>
-                <input
-                  type="text"
-                  [matDatepicker]="picker"
-                  formControlName="planDate"
-                  placeholder="Seleccione una fecha"
-                  class="form-input"
-                  [class.error]="form.get('planDate')?.invalid && form.get('planDate')?.touched"
-                  required>
-                <mat-datepicker-toggle [for]="picker" class="datepicker-toggle"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
+                <div class="relative">
+                  <input
+                    type="text"
+                    [matDatepicker]="picker"
+                    formControlName="planDate"
+                    placeholder="Seleccione una fecha"
+                    class="form-input"
+                    [class.error]="form.get('planDate')?.invalid && form.get('planDate')?.touched"
+                    required>
+                  <mat-datepicker-toggle [for]="picker" class="datepicker-toggle"></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </div>
                 @if (form.get('planDate')?.invalid && form.get('planDate')?.touched) {
                   <p class="form-error">{{ getErrorMessage('planDate') }}</p>
                 }
@@ -69,7 +68,7 @@
             <div>
               <div class="form-group">
                 <label class="form-label required">
-                  <mat-icon>today</mat-icon>
+                  <mat-icon class="!text-base !w-4 !h-4 !leading-4">date_range</mat-icon>
                   Días
                 </label>
                 <div class="relative">
@@ -100,7 +99,7 @@
             <div>
               <div class="form-group">
                 <label class="form-label required">
-                  <mat-icon>schedule</mat-icon>
+                  <mat-icon class="!text-base !w-4 !h-4 !leading-4">access_time</mat-icon>
                   Horas (0-23)
                 </label>
                 <div class="relative">
@@ -148,9 +147,6 @@
         <!-- Sección: Asignación -->
         <div class="form-section">
           <div class="section-header">
-            <div class="section-icon purple">
-              <mat-icon>assignment_ind</mat-icon>
-            </div>
             <div>
               <h2>Asignación</h2>
               <p>Trabajador o propuesta relacionada</p>
@@ -161,7 +157,7 @@
             <!-- Trabajador -->
             <div class="form-group">
               <label class="form-label">
-                <mat-icon>engineering</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">person</mat-icon>
                 Trabajador
               </label>
               <select formControlName="workerId" class="form-input" [disabled]="isSaving()">
@@ -176,7 +172,7 @@
             <!-- Propuesta/Estimado -->
             <div class="form-group">
               <label class="form-label">
-                <mat-icon>description</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">assignment</mat-icon>
                 Propuesta/Estimado
               </label>
               <select formControlName="proposalId" class="form-input" [disabled]="isSaving()">
@@ -193,9 +189,6 @@
         <!-- Sección: Detalles -->
         <div class="form-section">
           <div class="section-header">
-            <div class="section-icon purple">
-              <mat-icon>notes</mat-icon>
-            </div>
             <div>
               <h2>Detalles del Trabajo</h2>
               <p>Descripción, ubicación y estado</p>
@@ -206,7 +199,7 @@
             <!-- Descripción -->
             <div class="md:col-span-2 form-group">
               <label class="form-label required">
-                <mat-icon>subject</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">edit_note</mat-icon>
                 Descripción
               </label>
               <textarea
@@ -230,7 +223,7 @@
             <!-- Ubicación -->
             <div class="form-group">
               <label class="form-label">
-                <mat-icon>location_on</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">location_on</mat-icon>
                 Ubicación
               </label>
               <input
@@ -246,7 +239,7 @@
             <!-- Estado -->
             <div class="form-group">
               <label class="form-label required">
-                <mat-icon>flag</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">flag</mat-icon>
                 Estado
               </label>
               <select
@@ -269,7 +262,7 @@
             <!-- Notas -->
             <div class="md:col-span-2 form-group">
               <label class="form-label">
-                <mat-icon>notes</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">notes</mat-icon>
                 Notas Adicionales
               </label>
               <textarea
@@ -288,7 +281,7 @@
             <!-- Color -->
             <div class="md:col-span-2 form-group">
               <label class="form-label">
-                <mat-icon>palette</mat-icon>
+                <mat-icon class="!text-base !w-4 !h-4 !leading-4">palette</mat-icon>
                 Color de Identificación
               </label>
               <div class="color-grid">

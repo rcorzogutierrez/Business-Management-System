@@ -1,6 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -15,6 +14,7 @@ import { WorkPlan, WorkPlanStatus, WorkPlanCalendarView } from '../../models';
 import { WorkPlanFormComponent } from '../work-plan-form/work-plan-form.component';
 import { GenericDeleteDialogComponent } from '../../../../shared/components/generic-delete-dialog/generic-delete-dialog.component';
 import { GenericDeleteMultipleDialogComponent } from '../../../../shared/components/generic-delete-multiple-dialog/generic-delete-multiple-dialog.component';
+import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 type ViewMode = 'calendar' | 'list' | 'timeline';
 
@@ -23,13 +23,13 @@ type ViewMode = 'calendar' | 'list' | 'timeline';
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonModule,
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
     MatMenuModule,
     MatCheckboxModule,
-    MatDividerModule
+    MatDividerModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './work-plans-list.component.html',
   styleUrl: './work-plans-list.component.css'
@@ -84,6 +84,21 @@ export class WorkPlansListComponent implements OnInit {
 
   hasSelectedPlans = computed(() => this.selectedPlans().size > 0);
   selectedCount = computed(() => this.selectedPlans().size);
+
+  // Configuración del header
+  headerStats = computed<StatChip[]>(() => {
+    const currentStats = this.stats();
+    return [
+      { value: currentStats.total, label: 'TOTAL', color: 'info' as const },
+      { value: currentStats.scheduled, label: 'PLANIFICADOS', color: 'primary' as const },
+      { value: currentStats.inProgress, label: 'EN PROGRESO', color: 'warning' as const },
+      { value: currentStats.completed, label: 'COMPLETADOS', color: 'success' as const }
+    ];
+  });
+
+  headerActions = computed<ActionButton[]>(() => [
+    { icon: 'refresh', tooltip: 'Recargar', action: () => this.loadPlans() }
+  ]);
 
   async ngOnInit() {
     await this.loadPlans();
