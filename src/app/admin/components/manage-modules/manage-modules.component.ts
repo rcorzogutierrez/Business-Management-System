@@ -16,6 +16,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { SystemModule } from '../../models/system-module.interface';
 import { ModuleFormDialogComponent } from '../module-form-dialog/module-form-dialog.component';
 import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-module-dialog.component';
+import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
   selector: 'app-manage-modules',
@@ -27,7 +28,8 @@ import { DeleteModuleDialogComponent } from '../delete-module-dialog/delete-modu
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './manage-modules.component.html',
   styleUrl: './manage-modules.component.css',
@@ -75,6 +77,27 @@ export class ManageModulesComponent implements OnInit {
   readonly totalAssignments = computed(() =>
     this.modules.reduce((sum, m) => sum + (m.usersCount || 0), 0)
   );
+
+  /**
+   * Stats para el header compartido
+   */
+  headerStats = computed<StatChip[]>(() => [
+    { value: this.modules.length, label: 'Total', color: 'primary' },
+    { value: this.activeModulesCount(), label: 'Activos', color: 'success' },
+    { value: this.inactiveModulesCount(), label: 'Inactivos', color: 'warning' },
+    { value: this.totalAssignments(), label: 'Asignaciones', color: 'info' }
+  ]);
+
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar módulos',
+      action: () => this.loadModules()
+    }
+  ]);
 
   constructor() {
     // Effect para reaccionar a cambios en módulos

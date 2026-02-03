@@ -2,72 +2,20 @@
 <div class="min-h-screen">
   <div class="app-container">
 
-    <!-- HEADER -->
-    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-
-        <!-- Left Section -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="!bg-slate-100 hover:!bg-slate-200"
-            (click)="goBack()"
-            matTooltip="Volver al panel de admin">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-
-          <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-            <mat-icon class="text-white !text-xl">apps</mat-icon>
-          </div>
-
-          <div>
-            <h1 class="text-lg font-bold text-slate-800">Gestión de Módulos</h1>
-            <p class="text-xs text-slate-500">Administra los módulos del sistema</p>
-          </div>
-        </div>
-
-        <!-- Stats Inline -->
-        <div class="flex items-center gap-3">
-          <div class="stat-chip">
-            <span class="stat-value">{{ modules.length }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-chip active">
-            <span class="stat-value">{{ activeModulesCount() }}</span>
-            <span class="stat-label">Activos</span>
-          </div>
-          <div class="stat-chip inactive">
-            <span class="stat-value">{{ inactiveModulesCount() }}</span>
-            <span class="stat-label">Inactivos</span>
-          </div>
-          <div class="stat-chip users">
-            <span class="stat-value">{{ totalAssignments() }}</span>
-            <span class="stat-label">Asignaciones</span>
-          </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="flex items-center gap-2">
-          <button
-            mat-icon-button
-            class="!bg-slate-100 hover:!bg-slate-200"
-            (click)="loadModules()"
-            [disabled]="isLoading"
-            matTooltip="Recargar módulos">
-            <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
-          </button>
-
-          <button
-            mat-raised-button
-            class="!bg-purple-600 !text-white"
-            (click)="addModule()"
-            [disabled]="isLoading">
-            <mat-icon>add</mat-icon>
-            Nuevo Módulo
-          </button>
-        </div>
-      </div>
-    </header>
+    <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+    <app-module-header
+      icon="apps"
+      title="Gestión de Módulos"
+      subtitle="Administra los módulos del sistema"
+      moduleColor="purple"
+      [showBackButton]="true"
+      backButtonTooltip="Volver al panel de admin"
+      [stats]="headerStats()"
+      [actionButtons]="headerActions()"
+      primaryButtonLabel="Nuevo Módulo"
+      (backAction)="goBack()"
+      (primaryAction)="addModule()">
+    </app-module-header>
 
     <!-- LOADING STATE -->
     @if (isLoading && modules.length === 0) {

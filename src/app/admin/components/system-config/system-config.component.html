@@ -2,59 +2,18 @@
 <div class="min-h-screen">
   <div class="app-container">
 
-    <!-- ============================================
-         HEADER COMPACTO
-         ============================================ -->
-    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-
-        <!-- Left Section -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="!bg-slate-100 hover:!bg-slate-200"
-            (click)="goBack()"
-            matTooltip="Volver al panel de admin"
-            aria-label="Volver al panel de admin">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-
-          <div class="header-icon-box">
-            <mat-icon>settings</mat-icon>
-          </div>
-
-          <div>
-            <h1 class="text-lg font-bold text-slate-800">Configuración del Sistema</h1>
-            <p class="text-xs text-slate-500">Personaliza la apariencia y configuración</p>
-          </div>
-        </div>
-
-        <!-- Stats Inline -->
-        <div class="hidden md:flex items-center gap-3">
-          <div class="stat-chip">
-            <span class="stat-value">4</span>
-            <span class="stat-label">Campos</span>
-          </div>
-          <div class="stat-chip logo">
-            <span class="stat-value">{{ logoPreviewUrl() ? '1' : '0' }}</span>
-            <span class="stat-label">Logo</span>
-          </div>
-        </div>
-
-        <!-- Right Section -->
-        <div class="flex items-center gap-2">
-          <button
-            mat-icon-button
-            class="refresh-btn"
-            (click)="loadConfiguration()"
-            [disabled]="isLoading()"
-            matTooltip="Recargar configuración"
-            aria-label="Recargar configuración">
-            <mat-icon [class.animate-spin]="isLoading()">refresh</mat-icon>
-          </button>
-        </div>
-      </div>
-    </header>
+    <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+    <app-module-header
+      icon="settings"
+      title="Configuración del Sistema"
+      subtitle="Personaliza la apariencia y configuración"
+      moduleColor="blue"
+      [showBackButton]="true"
+      backButtonTooltip="Volver al panel de admin"
+      [stats]="headerStats()"
+      [actionButtons]="headerActions()"
+      (backAction)="goBack()">
+    </app-module-header>
 
     <!-- ============================================
          LOADING STATE

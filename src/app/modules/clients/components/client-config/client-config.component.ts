@@ -1,5 +1,5 @@
 // src/app/modules/clients/components/client-config/client-config.component.ts
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,6 +19,7 @@ import { AuthService } from '../../../../core/services/auth.service';
 import { FieldConfig, FieldType } from '../../models';
 import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
 import { GenericConfigBaseComponent } from '../../../../shared/components/generic-config-base/generic-config-base.component';
+import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../../shared/components/module-header/module-header.component';
 
 /**
  * Componente de configuración del módulo de Clientes
@@ -41,7 +42,8 @@ import { GenericConfigBaseComponent } from '../../../../shared/components/generi
     MatTabsModule,
     MatSlideToggleModule,
     DragDropModule,
-    FormDesignerComponent
+    FormDesignerComponent,
+    ModuleHeaderComponent
   ],
   templateUrl: './client-config.component.html',
   styleUrl: './client-config.component.css',
@@ -60,6 +62,24 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
 
   // Toda la lógica compartida (gridConfig, allFeaturesEnabled, stats, updateGridConfig,
   // toggleAllFeatures, loadConfig, onLayoutChange, etc.) ya está en la clase base.
+
+  /**
+   * Stats para el header compartido
+   */
+  headerStats = computed<StatChip[]>(() => [
+    { value: this.fields.length, label: 'Campos', color: 'purple' }
+  ]);
+
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar configuración',
+      action: () => this.loadConfig()
+    }
+  ]);
 
   // ==============================================
   // MÉTODOS ESPECÍFICOS DE CLIENTES

@@ -18,6 +18,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { BusinessInfoService } from '../../services/business-info.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { BusinessInfo, BusinessInfoFormData } from '../../models/business-info.interface';
+import { ModuleHeaderComponent, StatChip } from '../../../shared/components/module-header/module-header.component';
 
 /**
  * Componente de gestión de información de empresa
@@ -53,7 +54,8 @@ import { BusinessInfo, BusinessInfoFormData } from '../../models/business-info.i
     MatProgressBarModule,
     MatTooltipModule,
     MatSnackBarModule,
-    MatDividerModule
+    MatDividerModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './business-info.component.html',
   styleUrl: './business-info.component.css',
@@ -142,6 +144,23 @@ export class BusinessInfoComponent implements OnInit {
   readonly businessExists = computed(() => {
     return this.businessInfo() !== null;
   });
+
+  /**
+   * Subtítulo dinámico para el header
+   */
+  readonly headerSubtitle = computed(() => {
+    return this.businessExists()
+      ? 'Gestiona la información de tu empresa'
+      : 'Configura la información de tu empresa';
+  });
+
+  /**
+   * Stats para el header compartido
+   */
+  readonly headerStats = computed<StatChip[]>(() => [
+    { value: 5, label: 'Secciones', color: 'primary' },
+    { value: this.editMode() ? 'Sí' : 'No', label: 'Editando', color: this.editMode() ? 'success' : 'primary' }
+  ]);
 
   // ============================================
   // FORM

@@ -1,6 +1,6 @@
 // src/app/modules/workers/components/workers-config/workers-config.component.ts
 
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { WorkersConfigService } from '../../services';
 import { GenericGridConfigBaseComponent } from '../../../../shared/components/generic-grid-config-base/generic-grid-config-base.component';
+import { ModuleHeaderComponent, ActionButton } from '../../../../shared/components/module-header/module-header.component';
 
 /**
  * Componente de configuración del módulo de Workers
@@ -31,7 +32,8 @@ import { GenericGridConfigBaseComponent } from '../../../../shared/components/ge
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
-    MatDividerModule
+    MatDividerModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './workers-config.component.html',
   styleUrl: './workers-config.component.css',
@@ -45,6 +47,14 @@ export class WorkersConfigComponent extends GenericGridConfigBaseComponent {
   // Toda la lógica compartida (gridConfig, allFeaturesEnabled, updateGridConfig,
   // toggleAllFeatures, loadConfig, goBack, pageSizeOptions) ya está en la clase base.
 
-  // No hay métodos específicos adicionales para workers en este momento
-  // Si en el futuro se necesitan, se pueden agregar aquí
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar configuración',
+      action: () => this.loadConfig()
+    }
+  ]);
 }

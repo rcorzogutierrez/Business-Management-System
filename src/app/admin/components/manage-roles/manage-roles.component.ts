@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-roles/manage-roles.component.ts
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,6 +20,7 @@ import { RolesService } from '../../services/roles.service';
 import { AdminService, User } from '../../services/admin.service';
 import { Role } from '../../models/role.interface';
 import { getRoleIcon, getRoleColor, getPermissionIcon } from '../../../shared/utils';
+import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../shared/components/module-header/module-header.component';
 
 @Component({
   selector: 'app-manage-roles',
@@ -38,7 +39,8 @@ import { getRoleIcon, getRoleColor, getPermissionIcon } from '../../../shared/ut
     MatBadgeModule,
     MatTooltipModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './manage-roles.component.html',
   styleUrl: './manage-roles.component.css',
@@ -65,6 +67,76 @@ export class ManageRolesComponent implements OnInit {
 
   // Opciones de permisos
   permissionOptions = this.adminService.getPermissionOptions();
+
+  // ============================================
+  // HEADER DINÁMICO PARA ModuleHeaderComponent
+  // ============================================
+
+  /**
+   * Título dinámico según el modo de visualización
+   */
+  getHeaderTitle(): string {
+    switch (this.viewMode) {
+      case 'add': return 'Nuevo Rol';
+      case 'edit': return 'Editar Rol';
+      default: return 'Gestión de Roles';
+    }
+  }
+
+  /**
+   * Subtítulo dinámico según el modo de visualización
+   */
+  getHeaderSubtitle(): string {
+    switch (this.viewMode) {
+      case 'add': return 'Define un nuevo rol con permisos';
+      case 'edit': return 'Modifica la configuración del rol';
+      default: return 'Administra los roles del sistema';
+    }
+  }
+
+  /**
+   * Tooltip del botón back según el modo
+   */
+  getBackTooltip(): string {
+    return this.viewMode === 'list' ? 'Volver al panel de admin' : 'Volver al listado';
+  }
+
+  /**
+   * Acción del botón back según el modo
+   */
+  handleBackAction(): void {
+    if (this.viewMode === 'list') {
+      this.goBack();
+    } else {
+      this.backToList();
+    }
+  }
+
+  /**
+   * Stats para el header (solo en modo lista)
+   */
+  getHeaderStats(): StatChip[] {
+    if (this.viewMode !== 'list') return [];
+    return [
+      { value: this.roles.length, label: 'Total', color: 'primary' },
+      { value: this.getActiveRolesCount(), label: 'Activos', color: 'success' },
+      { value: this.getTotalUsersCount(), label: 'Usuarios', color: 'info' }
+    ];
+  }
+
+  /**
+   * Botones de acción para el header (solo en modo lista)
+   */
+  getHeaderActions(): ActionButton[] {
+    if (this.viewMode !== 'list') return [];
+    return [
+      {
+        icon: 'refresh',
+        tooltip: 'Recargar roles',
+        action: () => this.loadData()
+      }
+    ];
+  }
 
   // ============================================
   // SHARED UTILITIES (Angular 20 pattern)

@@ -1,5 +1,5 @@
 // src/app/admin/components/manage-users/manage-users.component.ts
-import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, effect, ChangeDetectionStrategy, ChangeDetectorRef, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
+import { ModuleHeaderComponent, ActionButton } from '../../../shared/components/module-header/module-header.component';
 import { AuthService } from '../../../core/services/auth.service';
 import { AdminService, User, AdminStats } from '../../services/admin.service';
 import { AddUserDialogComponent } from '../add-user-dialog/add-user-dialog.component';
@@ -50,6 +51,7 @@ import {
     MatProgressSpinnerModule,
     MatTooltipModule,
     MatDividerModule,
+    ModuleHeaderComponent,
   ],
   templateUrl: './manage-users.component.html',
   styleUrl: './manage-users.component.css',
@@ -64,6 +66,17 @@ export class ManageUsersComponent implements OnInit {
   private cdr = inject(ChangeDetectorRef);
 
   currentUser = this.authService.authorizedUser;
+
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar usuarios',
+      action: () => this.refreshData()
+    }
+  ]);
 
   // Stats
   totalUsers = 0;

@@ -10,54 +10,18 @@
     </div>
   } @else {
 
-    <!-- ========== HEADER COMPACTO ========== -->
-    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
-
-        <div class="flex items-center gap-3">
-          <button type="button"
-                  class="back-btn"
-                  (click)="onCancel()"
-                  [disabled]="isSaving()"
-                  title="Volver a trabajadores">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-
-          <div class="header-icon-box amber">
-            <mat-icon>
-              {{ mode() === 'create' ? 'person_add' : (mode() === 'edit' ? 'edit' : 'visibility') }}
-            </mat-icon>
-          </div>
-
-          <div>
-            <h1 class="text-lg font-bold text-slate-800">
-              @switch (mode()) {
-                @case ('create') { Nuevo Trabajador }
-                @case ('edit') { Editar Trabajador }
-                @case ('view') { Ver Trabajador }
-              }
-            </h1>
-            <p class="text-xs text-slate-500">
-              @if (mode() === 'create') {
-                Complete la información del nuevo trabajador
-              } @else if (currentWorker()) {
-                {{ currentWorker()!.fullName }}
-              }
-            </p>
-          </div>
-        </div>
-
-        @if (mode() === 'view') {
-          <button type="button"
-                  class="btn-secondary"
-                  (click)="enableEdit()">
-            <mat-icon>edit</mat-icon>
-            <span>Editar</span>
-          </button>
-        }
-
-      </div>
-    </header>
+    <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+    <app-module-header
+      [icon]="headerIcon()"
+      [title]="headerTitle()"
+      [subtitle]="headerSubtitle()"
+      moduleColor="amber"
+      [showBackButton]="true"
+      backButtonTooltip="Volver a trabajadores"
+      [primaryButtonLabel]="mode() === 'view' ? 'Editar' : ''"
+      (backAction)="onCancel()"
+      (primaryAction)="enableEdit()">
+    </app-module-header>
 
     <!-- ========== FORMULARIO ========== -->
     <form [formGroup]="workerForm" (ngSubmit)="onSubmit()" class="animate-fadeIn" style="animation-delay: 0.1s">

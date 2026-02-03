@@ -2,68 +2,35 @@
 <div class="min-h-screen">
   <div class="app-container">
 
-    <!-- HEADER COMPACTO -->
-    <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
-      <div class="flex items-center justify-between gap-4 flex-wrap">
+    <!-- ========== HEADER - Usando ModuleHeaderComponent ========== -->
+    <app-module-header
+      icon="people"
+      title="Gestión de Usuarios"
+      subtitle="Administra los usuarios del sistema"
+      moduleColor="purple"
+      [showBackButton]="true"
+      backButtonTooltip="Volver al panel de admin"
+      [actionButtons]="headerActions()"
+      primaryButtonLabel="Nuevo Usuario"
+      (backAction)="goBack()"
+      (primaryAction)="addUser()">
 
-        <!-- Left Section -->
-        <div class="flex items-center gap-3">
-          <button
-            mat-icon-button
-            class="!bg-slate-100 hover:!bg-slate-200"
-            (click)="goBack()"
-            matTooltip="Volver al panel de admin">
-            <mat-icon>arrow_back</mat-icon>
-          </button>
-
-          <div class="header-icon-box">
-            <mat-icon>people</mat-icon>
-          </div>
-
-          <div>
-            <h1 class="text-lg font-bold text-slate-800">Gestión de Usuarios</h1>
-            <p class="text-xs text-slate-500">Administra los usuarios del sistema</p>
-          </div>
+      <!-- Stats clickeables proyectados -->
+      <div slot="extra-stats" class="hidden md:flex items-center gap-3">
+        <div class="stat-chip" [class.active-filter]="currentFilter === 'all'" (click)="setFilter('all')">
+          <span class="stat-value">{{ totalUsers }}</span>
+          <span class="stat-label">Total</span>
         </div>
-
-        <!-- Stats Inline -->
-        <div class="hidden md:flex items-center gap-3">
-          <div class="stat-chip" [class.active-filter]="currentFilter === 'all'" (click)="setFilter('all')">
-            <span class="stat-value">{{ totalUsers }}</span>
-            <span class="stat-label">Total</span>
-          </div>
-          <div class="stat-chip active" [class.active-filter]="currentFilter === 'active'" (click)="setFilter('active')">
-            <span class="stat-value">{{ activeUsers }}</span>
-            <span class="stat-label">Activos</span>
-          </div>
-          <div class="stat-chip admin" [class.active-filter]="currentFilter === 'admin'" (click)="setFilter('admin')">
-            <span class="stat-value">{{ adminUsers }}</span>
-            <span class="stat-label">Admins</span>
-          </div>
+        <div class="stat-chip active" [class.active-filter]="currentFilter === 'active'" (click)="setFilter('active')">
+          <span class="stat-value">{{ activeUsers }}</span>
+          <span class="stat-label">Activos</span>
         </div>
-
-        <!-- Right Section -->
-        <div class="flex items-center gap-2">
-          <button
-            mat-icon-button
-            class="!bg-slate-100 hover:!bg-slate-200"
-            (click)="refreshData()"
-            [disabled]="isLoading"
-            matTooltip="Recargar usuarios">
-            <mat-icon [class.animate-spin]="isLoading">refresh</mat-icon>
-          </button>
-
-          <button
-            mat-raised-button
-            class="!bg-purple-600 !text-white"
-            (click)="addUser()"
-            [disabled]="isLoading">
-            <mat-icon>person_add</mat-icon>
-            Nuevo Usuario
-          </button>
+        <div class="stat-chip admin" [class.active-filter]="currentFilter === 'admin'" (click)="setFilter('admin')">
+          <span class="stat-value">{{ adminUsers }}</span>
+          <span class="stat-label">Admins</span>
         </div>
       </div>
-    </header>
+    </app-module-header>
 
     <!-- TOOLBAR - BÚSQUEDA Y FILTROS -->
     <section class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm">

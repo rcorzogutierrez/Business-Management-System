@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -19,6 +19,7 @@ import { CompaniesService } from '../../companies/services/companies.service';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
 import { CompanyFormDialogComponent, CompanyFormDialogResult } from '../company-form-dialog/company-form-dialog.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -37,7 +38,8 @@ type FormMode = 'create' | 'edit' | 'view';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
+    ModuleHeaderComponent
   ],
   templateUrl: './worker-form.component.html',
   styleUrl: './worker-form.component.css',
@@ -68,6 +70,42 @@ export class WorkerFormComponent implements OnInit {
 
   // Controlar visibilidad del selector de empresa
   showCompanySelector = signal<boolean>(false);
+
+  // ============================================
+  // HEADER DINÁMICO PARA ModuleHeaderComponent
+  // ============================================
+
+  /**
+   * Icono dinámico según el modo
+   */
+  headerIcon = computed(() => {
+    switch (this.mode()) {
+      case 'create': return 'person_add';
+      case 'edit': return 'edit';
+      default: return 'visibility';
+    }
+  });
+
+  /**
+   * Título dinámico según el modo
+   */
+  headerTitle = computed(() => {
+    switch (this.mode()) {
+      case 'create': return 'Nuevo Trabajador';
+      case 'edit': return 'Editar Trabajador';
+      default: return 'Ver Trabajador';
+    }
+  });
+
+  /**
+   * Subtítulo dinámico según el modo
+   */
+  headerSubtitle = computed(() => {
+    if (this.mode() === 'create') {
+      return 'Complete la información del nuevo trabajador';
+    }
+    return this.currentWorker()?.fullName || '';
+  });
 
   constructor() {}
 
