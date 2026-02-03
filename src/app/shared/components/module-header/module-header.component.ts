@@ -79,11 +79,11 @@ export interface ActionButton {
         <!-- Sección derecha: Stats + Botones -->
         <div class="flex items-center gap-3 flex-wrap">
 
-          <!-- Chips de estadísticas -->
+          <!-- Chips de estadísticas (Tailwind puro) -->
           @for (stat of stats(); track $index) {
-            <div [class]="getStatChipClass(stat.color)">
-              <span class="stat-value">{{ stat.value }}</span>
-              <span class="stat-label">{{ stat.label }}</span>
+            <div [class]="getStatChipClass(stat.color)" class="hidden md:flex flex-col items-center rounded-[10px] px-3 py-1.5 min-w-[65px] border">
+              <span class="text-base font-bold leading-tight" [class]="getStatValueClass(stat.color)">{{ stat.value }}</span>
+              <span class="text-[9px] font-semibold uppercase tracking-wide" [class]="getStatLabelClass(stat.color)">{{ stat.label }}</span>
             </div>
           }
 
@@ -129,88 +129,7 @@ export interface ActionButton {
         </div>
       </div>
     </header>
-  `,
-  styles: [`
-    /* Stat chips base */
-    .stat-chip-base {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      border-radius: 10px;
-      padding: 6px 12px;
-      min-width: 65px;
-    }
-
-    .stat-value {
-      font-size: 16px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-
-    .stat-label {
-      font-size: 9px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.3px;
-    }
-
-    /* Stat chip variants */
-    .stat-chip-purple {
-      background: #faf5ff;
-      border: 1px solid #e9d5ff;
-    }
-    .stat-chip-purple .stat-value { color: #7c3aed; }
-    .stat-chip-purple .stat-label { color: #8b5cf6; }
-
-    .stat-chip-green {
-      background: #ecfdf5;
-      border: 1px solid #a7f3d0;
-    }
-    .stat-chip-green .stat-value { color: #059669; }
-    .stat-chip-green .stat-label { color: #10b981; }
-
-    .stat-chip-amber {
-      background: #fffbeb;
-      border: 1px solid #fde68a;
-    }
-    .stat-chip-amber .stat-value { color: #d97706; }
-    .stat-chip-amber .stat-label { color: #f59e0b; }
-
-    .stat-chip-primary {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-    }
-    .stat-chip-primary .stat-value { color: #2563eb; }
-    .stat-chip-primary .stat-label { color: #3b82f6; }
-
-    .stat-chip-success {
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-    }
-    .stat-chip-success .stat-value { color: #16a34a; }
-    .stat-chip-success .stat-label { color: #22c55e; }
-
-    .stat-chip-warning {
-      background: #fef3c7;
-      border: 1px solid #fde68a;
-    }
-    .stat-chip-warning .stat-value { color: #d97706; }
-    .stat-chip-warning .stat-label { color: #f59e0b; }
-
-    .stat-chip-info {
-      background: #e0f2fe;
-      border: 1px solid #bae6fd;
-    }
-    .stat-chip-info .stat-value { color: #0284c7; }
-    .stat-chip-info .stat-label { color: #0ea5e9; }
-
-    /* Responsive */
-    @media (max-width: 768px) {
-      .stat-chip-base {
-        display: none;
-      }
-    }
-  `]
+  `
 })
 export class ModuleHeaderComponent {
   // Inputs
@@ -268,6 +187,41 @@ export class ModuleHeaderComponent {
   });
 
   getStatChipClass(color: string): string {
-    return `stat-chip-base stat-chip-${color}`;
+    const bgMap: Record<string, string> = {
+      purple: 'bg-purple-50 border-purple-200',
+      green: 'bg-emerald-50 border-emerald-200',
+      amber: 'bg-amber-50 border-amber-200',
+      primary: 'bg-blue-50 border-blue-200',
+      success: 'bg-green-50 border-green-200',
+      warning: 'bg-amber-50 border-amber-200',
+      info: 'bg-sky-50 border-sky-200',
+    };
+    return bgMap[color] || bgMap['primary'];
+  }
+
+  getStatValueClass(color: string): string {
+    const colorMap: Record<string, string> = {
+      purple: 'text-violet-600',
+      green: 'text-emerald-600',
+      amber: 'text-amber-600',
+      primary: 'text-blue-600',
+      success: 'text-green-600',
+      warning: 'text-amber-600',
+      info: 'text-sky-600',
+    };
+    return colorMap[color] || colorMap['primary'];
+  }
+
+  getStatLabelClass(color: string): string {
+    const colorMap: Record<string, string> = {
+      purple: 'text-violet-500',
+      green: 'text-emerald-500',
+      amber: 'text-amber-500',
+      primary: 'text-blue-500',
+      success: 'text-green-500',
+      warning: 'text-amber-500',
+      info: 'text-sky-500',
+    };
+    return colorMap[color] || colorMap['primary'];
   }
 }
