@@ -89,8 +89,8 @@ export class WorkPlansListComponent implements OnInit {
   headerStats = computed<StatChip[]>(() => {
     const currentStats = this.stats();
     return [
-      { value: currentStats.total, label: 'TOTAL', color: 'info' as const },
-      { value: currentStats.scheduled, label: 'PLANIFICADOS', color: 'primary' as const },
+      { value: currentStats.total, label: 'TOTAL', color: 'purple' as const },
+      { value: currentStats.scheduled, label: 'PLANIFICADOS', color: 'info' as const },
       { value: currentStats.inProgress, label: 'EN PROGRESO', color: 'warning' as const },
       { value: currentStats.completed, label: 'COMPLETADOS', color: 'success' as const }
     ];

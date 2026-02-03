@@ -1,4 +1,14 @@
 // src/app/admin/models/system-config.interface.ts
+
+/**
+ * Configuración de layout global de la aplicación
+ */
+export interface LayoutConfig {
+  containerMaxWidth: number;           // Ancho máximo del contenedor (1200, 1400, 1600, etc.)
+  bodyBackgroundType: 'gradient' | 'solid';
+  bodyBackgroundValue: string;         // Gradiente CSS o color sólido
+}
+
 export interface SystemConfig {
     id: string; // 'system_config' (único documento)
     appName: string; // Nombre de la aplicación
@@ -11,6 +21,9 @@ export interface SystemConfig {
     footerColor: string; // Color de fondo del footer
     footerTextColor: string; // Color del texto del footer
     faviconUrl?: string; // URL del favicon (puede ser el mismo logo)
+
+    // Layout global
+    layout?: LayoutConfig;
 
     // Metadata
     createdAt: Date;

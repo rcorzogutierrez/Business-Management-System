@@ -80,6 +80,11 @@ export class SystemConfigService {
       footerText: '© 2025 Generic Admin. Todos los derechos reservados.',
       footerColor: '#1e293b',
       footerTextColor: '#94a3b8',
+      layout: {
+        containerMaxWidth: 1400,
+        bodyBackgroundType: 'gradient',
+        bodyBackgroundValue: 'linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)'
+      },
       createdAt: new Date(),
       createdBy: 'system',
       updatedAt: new Date(),

@@ -2,11 +2,11 @@
 
 /* ========== CONTAINER ========== */
 .form-container {
-  max-width: 1400px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 1.5rem;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  /* Background heredado del body global - NO duplicar aquí */
 }
 
 /* ========== ANIMATIONS ========== */

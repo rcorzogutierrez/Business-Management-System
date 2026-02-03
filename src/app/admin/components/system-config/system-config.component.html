@@ -1,6 +1,6 @@
 <!-- src/app/admin/components/system-config/system-config.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1200px] mx-auto p-5">
+<div class="min-h-screen">
+  <div class="app-container">
 
     <!-- ============================================
          HEADER COMPACTO
@@ -463,6 +463,105 @@
                   <li>• Tamaño máximo: 2 MB</li>
                   <li>• Dimensiones recomendadas: 300x300 px</li>
                   <li>• Se usará en login, navbar y favicon</li>
+                </ul>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- CARD: LAYOUT GLOBAL -->
+          <div class="config-card">
+            <div class="card-header">
+              <div class="card-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                <mat-icon>dashboard_customize</mat-icon>
+              </div>
+              <h2 class="card-title">Layout Global</h2>
+            </div>
+
+            <div class="space-y-5">
+
+              <!-- Ancho máximo del contenedor -->
+              <div class="form-group">
+                <label class="form-label">
+                  <mat-icon>width</mat-icon>
+                  Ancho Máximo del Contenedor
+                </label>
+                <p class="text-xs text-slate-500 mb-3">
+                  Define el ancho máximo de todos los módulos de la aplicación
+                </p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                  @for (option of containerWidthOptions; track option.value) {
+                    <button
+                      type="button"
+                      class="px-4 py-3 rounded-xl border-2 text-sm font-medium transition-all flex flex-col items-center gap-1"
+                      [class.border-amber-500]="containerMaxWidth() === option.value"
+                      [class.bg-amber-50]="containerMaxWidth() === option.value"
+                      [class.text-amber-700]="containerMaxWidth() === option.value"
+                      [class.border-slate-200]="containerMaxWidth() !== option.value"
+                      [class.bg-white]="containerMaxWidth() !== option.value"
+                      [class.text-slate-600]="containerMaxWidth() !== option.value"
+                      [class.hover:border-slate-300]="containerMaxWidth() !== option.value"
+                      (click)="onContainerWidthChange(option.value)">
+                      <span class="text-lg font-bold">{{ option.value }}px</span>
+                      <span class="text-xs opacity-75">{{ option.name }}</span>
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Fondo de la aplicación -->
+              <div class="form-group">
+                <label class="form-label">
+                  <mat-icon>gradient</mat-icon>
+                  Fondo de la Aplicación
+                </label>
+                <p class="text-xs text-slate-500 mb-3">
+                  Selecciona el color o gradiente de fondo para toda la aplicación
+                </p>
+
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  @for (preset of bodyBackgroundPresets; track preset.value) {
+                    <button
+                      type="button"
+                      class="relative p-1 rounded-xl border-2 transition-all overflow-hidden group"
+                      [class.border-amber-500]="bodyBackgroundValue() === preset.value"
+                      [class.ring-2]="bodyBackgroundValue() === preset.value"
+                      [class.ring-amber-300]="bodyBackgroundValue() === preset.value"
+                      [class.border-slate-200]="bodyBackgroundValue() !== preset.value"
+                      [class.hover:border-slate-300]="bodyBackgroundValue() !== preset.value"
+                      (click)="onBodyBackgroundChange(preset)">
+                      <!-- Preview del fondo -->
+                      <div
+                        class="h-16 rounded-lg mb-2"
+                        [style.background]="preset.value">
+                      </div>
+                      <!-- Nombre -->
+                      <p class="text-xs font-medium text-slate-700 text-center truncate px-1">
+                        {{ preset.name }}
+                      </p>
+                      <!-- Checkmark -->
+                      @if (bodyBackgroundValue() === preset.value) {
+                        <div class="absolute top-2 right-2 w-5 h-5 bg-amber-500 rounded-full flex items-center justify-center">
+                          <mat-icon class="!text-white !text-sm !w-4 !h-4">check</mat-icon>
+                        </div>
+                      }
+                    </button>
+                  }
+                </div>
+              </div>
+
+              <!-- Info box -->
+              <div class="specs-box">
+                <p class="specs-title">
+                  <mat-icon>info</mat-icon>
+                  Sobre el Layout Global
+                </p>
+                <ul class="specs-list">
+                  <li>• Los cambios se aplican a todos los módulos</li>
+                  <li>• El ancho máximo afecta el contenedor principal</li>
+                  <li>• El fondo se aplica a toda la aplicación</li>
+                  <li>• Los cambios se guardan en Firestore</li>
                 </ul>
               </div>
 

@@ -9,7 +9,7 @@
    ============================================ */
 
 .config-container-base {
-  max-width: 1200px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 20px;
 }

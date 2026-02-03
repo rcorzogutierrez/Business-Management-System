@@ -4,7 +4,7 @@
    CONTAINER
    ============================================ */
 .proposals-container {
-  max-width: 1400px;
+  max-width: var(--container-max-width);
   margin: 0 auto;
   padding: 20px;
 }

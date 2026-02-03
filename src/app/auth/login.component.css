@@ -5,19 +5,13 @@
    TODO LO DEMÁS USA TAILWIND O CLASES GLOBALES
    ============================================ */
 
-/* Host - Fondo específico del login */
+/* Host - Fondo dinámico desde configuración del sistema */
 :host {
   display: block;
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(
-    135deg, 
-    #f8fafc 0%, 
-    #e2e8f0 25%, 
-    #cbd5e1 50%, 
-    #94a3b8 75%, 
-    #64748b 100%
-  );
+  /* Usa la misma variable CSS que el resto de la aplicación */
+  background: var(--body-bg);
 }
 
 /* Animación específica del logo */

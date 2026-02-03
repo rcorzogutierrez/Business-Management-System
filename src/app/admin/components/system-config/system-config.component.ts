@@ -65,6 +65,35 @@ export class SystemConfigComponent implements OnInit {
   footerColor = signal<string>('#1e293b');
   footerTextColor = signal<string>('#94a3b8');
 
+  // Layout global
+  containerMaxWidth = signal<number>(1400);
+  bodyBackgroundType = signal<'gradient' | 'solid'>('gradient');
+  bodyBackgroundValue = signal<string>('linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)');
+
+  /**
+   * Opciones de ancho máximo del contenedor
+   */
+  readonly containerWidthOptions = [
+    { name: 'Compacto', value: 1200 },
+    { name: 'Estándar (Recomendado)', value: 1400 },
+    { name: 'Amplio', value: 1600 },
+    { name: 'Extra amplio', value: 1800 },
+  ];
+
+  /**
+   * Fondos predefinidos para el body
+   */
+  readonly bodyBackgroundPresets = [
+    { name: 'Slate Gradient (Predeterminado)', type: 'gradient' as const, value: 'linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)' },
+    { name: 'Blue Gradient', type: 'gradient' as const, value: 'linear-gradient(to bottom right, #eff6ff, #dbeafe, #bfdbfe)' },
+    { name: 'Purple Gradient', type: 'gradient' as const, value: 'linear-gradient(to bottom right, #faf5ff, #f3e8ff, #e9d5ff)' },
+    { name: 'Green Gradient', type: 'gradient' as const, value: 'linear-gradient(to bottom right, #f0fdf4, #dcfce7, #bbf7d0)' },
+    { name: 'Amber Gradient', type: 'gradient' as const, value: 'linear-gradient(to bottom right, #fffbeb, #fef3c7, #fde68a)' },
+    { name: 'Blanco', type: 'solid' as const, value: '#ffffff' },
+    { name: 'Gris muy claro', type: 'solid' as const, value: '#f8fafc' },
+    { name: 'Gris claro', type: 'solid' as const, value: '#f1f5f9' },
+  ];
+
   /**
    * Colores predefinidos para el fondo del logo
    */
@@ -123,6 +152,11 @@ export class SystemConfigComponent implements OnInit {
       this.logoBackgroundColor.set(config.logoBackgroundColor || 'transparent');
       this.footerColor.set(config.footerColor || '#1e293b');
       this.footerTextColor.set(config.footerTextColor || '#94a3b8');
+
+      // Layout global
+      this.containerMaxWidth.set(config.layout?.containerMaxWidth || 1400);
+      this.bodyBackgroundType.set(config.layout?.bodyBackgroundType || 'gradient');
+      this.bodyBackgroundValue.set(config.layout?.bodyBackgroundValue || 'linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)');
     } catch (error) {
       console.error('Error cargando configuración:', error);
       this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
@@ -270,7 +304,12 @@ export class SystemConfigComponent implements OnInit {
         footerText: formValue.footerText?.trim() || '',
         logoBackgroundColor: formValue.logoBackgroundColor,
         footerColor: formValue.footerColor,
-        footerTextColor: formValue.footerTextColor
+        footerTextColor: formValue.footerTextColor,
+        layout: {
+          containerMaxWidth: this.containerMaxWidth(),
+          bodyBackgroundType: this.bodyBackgroundType(),
+          bodyBackgroundValue: this.bodyBackgroundValue()
+        }
       }, currentUserUid);
 
       if (result.success) {
@@ -292,6 +331,21 @@ export class SystemConfigComponent implements OnInit {
   onColorChange(color: string) {
     this.logoBackgroundColor.set(color);
     this.configForm.patchValue({ logoBackgroundColor: color });
+  }
+
+  /**
+   * Cambia el ancho máximo del contenedor
+   */
+  onContainerWidthChange(width: number) {
+    this.containerMaxWidth.set(width);
+  }
+
+  /**
+   * Cambia el fondo del body
+   */
+  onBodyBackgroundChange(preset: { name: string; type: 'gradient' | 'solid'; value: string }) {
+    this.bodyBackgroundType.set(preset.type);
+    this.bodyBackgroundValue.set(preset.value);
   }
 
   /**

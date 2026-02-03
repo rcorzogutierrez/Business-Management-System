@@ -49,7 +49,8 @@ import { AppConfigService } from '../services/app-config.service';
     :host {
       display: block;
       min-height: 100vh;
-      background: #f8fafc;
+      /* Background dinámico - heredado de CSS variables globales */
+      background: var(--body-bg);
     }
 
     /* ============================================

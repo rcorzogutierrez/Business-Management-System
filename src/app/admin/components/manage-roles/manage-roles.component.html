@@ -1,6 +1,6 @@
 <!-- manage-roles.component.html -->
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-200">
-  <div class="max-w-[1200px] mx-auto p-5">
+<div class="min-h-screen">
+  <div class="app-container">
 
     <!-- HEADER COMPACTO -->
     <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5">
@@ -333,7 +333,7 @@
   <!-- FOOTER (solo en modo add/edit) -->
   @if (viewMode !== 'list') {
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-lg z-50">
-      <div class="max-w-[1200px] mx-auto px-5 py-4 flex justify-end gap-3">
+      <div class="mx-auto px-5 py-4 flex justify-end gap-3" style="max-width: var(--container-max-width)">
         <button
           mat-button
           (click)="backToList()"

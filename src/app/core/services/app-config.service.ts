@@ -21,6 +21,10 @@ export class AppConfigService implements OnDestroy {
   private isInitialized = false; // ✅ Evitar inicializaciones duplicadas
   private logger = inject(LoggerService);
 
+  // Valores por defecto para layout
+  private readonly DEFAULT_CONTAINER_MAX_WIDTH = 1400;
+  private readonly DEFAULT_BODY_BACKGROUND = 'linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)';
+
   // Signals privados (writable) - Valores null iniciales hasta cargar desde Firestore
   private _appName = signal<string | null>(null);
   private _appDescription = signal<string | null>(null);
@@ -32,6 +36,10 @@ export class AppConfigService implements OnDestroy {
   private _footerColor = signal<string>('#1e293b');
   private _footerTextColor = signal<string>('#94a3b8');
   private _isLoaded = signal<boolean>(false);
+
+  // Signals de layout global
+  private _containerMaxWidth = signal<number>(this.DEFAULT_CONTAINER_MAX_WIDTH);
+  private _bodyBackground = signal<string>(this.DEFAULT_BODY_BACKGROUND);
 
   // Signals públicos (readonly)
   readonly appName = this._appName.asReadonly();
@@ -45,9 +53,14 @@ export class AppConfigService implements OnDestroy {
   readonly footerTextColor = this._footerTextColor.asReadonly();
   readonly isLoaded = this._isLoaded.asReadonly();
 
+  // Signals públicos de layout
+  readonly containerMaxWidth = this._containerMaxWidth.asReadonly();
+  readonly bodyBackground = this._bodyBackground.asReadonly();
+
   constructor() {
     this.logger.debug('AppConfigService inicializando...');
     this.setupFaviconUpdater();
+    this.setupLayoutUpdater();
     // ✅ NO inicializamos el listener automáticamente
   }
 
@@ -118,6 +131,10 @@ export class AppConfigService implements OnDestroy {
     this._footerColor.set(config.footerColor || '#1e293b');
     this._footerTextColor.set(config.footerTextColor || '#94a3b8');
 
+    // Layout global
+    this._containerMaxWidth.set(config.layout?.containerMaxWidth || this.DEFAULT_CONTAINER_MAX_WIDTH);
+    this._bodyBackground.set(config.layout?.bodyBackgroundValue || this.DEFAULT_BODY_BACKGROUND);
+
     this.logger.debug('Signals actualizados correctamente');
   }
 
@@ -135,6 +152,10 @@ export class AppConfigService implements OnDestroy {
     this._footerText.set(null);
     this._footerColor.set('#1e293b');
     this._footerTextColor.set('#94a3b8');
+
+    // Layout con valores por defecto
+    this._containerMaxWidth.set(this.DEFAULT_CONTAINER_MAX_WIDTH);
+    this._bodyBackground.set(this.DEFAULT_BODY_BACKGROUND);
   }
 
   /**
@@ -150,6 +171,22 @@ export class AppConfigService implements OnDestroy {
       } else {
         this.resetFavicon();
       }
+    });
+  }
+
+  /**
+   * Configura el actualizador de CSS variables para layout global
+   */
+  private setupLayoutUpdater() {
+    effect(() => {
+      const maxWidth = this._containerMaxWidth();
+      const background = this._bodyBackground();
+
+      this.logger.debug('Effect de layout ejecutado', { maxWidth, background });
+
+      // Actualizar CSS variables en :root
+      document.documentElement.style.setProperty('--container-max-width', `${maxWidth}px`);
+      document.documentElement.style.setProperty('--body-bg', background);
     });
   }
 
