@@ -1,6 +1,6 @@
 // src/app/modules/projects/components/invoice-edit-dialog/invoice-edit-dialog.component.ts
 
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -58,7 +58,23 @@ export class InvoiceEditDialogComponent implements OnInit {
   private workersService = inject(WorkersService);
   private languageService = inject(LanguageService);
   private snackBar = inject(MatSnackBar);
+  private elementRef = inject(ElementRef);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
+
+  // Close dropdowns when clicking outside
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const materialDropdown = this.elementRef.nativeElement.querySelector('.material-search-container');
+    const workerDropdown = this.elementRef.nativeElement.querySelector('.worker-search-container');
+
+    if (materialDropdown && !materialDropdown.contains(target)) {
+      this.closeMaterialDropdown();
+    }
+    if (workerDropdown && !workerDropdown.contains(target)) {
+      this.closeWorkerDropdown();
+    }
+  }
 
   // Signals
   isSaving = signal(false);
@@ -66,6 +82,44 @@ export class InvoiceEditDialogComponent implements OnInit {
   availableWorkers = signal<Worker[]>([]);
   markupCategories = signal<MaterialMarkupCategory[]>([]);
   markupEnabled = signal<boolean>(false);
+
+  // Material search dropdown
+  materialSearchTerm = signal<string>('');
+  materialDropdownOpen = signal<boolean>(false);
+
+  // Worker search dropdown
+  workerSearchTerm = signal<string>('');
+  workerDropdownOpen = signal<boolean>(false);
+
+  // Filtered materials based on search term
+  filteredMaterials = computed(() => {
+    const materials = this.availableMaterials();
+    const searchTerm = this.materialSearchTerm().toLowerCase().trim();
+
+    if (!searchTerm) {
+      return materials;
+    }
+
+    return materials.filter(material => {
+      const name = this.getMaterialName(material).toLowerCase();
+      return name.includes(searchTerm);
+    });
+  });
+
+  // Filtered workers based on search term
+  filteredWorkers = computed(() => {
+    const workers = this.availableWorkers();
+    const searchTerm = this.workerSearchTerm().toLowerCase().trim();
+
+    if (!searchTerm) {
+      return workers;
+    }
+
+    return workers.filter(worker => {
+      const name = this.getWorkerName(worker).toLowerCase();
+      return name.includes(searchTerm);
+    });
+  });
 
   // Form data
   language: 'es' | 'en' = 'es'; // Idioma del documento
@@ -78,7 +132,6 @@ export class InvoiceEditDialogComponent implements OnInit {
   selectedMarkupCategoryId: string | null = null;
 
   async ngOnInit() {
-
     try {
       await this.loadData();
       this.initFormData();
@@ -120,10 +173,8 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Cargar materiales y trabajadores disponibles
    */
   async loadData() {
-
     try {
-      // Inicializar servicios en paralelo (como lo hace proposal-form)
-
+      // Inicializar servicios en paralelo
       await Promise.all([
         this.proposalConfigService.initialize(),
         this.materialsConfigService.initialize(),
@@ -135,13 +186,6 @@ export class InvoiceEditDialogComponent implements OnInit {
       // Simplemente leemos los valores actuales
       const materials = this.materialsService.activeMaterials();
       const workers = this.workersService.activeWorkers();
-
-      if (materials.length > 0) {
-
-      }
-      if (workers.length > 0) {
-
-      }
 
       this.availableMaterials.set(materials);
       this.availableWorkers.set(workers);
@@ -166,7 +210,6 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Inicializar datos del formulario con los datos existentes del proposal
    */
   initFormData() {
-
     const proposal = this.data.proposal;
 
     // Idioma del documento (heredar del proposal o usar español por defecto)
@@ -176,23 +219,19 @@ export class InvoiceEditDialogComponent implements OnInit {
     if (proposal.invoiceDate) {
       const date = proposal.invoiceDate.toDate();
       this.invoiceDate = date.toISOString().split('T')[0];
-
     } else {
       // Usar fecha actual por defecto
       this.invoiceDate = new Date().toISOString().split('T')[0];
-      
     }
 
     // Fechas de trabajo
     if (proposal.workStartDate) {
       const date = proposal.workStartDate.toDate();
       this.workStartDate = date.toISOString().split('T')[0];
-
     }
     if (proposal.workEndDate) {
       const date = proposal.workEndDate.toDate();
       this.workEndDate = date.toISOString().split('T')[0];
-
     }
 
     // Tiempo de trabajo
@@ -208,9 +247,6 @@ export class InvoiceEditDialogComponent implements OnInit {
         basePrice: (m as any).basePrice !== undefined ? (m as any).basePrice : m.price,
         price: m.price  // El precio que se muestra y edita
       }));
-
-    } else {
-
     }
 
     // Trabajadores
@@ -219,9 +255,6 @@ export class InvoiceEditDialogComponent implements OnInit {
         workerId: w.id,
         workerName: w.name
       }));
-
-    } else {
-
     }
 
     // Categoría de markup
@@ -239,9 +272,7 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Agregar material seleccionado
    */
   addMaterial(materialId: string) {
-
     if (!materialId) {
-
       return;
     }
 
@@ -258,7 +289,6 @@ export class InvoiceEditDialogComponent implements OnInit {
     // Verificar si ya está agregado
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
     if (exists) {
-
       this.snackBar.open('Este material ya está agregado', 'Cerrar', { duration: 2000 });
       return;
     }
@@ -291,12 +321,78 @@ export class InvoiceEditDialogComponent implements OnInit {
   }
 
   /**
+   * Open material dropdown
+   */
+  openMaterialDropdown(): void {
+    this.materialDropdownOpen.set(true);
+  }
+
+  /**
+   * Close material dropdown
+   */
+  closeMaterialDropdown(): void {
+    this.materialDropdownOpen.set(false);
+    this.materialSearchTerm.set('');
+  }
+
+  /**
+   * Handle material search input
+   */
+  onMaterialSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.materialSearchTerm.set(input.value);
+    if (!this.materialDropdownOpen()) {
+      this.materialDropdownOpen.set(true);
+    }
+  }
+
+  /**
+   * Select material from dropdown
+   */
+  selectMaterial(materialId: string): void {
+    this.addMaterial(materialId);
+    this.closeMaterialDropdown();
+  }
+
+  /**
+   * Open worker dropdown
+   */
+  openWorkerDropdown(): void {
+    this.workerDropdownOpen.set(true);
+  }
+
+  /**
+   * Close worker dropdown
+   */
+  closeWorkerDropdown(): void {
+    this.workerDropdownOpen.set(false);
+    this.workerSearchTerm.set('');
+  }
+
+  /**
+   * Handle worker search input
+   */
+  onWorkerSearch(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.workerSearchTerm.set(input.value);
+    if (!this.workerDropdownOpen()) {
+      this.workerDropdownOpen.set(true);
+    }
+  }
+
+  /**
+   * Select worker from dropdown
+   */
+  selectWorker(workerId: string): void {
+    this.addWorker(workerId);
+    this.closeWorkerDropdown();
+  }
+
+  /**
    * Agregar trabajador seleccionado
    */
   addWorker(workerId: string) {
-
     if (!workerId) {
-
       return;
     }
 
@@ -312,7 +408,6 @@ export class InvoiceEditDialogComponent implements OnInit {
     // Verificar si ya está agregado
     const exists = this.selectedWorkers.find(w => w.workerId === workerId);
     if (exists) {
-
       this.snackBar.open('Este trabajador ya está agregado', 'Cerrar', { duration: 2000 });
       return;
     }
@@ -335,23 +430,19 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Validar formulario
    */
   validate(): boolean {
-
     // Validar fecha de factura (requerida)
     if (!this.invoiceDate) {
-
       this.snackBar.open('Debes ingresar la fecha de emisión de la factura', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     // Validar fechas de trabajo (requeridas)
     if (!this.workStartDate) {
-
       this.snackBar.open('Debes ingresar la fecha de inicio del trabajo', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     if (!this.workEndDate) {
-
       this.snackBar.open('Debes ingresar la fecha de finalización del trabajo', 'Cerrar', { duration: 3000 });
       return false;
     }
@@ -360,35 +451,29 @@ export class InvoiceEditDialogComponent implements OnInit {
     const startDate = new Date(this.workStartDate);
     const endDate = new Date(this.workEndDate);
     if (startDate > endDate) {
-
       this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     // Validar horas trabajadas (requeridas)
     if (this.workTime === null || this.workTime === undefined || this.workTime <= 0) {
-
       this.snackBar.open('Debes ingresar las horas trabajadas (mayor a 0)', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     if (this.selectedMaterials.length === 0) {
-
       this.snackBar.open('Debes agregar al menos un material', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     if (this.selectedWorkers.length === 0) {
-
       this.snackBar.open('Debes agregar al menos un trabajador', 'Cerrar', { duration: 3000 });
       return false;
     }
 
     // Validar que todos los materiales tengan cantidad y precio válidos
     for (const material of this.selectedMaterials) {
-
       if (!material.amount || material.amount <= 0) {
-
         this.snackBar.open(`El material "${material.materialName}" debe tener una cantidad mayor a 0`, 'Cerrar', {
           duration: 3000
         });
@@ -397,13 +482,11 @@ export class InvoiceEditDialogComponent implements OnInit {
 
       // Permitir precio 0 (gratis), pero no null/undefined/negativo
       if (material.price === null || material.price === undefined || material.price < 0) {
-
         this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido (mínimo 0)`, 'Cerrar', {
           duration: 3000
         });
         return false;
       }
-
     }
 
     return true;
@@ -413,9 +496,7 @@ export class InvoiceEditDialogComponent implements OnInit {
    * Guardar cambios y cambiar estado a 'converted_to_invoice'
    */
   async save() {
-
     if (!this.validate()) {
-
       return;
     }
 

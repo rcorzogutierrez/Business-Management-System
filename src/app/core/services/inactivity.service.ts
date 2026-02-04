@@ -4,7 +4,8 @@ import { Injectable, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { AuthService } from './auth.service';
-import { Subject, fromEvent, merge } from 'rxjs';
+import { LoggerService } from './logger.service';
+import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 
 @Injectable({
@@ -14,6 +15,7 @@ export class InactivityService {
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private authService = inject(AuthService);
+  private logger = inject(LoggerService);
 
   // Configuración de tiempos (en milisegundos)
   private readonly INACTIVITY_TIME = 10 * 60 * 1000; // 10 minutos
@@ -59,8 +61,8 @@ export class InactivityService {
     const elapsed = Date.now() - Number(lastActivity);
 
     if (elapsed > this.INACTIVITY_TIME) {
-      console.log('[InactivityService] Sesión expirada por inactividad (pestaña cerrada)');
-      console.log(`[InactivityService] Tiempo transcurrido: ${Math.floor(elapsed / 1000 / 60)} minutos`);
+      this.logger.debug('[InactivityService] Sesión expirada por inactividad (pestaña cerrada)');
+      this.logger.debug(`[InactivityService] Tiempo transcurrido: ${Math.floor(elapsed / 1000 / 60)} minutos`);
       // Sesión expirada, hacer logout
       this.logout();
       return false;
@@ -103,7 +105,7 @@ export class InactivityService {
     this.setupActivityListeners();
     this.startInactivityTimer();
 
-    console.log('[InactivityService] Monitoreo iniciado');
+    this.logger.debug('[InactivityService] Monitoreo iniciado');
   }
 
   /**
@@ -115,7 +117,7 @@ export class InactivityService {
     this.removeActivityListeners();
     this.clearLastActivity();
 
-    console.log('[InactivityService] Monitoreo detenido');
+    this.logger.debug('[InactivityService] Monitoreo detenido');
   }
 
   /**
@@ -171,7 +173,7 @@ export class InactivityService {
     }
 
     this.isWarningOpen = true;
-    console.log('[InactivityService] Mostrando advertencia de inactividad');
+    this.logger.debug('[InactivityService] Mostrando advertencia de inactividad');
 
     // Importar dinámicamente el componente del diálogo
     const { InactivityWarningDialogComponent } = await import(
@@ -196,12 +198,12 @@ export class InactivityService {
 
       if (continueSession) {
         // Usuario quiere continuar
-        console.log('[InactivityService] Usuario continúa sesión');
+        this.logger.debug('[InactivityService] Usuario continúa sesión');
         this.resetTimers();
         this.updateLastActivity();
       } else {
         // Usuario cerró sesión o timeout
-        console.log('[InactivityService] Cerrando sesión por inactividad');
+        this.logger.debug('[InactivityService] Cerrando sesión por inactividad');
         this.logout();
       }
     });

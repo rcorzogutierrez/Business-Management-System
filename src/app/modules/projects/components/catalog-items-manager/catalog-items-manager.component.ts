@@ -152,7 +152,7 @@ export class CatalogItemsManagerComponent implements OnInit {
    */
   async deleteItem(item: CatalogItem) {
     // Importar dinámicamente el diálogo de confirmación
-    const { ConfirmDialogComponent } = await import('../confirm-dialog/confirm-dialog.component');
+    const { ConfirmDialogComponent } = await import('../../../../shared/components/confirm-dialog/confirm-dialog.component');
 
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
       width: '500px',

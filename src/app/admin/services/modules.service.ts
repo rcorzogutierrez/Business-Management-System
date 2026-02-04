@@ -1,5 +1,6 @@
 // src/app/admin/services/modules.service.ts
-import { Injectable, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
+import { LoggerService } from '../../core/services/logger.service';
 import {
   getFirestore,
   collection,
@@ -56,6 +57,7 @@ export class ModulesService {
   private db = getFirestore();
   private readonly MODULES_COLLECTION = 'system_modules';
   private isInitialized = false; // ✅ Control de inicialización
+  private logger = inject(LoggerService);
 
   // ✅ MODERNIZADO: Solo signal, eliminado BehaviorSubject redundante
   private _modules = signal<SystemModule[]>([]);
@@ -108,7 +110,7 @@ export class ModulesService {
 
       return modules;
     } catch (error) {
-      console.error('❌ Error cargando módulos:', error);
+      this.logger.error('Error cargando módulos', error);
       throw error;
     }
   }
@@ -142,7 +144,7 @@ export class ModulesService {
         usersCount: data['usersCount']
       };
     } catch (error) {
-      console.error('❌ Error obteniendo módulo:', error);
+      this.logger.error('Error obteniendo módulo', error);
       return null;
     }
   }
@@ -231,7 +233,7 @@ export class ModulesService {
         moduleId: docRef.id
       };
     } catch (error: any) {
-      console.error('❌ Error creando módulo:', error);
+      this.logger.error('Error creando módulo', error);
       return {
         success: false,
         message: error.message || 'Error al crear el módulo',
@@ -319,7 +321,7 @@ export class ModulesService {
         moduleId
       };
     } catch (error: any) {
-      console.error('❌ Error actualizando módulo:', error);
+      this.logger.error('Error actualizando módulo', error);
       return {
         success: false,
         message: error.message || 'Error al actualizar el módulo',
@@ -418,7 +420,7 @@ export class ModulesService {
         };
       }
     } catch (error: any) {
-      console.error('❌ Error eliminando módulo:', error);
+      this.logger.error('Error eliminando módulo', error);
       return {
         success: false,
         message: error.message || 'Error al eliminar el módulo',
@@ -469,7 +471,7 @@ export class ModulesService {
         message: 'Orden de módulos actualizado'
       };
     } catch (error: any) {
-      console.error('❌ Error reordenando módulos:', error);
+      this.logger.error('Error reordenando módulos', error);
       return {
         success: false,
         message: error.message || 'Error al reordenar módulos',
@@ -520,7 +522,7 @@ export class ModulesService {
       );
 
     } catch (error) {
-      console.error('❌ Error actualizando usersCount:', error);
+      this.logger.error('Error actualizando usersCount', error);
     }
   }
 
@@ -534,7 +536,7 @@ export class ModulesService {
       const querySnapshot = await getDocs(q);
       return querySnapshot.size;
     } catch (error) {
-      console.error('Error contando usuarios con módulo:', error);
+      this.logger.error('Error contando usuarios con módulo', error);
       return 0;
     }
   }
@@ -611,22 +613,22 @@ export class ModulesService {
     );
 
     if (missingModules.length === 0) {
-      console.log('✅ No hay módulos faltantes');
+      this.logger.debug('No hay módulos faltantes');
       return;
     }
 
-    console.log(`📦 Agregando ${missingModules.length} módulos faltantes...`);
+    this.logger.debug(`Agregando ${missingModules.length} módulos faltantes...`);
 
     for (const module of missingModules) {
       const result = await this.createModule(module, currentUserUid);
       if (result.success) {
-        console.log(`✅ Módulo agregado: ${module.label}`);
+        this.logger.debug(`Módulo agregado: ${module.label}`);
       } else {
-        console.error(`❌ Error agregando ${module.label}:`, result.message);
+        this.logger.error(`Error agregando ${module.label}`, result.message);
       }
     }
 
-    console.log('✅ Módulos faltantes agregados exitosamente');
+    this.logger.debug('Módulos faltantes agregados exitosamente');
   }
 
   /**
@@ -741,6 +743,6 @@ export class ModulesService {
       await this.createModule(module, currentUserUid);
     }
 
-    console.log('✅ Módulos por defecto inicializados');
+    this.logger.debug('Módulos por defecto inicializados');
   }
 }

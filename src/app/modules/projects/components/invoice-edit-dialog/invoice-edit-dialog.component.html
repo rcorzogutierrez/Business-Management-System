@@ -140,17 +140,46 @@
         <h3 class="section-title">{{ 'projects.invoice.materialsUsed' | translate }}</h3>
       </div>
 
-      <!-- Select para agregar material -->
+      <!-- Dropdown con búsqueda para agregar material -->
       <div class="add-item-row">
-        <select
-          #materialSelect
-          (change)="addMaterial(materialSelect.value); materialSelect.value = ''"
-          class="form-select">
-          <option value="">{{ 'projects.invoice.selectMaterial' | translate }}</option>
-          @for (material of availableMaterials(); track material.id) {
-            <option [value]="material.id">{{ getMaterialName(material) }}</option>
+        <div class="material-search-container">
+          <div class="search-input-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              class="search-input"
+              [value]="materialSearchTerm()"
+              (input)="onMaterialSearch($event)"
+              (focus)="openMaterialDropdown()"
+              placeholder="{{ 'projects.invoice.searchMaterial' | translate }}">
+            @if (materialSearchTerm()) {
+              <button type="button" class="clear-search-btn" (click)="closeMaterialDropdown()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+          @if (materialDropdownOpen()) {
+            <div class="material-dropdown">
+              @if (filteredMaterials().length > 0) {
+                <div class="dropdown-list">
+                  @for (material of filteredMaterials(); track material.id) {
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectMaterial(material.id!)">
+                      <span class="material-name">{{ getMaterialName(material) }}</span>
+                      <span class="material-price">{{ formatCurrency(getMaterialPrice(material)) }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="dropdown-empty">
+                  <span>{{ 'projects.invoice.noMaterialsFound' | translate }}</span>
+                </div>
+              }
+            </div>
           }
-        </select>
+        </div>
       </div>
 
       <!-- Lista de materiales seleccionados -->
@@ -227,17 +256,45 @@
         <h3 class="section-title">{{ 'projects.invoice.workers' | translate }}</h3>
       </div>
 
-      <!-- Select para agregar trabajador -->
+      <!-- Dropdown con búsqueda para agregar trabajador -->
       <div class="add-item-row">
-        <select
-          #workerSelect
-          (change)="addWorker(workerSelect.value); workerSelect.value = ''"
-          class="form-select">
-          <option value="">{{ 'projects.invoice.selectWorker' | translate }}</option>
-          @for (worker of availableWorkers(); track worker.id) {
-            <option [value]="worker.id">{{ getWorkerName(worker) }}</option>
+        <div class="worker-search-container">
+          <div class="search-input-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              class="search-input"
+              [value]="workerSearchTerm()"
+              (input)="onWorkerSearch($event)"
+              (focus)="openWorkerDropdown()"
+              placeholder="{{ 'projects.invoice.searchWorker' | translate }}">
+            @if (workerSearchTerm()) {
+              <button type="button" class="clear-search-btn" (click)="closeWorkerDropdown()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+          @if (workerDropdownOpen()) {
+            <div class="worker-dropdown">
+              @if (filteredWorkers().length > 0) {
+                <div class="dropdown-list">
+                  @for (worker of filteredWorkers(); track worker.id) {
+                    <button
+                      type="button"
+                      class="dropdown-item"
+                      (click)="selectWorker(worker.id!)">
+                      <span class="worker-name">{{ getWorkerName(worker) }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="dropdown-empty">
+                  <span>{{ 'projects.invoice.noWorkersFound' | translate }}</span>
+                </div>
+              }
+            </div>
           }
-        </select>
+        </div>
       </div>
 
       <!-- Lista de trabajadores seleccionados -->
