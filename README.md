@@ -109,6 +109,9 @@ Este sistema está diseñado para empresas de:
 - **Campos Dinámicos Opcionales**: departamento, turno, fecha de contratación, etc.
 - **Asignación a Proyectos**: Vincula trabajadores a facturas/proyectos
 - **Tracking de Participación**: Historial de trabajos realizados
+- **Gestión de Empresas**: Submódulo para administrar empresas asociadas a trabajadores
+  - CRUD completo de empresas
+  - Vinculación empresa ↔ trabajador
 
 ### 📦 Gestión de Materiales
 
@@ -222,13 +225,25 @@ Este sistema está diseñado para empresas de:
   - Placeholder y texto de ayuda
   - Icono Material
 
+### 🧩 Componentes Compartidos Reutilizables
+
+- **ModuleHeaderComponent**: Header unificado para todos los módulos con estadísticas, botones de acción y colores temáticos por módulo
+- **GenericListBaseComponent**: Base de herencia para todas las listas con paginación, filtros, búsqueda, ordenamiento, selección y exportación integrados
+- **GenericConfigBaseComponent**: Base de herencia para configuración de módulos con formularios dinámicos
+- **DataTableComponent**: Tabla genérica con soporte para columnas configurables
+- **SearchBarComponent**: Barra de búsqueda reutilizable
+- **PaginationComponent**: Control de paginación compartido
+- **ColumnVisibilityControl**: Selector de columnas visibles en tablas
+- **ConfirmDialog / GenericDeleteDialog**: Diálogos de confirmación y eliminación reutilizables
+
 ### 🔍 Auditoría y Seguridad
 
-- **Logs de Auditoría**: Registra quién creó/modificó cada registro
+- **Logs de Auditoría**: Registra quién creó/modificó cada registro con detalle completo
 - **Metadata Automática**: `createdAt`, `updatedAt`, `createdBy`, `updatedBy`
 - **Firebase Authentication**: OAuth con Google
 - **Firestore Security Rules**: Validación server-side (recomendado configurar)
 - **Tracking de Sesiones**: Fecha de primer login, último login
+- **Servicio de Inactividad**: Detección automática de inactividad del usuario con diálogo de advertencia
 
 ---
 
@@ -242,7 +257,7 @@ Este sistema está diseñado para empresas de:
 | **TypeScript** | 5.8.2 | Lenguaje de programación |
 | **Tailwind CSS** | 3.4.0 | Framework CSS principal (utilidades y componentes) |
 | **Angular Material** | 20.0.0 | Componentes UI complementarios (menús, tooltips, dialogs) |
-| **RxJS** | 7.8.1 | Programación reactiva |
+| **RxJS** | 7.8.1 | Programación reactiva (uso limitado, preferencia por Signals) |
 | **@ngx-translate** | 15.0.0 | Internacionalización |
 
 ### Backend
@@ -267,39 +282,58 @@ Este sistema está diseñado para empresas de:
 
 ```
 /src/app/
-├── core/                    # Servicios centrales y guards
-│   ├── services/            # Auth, User, Config, Language
-│   └── guards/              # Auth, Role, Module guards
+├── core/                    # Servicios centrales, guards y layout
+│   ├── services/            # Auth, User, Config, Language, Inactivity, Logger, Navigation
+│   ├── guards/              # Auth, Login, Role, Module guards
+│   └── layout/              # Layout principal (header, sidebar)
+├── auth/                    # Módulo de autenticación (login)
+├── dashboard/               # Dashboard principal
 ├── admin/                   # Panel de administración
 │   ├── system-config/       # Configuración del sistema
 │   ├── business-info/       # Información de empresa
+│   ├── manage-users/        # Gestión de usuarios
 │   ├── manage-roles/        # Gestión de roles
 │   ├── manage-modules/      # Gestión de módulos
 │   └── admin-logs/          # Logs de auditoría
 ├── modules/                 # Módulos de negocio
 │   ├── clients/             # CRM - Gestión de clientes
 │   ├── projects/            # Propuestas y estimados
-│   ├── workers/             # Gestión de trabajadores
+│   ├── workers/             # Gestión de trabajadores (incluye submódulo empresas)
 │   ├── materials/           # Gestión de materiales
 │   ├── work-planning/       # Planificación de trabajo
-│   ├── treasury/            # Tesorería y finanzas
-│   └── user-modules/        # Vista de módulos asignados al usuario
+│   └── treasury/            # Tesorería y finanzas
 └── shared/                  # Código compartido
     ├── components/          # Componentes reutilizables
-    ├── services/            # Servicios genéricos
-    ├── pipes/               # Pipes personalizados
-    └── utils/               # Utilidades auxiliares
+    │   ├── module-header/           # Header compartido para todos los módulos
+    │   ├── generic-list-base/       # Base para listas (herencia)
+    │   ├── generic-config-base/     # Base para config con formularios
+    │   ├── generic-grid-config-base/# Base para config de grid
+    │   ├── data-table/              # Tabla de datos genérica
+    │   ├── pagination/              # Paginación reutilizable
+    │   ├── search-bar/              # Barra de búsqueda
+    │   ├── column-visibility-control/# Control de columnas visibles
+    │   ├── confirm-dialog/          # Diálogo de confirmación
+    │   ├── generic-delete-dialog/   # Eliminación individual
+    │   ├── generic-delete-multiple-dialog/ # Eliminación múltiple
+    │   └── inactivity-warning-dialog/     # Advertencia de inactividad
+    ├── modules/
+    │   └── dynamic-form-builder/    # Constructor de formularios dinámicos
+    ├── services/            # Servicios genéricos (GenericFirestoreService, UiUtils)
+    ├── models/              # Interfaces compartidas (GenericEntity, OperationResult)
+    ├── pipes/               # Pipes personalizados (CurrencyFormatter)
+    └── utils/               # Utilidades (audit, date-time, error-handler, etc.)
 ```
 
 ### Patrones de Diseño
 
 - **Component-Based Architecture**: Componentes standalone de Angular
+- **Component Inheritance Pattern**: Componentes base genéricos (`GenericListBaseComponent<T>`, `GenericConfigBaseComponent`) con herencia para compartir funcionalidad entre módulos
 - **Service Layer Pattern**: Lógica de negocio separada de la presentación
-- **Generic Service Pattern**: `GenericFirestoreService<T>` para CRUD reutilizable
-- **Signal-Based State Management**: Angular Signals para reactividad
-- **Reactive Programming**: RxJS Observables para operaciones asíncronas
+- **Generic Service Pattern**: `GenericFirestoreService<T>` para CRUD reutilizable y `ModuleConfigBaseService<T>` para configuración de módulos
+- **Signal-Based State Management**: Angular Signals (`signal()`, `computed()`, `effect()`) para reactividad
 - **Type-Safe Development**: TypeScript strict mode + interfaces explícitas
 - **Module Guards**: Validación de permisos en cada ruta
+- **Shared UI Components**: Header compartido (`ModuleHeaderComponent`) y componentes de tabla/paginación/filtros reutilizables
 
 ### Colecciones Firestore
 
@@ -310,6 +344,7 @@ Este sistema está diseñado para empresas de:
 ├── proposals                 # Propuestas/Estimados
 ├── catalog_items             # Catálogo de items
 ├── workers                   # Trabajadores
+├── companies                 # Empresas asociadas a trabajadores
 ├── materials                 # Materiales
 ├── work_plans                # Planes de trabajo (calendario)
 ├── cobros                    # Cobros (cuentas por cobrar)
@@ -317,7 +352,11 @@ Este sistema está diseñado para empresas de:
 ├── roles                     # Roles personalizados
 ├── system_modules            # Módulos del sistema
 ├── system_config             # Configuración global (doc único)
-└── business_info             # Info de empresa (doc único)
+├── business_info             # Info de empresa (doc único)
+├── admin_logs                # Logs de auditoría del sistema
+└── moduleConfigs/            # Configuración dinámica por módulo
+    ├── clients               # Config de campos de clientes
+    └── materials             # Config de campos de materiales
 ```
 
 ---
@@ -502,6 +541,10 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Crear trabajador**: Formulario con campos dinámicos
 - **Editar trabajador**: Modificar información
 - **Configuración**: Panel admin para campos personalizados
+- **Gestión de Empresas** (submódulo):
+  - Listado de empresas asociadas
+  - Crear/editar empresas desde diálogo
+  - Vincular trabajadores a empresas
 
 ### 5. Materiales
 
@@ -558,25 +601,16 @@ Usa el email y contraseña que creaste en Firebase Authentication.
   - Control de pagos pendientes
 - **Reportes**: Análisis de ingresos, egresos y balance del período
 
-### 8. Módulos del Usuario
-
-**Ruta**: `/user-modules`
-
-- **Vista Centralizada**: Acceso a todos los módulos asignados al usuario actual
-- **Vista Grid o Lista**: Dos modos de visualización
-- **Búsqueda de Módulos**: Encuentra rápidamente el módulo que necesitas
-- **Información de Acceso**: Solo muestra módulos activos y autorizados para el usuario
-- **Navegación Rápida**: Acceso directo desde cualquier parte del sistema
-
-### 9. Administración
+### 8. Administración
 
 **Ruta**: `/admin` (solo para usuarios con rol `admin`)
 
 - **Configuración del Sistema**: Logo, nombre de app, colores, admin email
 - **Información de Empresa**: Datos legales, contacto, branding
+- **Gestión de Usuarios**: Agregar, editar roles, asignar módulos a usuarios
 - **Gestión de Roles**: Crear, editar, eliminar roles personalizados
 - **Gestión de Módulos**: Activar/desactivar módulos, cambiar iconos
-- **Logs de Auditoría**: Historial de cambios en el sistema
+- **Logs de Auditoría**: Historial detallado de cambios en el sistema con diálogo de detalles
 
 ---
 
@@ -683,6 +717,25 @@ service cloud.firestore {
 
     // Business info
     match /business_info/{docId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Empresas (asociadas a trabajadores)
+    match /companies/{companyId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Logs de auditoría
+    match /admin_logs/{logId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Configuración dinámica de módulos
+    match /moduleConfigs/{moduleId} {
       allow read: if isAuthenticated();
       allow write: if isAdmin();
     }
@@ -863,18 +916,21 @@ Usa prefijos descriptivos:
 - [x] Gestión de clientes con campos dinámicos
 - [x] Creación de propuestas/estimados
 - [x] Conversión de propuestas a facturas
-- [x] Gestión de trabajadores
+- [x] Gestión de trabajadores (con submódulo de empresas)
 - [x] Gestión de materiales
 - [x] Módulo de Planificación de Trabajo (calendario semanal, 3 vistas)
 - [x] Tesorería y Finanzas (cobros y pagos)
 - [x] Control de acceso basado en roles (RBAC)
 - [x] Internacionalización (ES/EN)
-- [x] Constructor de formularios dinámicos
+- [x] Constructor de formularios dinámicos (13 tipos de campo)
 - [x] Sistema de configuración jerárquico
 - [x] Catálogo de items reutilizables
 - [x] Cálculo automático de totales
 - [x] Vista de impresión profesional
 - [x] Migración progresiva a Tailwind CSS puro (sin directivas Material)
+- [x] Header compartido reutilizable (`ModuleHeaderComponent`)
+- [x] Componentes base genéricos con herencia (`GenericListBaseComponent`, `GenericConfigBaseComponent`)
+- [x] Servicios base genéricos (`ModuleConfigBaseService<T>`, `GenericFirestoreService<T>`)
 
 ### 🚧 En Desarrollo
 
