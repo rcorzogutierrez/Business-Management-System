@@ -207,6 +207,37 @@ Beneficios/Resultado final.
 
 ✅ **Branch naming:** `claude/descripcion-tarea-XXXXX`
 
+### 6.1 **Actualización de Documentación (OBLIGATORIO)**
+
+**Después de implementar cambios significativos, SIEMPRE proponer actualizar la documentación.**
+
+**¿Cuándo actualizar `README.md`?**
+- Se agrega un **nuevo módulo o funcionalidad visible** para el usuario
+- Se agrega o elimina una **colección de Firestore**
+- Cambian las **versiones de dependencias** principales
+- Se modifica el **roadmap** (algo se completa o se agrega)
+- Cambia la **estructura de módulos** del proyecto
+
+**¿Cuándo actualizar `CLAUDE.md`?**
+- Se crea un **nuevo componente base o compartido**
+- Se agrega una **nueva regla o convención** de desarrollo
+- Se modifica la **jerarquía de herencia** de componentes
+- Se agrega un **nuevo servicio base** o patrón reutilizable
+- Se agregan **nuevas clases globales** en `styles.css`
+- Se cambia una **decisión arquitectónica** (ej: nueva forma de manejar estado)
+- Se descubre un **nuevo error común** que otros deben evitar
+
+**Flujo obligatorio:**
+```
+1. Implementar la funcionalidad
+2. PREGUNTARSE: ¿Este cambio afecta README.md o CLAUDE.md?
+3. Si la respuesta es SÍ → Proponer los cambios al usuario
+4. Si el usuario aprueba → Actualizar los archivos en el mismo PR/commit
+```
+
+> **Regla:** La documentación desactualizada genera más problemas que la falta de documentación.
+> Si haces un cambio y no actualizas los docs, el próximo desarrollador (o IA) cometerá errores evitables.
+
 ### 7. **Código Limpio**
 
 ❌ **Eliminar en producción:**
@@ -308,6 +339,7 @@ interface ActionButton {
 - [ ] ¿El commit está en español con descripción clara?
 - [ ] ¿Usé `ModuleHeaderComponent` para headers de módulo? (NO crear headers custom)
 - [ ] ¿Usé el color correcto del módulo? (amber/purple/green/blue/teal/indigo)
+- [ ] ¿Este cambio requiere actualizar `README.md` o `CLAUDE.md`? → Proponer al usuario
 
 ## 🔧 Comandos Útiles
 
