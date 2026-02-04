@@ -7,6 +7,7 @@
 **ANTES de implementar cualquier funcionalidad, PREGÚNTATE:**
 
 1. **¿Esta funcionalidad ya existe en un componente base?**
+   - Header de módulo → `ModuleHeaderComponent` (shared)
    - Paginación → `GenericListBaseComponent`
    - Filtros → `GenericListBaseComponent`
    - Búsqueda → `GenericListBaseComponent`
@@ -72,6 +73,13 @@ Para CONFIGURACIÓN:
 
 ### 2. **Arquitectura del Proyecto**
 
+#### Componentes Compartidos Clave
+
+**ModuleHeaderComponent** (header reutilizable para TODOS los módulos):
+```
+ModuleHeaderComponent → Usado por todos los módulos de lista y configuración
+```
+
 #### Componentes Base Genéricos
 El proyecto usa **herencia de componentes base** para compartir funcionalidad:
 
@@ -85,7 +93,8 @@ GenericGridConfigBaseComponent
 ├── GenericConfigBaseComponent (hereda + formularios)
 │   ├── ClientConfigComponent
 │   └── MaterialConfigComponent
-└── WorkersConfigComponent (solo grid, sin formularios)
+├── WorkersConfigComponent (solo grid, sin formularios)
+└── ProposalConfigComponent (config de propuestas)
 ```
 
 **Regla importante:**
@@ -95,10 +104,15 @@ GenericGridConfigBaseComponent
 #### Servicios Base
 ```
 ModuleConfigBaseService<TConfig>
-├── ClientConfigServiceRefactored
-├── MaterialConfigServiceRefactored
-└── WorkersConfigService
+├── ClientConfigServiceRefactored (extiende base)
+└── MaterialsConfigService (extiende base)
+
+Servicios con patrón propio (sin herencia):
+├── WorkersConfigService (solo grid config, implementación simple)
+└── ProposalConfigService (config específica de propuestas)
 ```
+
+**Nota:** No todos los servicios de configuración heredan de `ModuleConfigBaseService`. Los módulos que solo necesitan configuración de grid (workers) o que tienen configuración muy específica (proposals) pueden usar su propia implementación siempre que expongan `config()` como signal.
 
 ### 3. **Angular 20 - Signals y Reactive Programming**
 
@@ -213,11 +227,74 @@ Cada módulo tiene su color distintivo:
 - **Workers:** `amber` (#f59e0b)
 - **Clients:** `purple` (#9333ea)
 - **Materials:** `green` (#10b981)
+- **Projects/Proposals:** `blue` (#3b82f6)
+- **Treasury:** `teal` (#14b8a6)
+- **Work Planning:** `indigo` (#6366f1)
 
 Usar clases Tailwind correspondientes:
 - `bg-amber-600`, `text-amber-600`, `hover:bg-amber-50`
 - `bg-purple-600`, `text-purple-600`, `hover:bg-purple-50`
 - `bg-green-600`, `text-green-600`, `hover:bg-green-50`
+- `bg-blue-600`, `text-blue-600`, `hover:bg-blue-50`
+- `bg-teal-600`, `text-teal-600`, `hover:bg-teal-50`
+- `bg-indigo-600`, `text-indigo-600`, `hover:bg-indigo-50`
+
+### 9. **ModuleHeaderComponent (Header Compartido)**
+
+**SIEMPRE usar** `ModuleHeaderComponent` para los headers de módulos. NO crear headers custom por módulo.
+
+**Ubicación:** `src/app/shared/components/module-header/`
+
+**Uso básico:**
+```html
+<app-module-header
+  icon="people"
+  title="Trabajadores"
+  subtitle="Gestión de personal"
+  moduleColor="amber"
+  [stats]="statsArray"
+  [actionButtons]="actionButtons"
+  primaryButtonLabel="Nuevo Trabajador"
+  (primaryAction)="crearTrabajador()"
+/>
+```
+
+**Interfaces disponibles:**
+```typescript
+interface StatChip {
+  value: number | string;
+  label: string;
+  color: 'primary' | 'success' | 'warning' | 'info' | 'purple' | 'green' | 'amber';
+}
+
+interface ActionButton {
+  icon: string;
+  tooltip: string;
+  action: () => void;
+  color?: string;
+}
+```
+
+**Colores soportados por moduleColor:**
+`'purple'` | `'green'` | `'amber'` | `'blue'` | `'teal'` | `'indigo'`
+
+**Inputs:**
+- `icon` (requerido) - Nombre del icono Material
+- `title` (requerido) - Título del módulo
+- `subtitle` (requerido) - Subtítulo descriptivo
+- `moduleColor` - Color temático del módulo
+- `stats` - Array de `StatChip` para mostrar estadísticas
+- `actionButtons` - Array de `ActionButton` para acciones adicionales
+- `primaryButtonLabel` - Texto del botón principal (CTA)
+- `secondaryButtonLabel` - Texto del botón secundario
+- `showBackButton` - Mostrar botón de regreso
+
+**Outputs:**
+- `primaryAction` - Click en botón principal
+- `secondaryAction` - Click en botón secundario
+- `backAction` - Click en botón de regreso
+
+**Regla:** Si modificas un header de módulo, hazlo en `ModuleHeaderComponent` para que el cambio aplique a todos los módulos.
 
 ## 📋 Checklist Antes de Commit
 
@@ -229,6 +306,8 @@ Usar clases Tailwind correspondientes:
 - [ ] ¿Agregué `ChangeDetectionStrategy.OnPush`?
 - [ ] ¿Eliminé todos los `console.log()` de debug?
 - [ ] ¿El commit está en español con descripción clara?
+- [ ] ¿Usé `ModuleHeaderComponent` para headers de módulo? (NO crear headers custom)
+- [ ] ¿Usé el color correcto del módulo? (amber/purple/green/blue/teal/indigo)
 
 ## 🔧 Comandos Útiles
 
@@ -266,10 +345,18 @@ changePageSize(newSize: number): Promise<void>  // Guarda en Firestore
 filterableFields = computed(() => ...)
 customFieldFilters = signal<Record<string, any>>({})
 openFilterDropdown = signal<string | null>(null)
+filterSearchTerms = signal<Record<string, string>>({})
+uniqueValuesByField = computed(() => ...)  // Opciones únicas con conteo
 filteredOptions = computed(() => ...)
+hasActiveFilters = computed(() => ...)     // Boolean: hay filtros activos
+activeFiltersCount = computed(() => ...)   // Número de filtros activos
 
-toggleFilterDropdown(fieldName: string): void
-selectFilterValue(fieldName: string, value: any): void
+toggleFilterDropdown(fieldName: string, event?: Event): void
+closeFilterDropdown(): void
+isFilterDropdownOpen(fieldName: string): boolean
+onFilterSearchChange(fieldName: string, searchTerm: string): void
+selectFilterValue(fieldName: string, value: any, event?: Event): void
+getSelectedFilterLabel(fieldName: string): string
 clearAllFilters(): void
 ```
 
@@ -305,6 +392,12 @@ sortBy(field: string): void
 selectedIds = signal<Set<string | number>>(new Set())
 onSelectionChange(selectedIds: Set): void
 clearSelection(): void
+```
+
+#### Métodos Abstractos (DEBEN implementarse en cada hijo):
+```typescript
+abstract totalPages(): number;    // Calcular total de páginas
+abstract refreshData(): void;     // Recargar datos del módulo
 ```
 
 ### Para Componentes de Configuración
@@ -363,22 +456,46 @@ export class ClientConfigServiceRefactored extends ModuleConfigBaseService<Clien
 ```
 src/
 ├── app/
-│   ├── core/                    # Servicios core (auth, etc)
+│   ├── core/
+│   │   ├── services/                       # Auth, Config, Language, Inactivity, Logger, Navigation
+│   │   ├── guards/                         # Auth, Login, Role, Module
+│   │   └── layout/                         # Layout, Header, Sidebar
+│   ├── auth/                               # Login component
+│   ├── dashboard/                          # Dashboard principal
+│   ├── admin/                              # Panel de administración completo
 │   ├── shared/
 │   │   ├── components/
-│   │   │   ├── generic-list-base/          # Base para listas
+│   │   │   ├── module-header/              # ⭐ Header compartido para TODOS los módulos
+│   │   │   ├── generic-list-base/          # Base para listas (herencia)
 │   │   │   ├── generic-grid-config-base/   # Base para config grid
 │   │   │   ├── generic-config-base/        # Base para config completa
-│   │   │   ├── pagination/
-│   │   │   ├── data-table/
-│   │   │   └── ...
-│   │   └── modules/
-│   │       └── dynamic-form-builder/
+│   │   │   ├── data-table/                 # Tabla genérica
+│   │   │   ├── pagination/                 # Paginación compartida
+│   │   │   ├── search-bar/                 # Barra de búsqueda
+│   │   │   ├── column-visibility-control/  # Control de columnas visibles
+│   │   │   ├── confirm-dialog/             # Diálogo de confirmación
+│   │   │   ├── generic-delete-dialog/      # Eliminación individual
+│   │   │   ├── generic-delete-multiple-dialog/ # Eliminación múltiple
+│   │   │   └── inactivity-warning-dialog/  # Advertencia de inactividad
+│   │   ├── modules/
+│   │   │   └── dynamic-form-builder/       # Constructor de formularios dinámicos
+│   │   │       └── services/
+│   │   │           └── module-config-base.service.ts  # ⭐ Base para servicios de config
+│   │   ├── services/                       # GenericFirestoreService, UiUtils
+│   │   ├── models/                         # GenericEntity, OperationResult, ErrorTypes
+│   │   ├── pipes/                          # CurrencyFormatter
+│   │   └── utils/                          # Audit, DateTime, ErrorHandler, String, Table, etc.
 │   ├── modules/
-│   │   ├── workers/
-│   │   ├── clients/
-│   │   └── materials/
-│   └── styles.css               # ⭐ SIEMPRE REVISAR PRIMERO
+│   │   ├── workers/                        # Gestión de trabajadores + submódulo empresas
+│   │   ├── clients/                        # CRM de clientes
+│   │   ├── materials/                      # Gestión de materiales
+│   │   ├── projects/                       # Propuestas y estimados
+│   │   ├── work-planning/                  # Planificación de trabajo
+│   │   └── treasury/                       # Tesorería y finanzas
+│   └── app.routes.ts                       # Rutas principales
+├── assets/
+│   └── i18n/                               # Traducciones (es.json, en.json)
+└── styles.css                              # ⭐ SIEMPRE REVISAR PRIMERO
 ```
 
 ## ⚠️ Errores Comunes y Soluciones
@@ -392,6 +509,7 @@ src/
 4. Verificar que herencia funciona en todos los módulos
 
 **Checklist de recursos compartidos:**
+- [ ] ¿Header de módulo? → `ModuleHeaderComponent` (NO crear headers custom)
 - [ ] ¿Paginación? → `GenericListBaseComponent.itemsPerPage` (computed)
 - [ ] ¿Filtros? → `GenericListBaseComponent.customFieldFilters`
 - [ ] ¿Búsqueda? → `GenericListBaseComponent.searchTerm`
@@ -453,7 +571,9 @@ src/
 - ✅ `clients-list` - 1400px
 - ✅ `workers-list` - 1400px
 - ✅ `materials-list` - 1400px
-- ✅ `proposals-list` - 1400px (referencia)
+- ✅ `proposals-list` - 1400px
+- ✅ `work-plans-list` - 1400px
+- ✅ `treasury` - 1400px
 
 **Razón:** Mejor aprovechamiento de pantallas modernas sin sacrificar legibilidad.
 
@@ -467,4 +587,4 @@ src/
 
 ---
 
-**Última actualización:** 2026-01-29
+**Última actualización:** 2026-02-04
