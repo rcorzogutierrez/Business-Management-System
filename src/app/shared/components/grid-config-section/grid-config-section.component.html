@@ -1,0 +1,76 @@
+<!-- grid-config-section.component.html - Sección compartida de configuración de tabla -->
+
+<section class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 animate-fadeIn">
+  <!-- Header de la sección -->
+  <div class="flex items-center justify-between mb-4">
+    <div class="flex items-center gap-3">
+      <div class="flex items-center justify-center w-10 h-10 rounded-xl"
+           [ngClass]="getIconBgClass()">
+        <mat-icon [ngClass]="getIconTextClass()">table_chart</mat-icon>
+      </div>
+      <div>
+        <h2 class="text-base font-semibold text-slate-800">Configuración de la Tabla</h2>
+        <p class="text-xs text-slate-500">Personaliza el comportamiento de la tabla de datos</p>
+      </div>
+    </div>
+
+    <!-- Botón Toggle All -->
+    <button type="button"
+            [class]="allFeaturesEnabled()
+              ? 'px-3 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2'
+              : 'px-3 py-1.5 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-2 ' + getActiveButtonClass()"
+            (click)="onToggleAll()"
+            [disabled]="isLoading()"
+            [title]="allFeaturesEnabled() ? 'Desactivar todas las funcionalidades' : 'Activar todas las funcionalidades'">
+      <mat-icon class="text-base">{{ allFeaturesEnabled() ? 'cancel' : 'check_circle' }}</mat-icon>
+      <span>{{ allFeaturesEnabled() ? 'Desactivar Todas' : 'Activar Todas' }}</span>
+    </button>
+  </div>
+
+  <!-- Grid de toggles -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (toggle of toggleOptions; track toggle.key) {
+      <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 transition-colors"
+           [ngClass]="getHoverBorderClass()">
+        <div class="flex items-center gap-3">
+          <mat-icon class="text-slate-400">{{ toggle.icon }}</mat-icon>
+          <div>
+            <p class="text-sm font-medium text-slate-700">{{ toggle.label }}</p>
+            <p class="text-xs text-slate-500">{{ toggle.description }}</p>
+          </div>
+        </div>
+        <mat-slide-toggle
+          [checked]="getToggleValue(toggle.key)"
+          (change)="onConfigChange(toggle.key, $event.checked)"
+          color="primary">
+        </mat-slide-toggle>
+      </div>
+    }
+  </div>
+
+  <!-- Elementos por página -->
+  <div class="mt-4 pt-4 border-t border-slate-200">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <mat-icon class="text-slate-400">format_list_numbered</mat-icon>
+        <div>
+          <p class="text-sm font-medium text-slate-700">Elementos por Página</p>
+          <p class="text-xs text-slate-500">Cantidad de {{ entityLabel() }} mostrados por página</p>
+        </div>
+      </div>
+      <!-- Botones de selección -->
+      <div class="flex gap-1">
+        @for (size of pageSizeOptions(); track size) {
+          <button
+            type="button"
+            (click)="onConfigChange('itemsPerPage', size)"
+            [class]="size === itemsPerPage()
+              ? 'px-3 py-1.5 text-white text-sm font-semibold rounded-lg shadow-sm ' + getActiveButtonClass()
+              : 'px-3 py-1.5 bg-white border border-slate-300 text-slate-700 text-sm font-medium rounded-lg transition-all ' + getInactiveButtonHoverClass()">
+            {{ size }}
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</section>

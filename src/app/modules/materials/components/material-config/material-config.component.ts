@@ -1,5 +1,5 @@
 // src/app/modules/materials/components/material-config/material-config.component.ts
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,6 +12,8 @@ import { MaterialsConfigService } from '../../services/materials-config.service'
 import { AuthService } from '../../../../core/services/auth.service';
 import { FormDesignerComponent } from '../../../../shared/modules/dynamic-form-builder';
 import { GenericConfigBaseComponent } from '../../../../shared/components/generic-config-base/generic-config-base.component';
+import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../../shared/components/module-header/module-header.component';
+import { GridConfigSectionComponent, ConfigChangeEvent } from '../../../../shared/components/grid-config-section/grid-config-section.component';
 
 /**
  * Componente de configuración del módulo de Materiales
@@ -29,7 +31,9 @@ import { GenericConfigBaseComponent } from '../../../../shared/components/generi
     MatTooltipModule,
     MatProgressSpinnerModule,
     MatSlideToggleModule,
-    FormDesignerComponent
+    FormDesignerComponent,
+    ModuleHeaderComponent,
+    GridConfigSectionComponent,
   ],
   templateUrl: './material-config.component.html',
   styleUrl: './material-config.component.css',
@@ -40,12 +44,38 @@ export class MaterialConfigComponent extends GenericConfigBaseComponent {
   configService = inject(MaterialsConfigService);
   override modulePath = '/modules/materials';
 
-  // Propiedades específicas de materiales (si las hay)
+  // Propiedades específicas de materiales
   private authService = inject(AuthService);
   currentUser = this.authService.authorizedUser;
 
   // Toda la lógica compartida (gridConfig, allFeaturesEnabled, updateGridConfig,
   // toggleAllFeatures, loadConfig, onLayoutChange, etc.) ya está en la clase base.
 
-  // Solo agregar métodos específicos de materiales aquí si son necesarios
+  /**
+   * Stats para el header compartido
+   */
+  headerStats = computed<StatChip[]>(() => [
+    { value: this.fields.length, label: 'Campos', color: 'green' }
+  ]);
+
+  /**
+   * Botones de acción para el header compartido
+   */
+  headerActions = computed<ActionButton[]>(() => [
+    {
+      icon: 'refresh',
+      tooltip: 'Recargar configuración',
+      action: () => this.loadConfig()
+    }
+  ]);
+
+  /**
+   * Handler para cambios desde GridConfigSectionComponent
+   */
+  onConfigChange(event: ConfigChangeEvent): void {
+    this.itemsPerPageSignal.set(
+      event.key === 'itemsPerPage' ? event.value : this.itemsPerPageSignal()
+    );
+    this.updateGridConfig(event.key, event.value);
+  }
 }

@@ -20,6 +20,7 @@ import { FieldConfig, FieldType } from '../../models';
 import { FormDesignerComponent, FieldConfigDialogComponent } from '../../../../shared/modules/dynamic-form-builder';
 import { GenericConfigBaseComponent } from '../../../../shared/components/generic-config-base/generic-config-base.component';
 import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../../shared/components/module-header/module-header.component';
+import { GridConfigSectionComponent, ConfigChangeEvent } from '../../../../shared/components/grid-config-section/grid-config-section.component';
 
 /**
  * Componente de configuración del módulo de Clientes
@@ -43,7 +44,8 @@ import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../../share
     MatSlideToggleModule,
     DragDropModule,
     FormDesignerComponent,
-    ModuleHeaderComponent
+    ModuleHeaderComponent,
+    GridConfigSectionComponent,
   ],
   templateUrl: './client-config.component.html',
   styleUrl: './client-config.component.css',
@@ -80,6 +82,16 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
       action: () => this.loadConfig()
     }
   ]);
+
+  /**
+   * Handler para cambios desde GridConfigSectionComponent
+   */
+  onConfigChange(event: ConfigChangeEvent): void {
+    this.itemsPerPageSignal.set(
+      event.key === 'itemsPerPage' ? event.value : this.itemsPerPageSignal()
+    );
+    this.updateGridConfig(event.key, event.value);
+  }
 
   // ==============================================
   // MÉTODOS ESPECÍFICOS DE CLIENTES
