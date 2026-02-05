@@ -733,6 +733,140 @@
   .pagination-current {
     @apply text-sm font-semibold text-gray-700 min-w-[60px] text-center;
   }
+
+  /* ========== LIST BUTTONS (compartido por todas las listas) ========== */
+  /* Usa CSS variables: --list-accent, --list-accent-dark, --list-accent-shadow */
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: var(--list-btn-gradient, linear-gradient(135deg, #3b82f6 0%, #2563eb 100%));
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px var(--list-accent-shadow, rgba(59, 130, 246, 0.3));
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px var(--list-accent-shadow-hover, rgba(59, 130, 246, 0.4));
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-primary mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  }
+
+  .btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  }
+
+  .btn-danger:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .btn-danger mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  .btn-cancel-sm {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: white;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-cancel-sm:hover:not(:disabled) {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  .btn-cancel-sm mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+
+  /* ========== EMPTY STATE ICON (con variantes de color) ========== */
+  .empty-state-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .empty-state-icon.amber  { background: linear-gradient(135deg, #fef3c7 0%, #fcd34d 100%); }
+  .empty-state-icon.green  { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); }
+  .empty-state-icon.purple { background: linear-gradient(135deg, #ede9fe 0%, #c4b5fd 100%); }
+  .empty-state-icon.blue   { background: linear-gradient(135deg, #dbeafe 0%, #93c5fd 100%); }
+  .empty-state-icon.teal   { background: linear-gradient(135deg, #ccfbf1 0%, #5eead4 100%); }
+
+  .empty-state-icon mat-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+    color: var(--list-accent, #64748b);
+  }
+
+  /* ========== RESPONSIVE - LIST BUTTONS ========== */
+  @media (max-width: 768px) {
+    .btn-primary span,
+    .btn-secondary span,
+    .btn-danger span,
+    .btn-cancel-sm span {
+      display: none;
+    }
+
+    .btn-primary,
+    .btn-danger {
+      padding: 8px;
+    }
+  }
 }
 
 /* 6. UTILIDADES CUSTOM CON TAILWIND */

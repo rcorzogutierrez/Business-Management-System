@@ -8,7 +8,15 @@
    NOTA IMPORTANTE:
    - Estos estilos están disponibles globalmente
    - NO duplicar backgrounds - heredar del body
-   - Usar clases con sufijo -base para evitar conflictos
+   - Cada form component define sus CSS variables de color
+     en :host { --form-accent: ...; }
+   ============================================ */
+
+/* ============================================
+   CSS CUSTOM PROPERTIES - Valores por defecto (purple/clients)
+   Cada módulo sobreescribe en :host del componente:
+   - Workers: --form-accent: #f59e0b; --form-accent-dark: #d97706;
+   - Materials: --form-accent: #10b981; --form-accent-dark: #059669;
    ============================================ */
 
 /* ============================================
@@ -104,7 +112,7 @@
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: #8b5cf6;
+  color: var(--form-accent, #8b5cf6);
 }
 
 .form-label .required {
@@ -138,8 +146,8 @@
 
 .form-input:focus:not([readonly]):not(:disabled) {
   background: white;
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  border-color: var(--form-accent, #8b5cf6);
+  box-shadow: 0 0 0 3px var(--form-accent-ring, rgba(139, 92, 246, 0.1));
 }
 
 .form-input[readonly],
@@ -263,7 +271,7 @@
   align-items: center;
   gap: 8px;
   padding: 10px 24px;
-  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  background: var(--form-btn-gradient, linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%));
   color: white;
   border: none;
   border-radius: 10px;
@@ -271,12 +279,12 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+  box-shadow: 0 4px 12px var(--form-accent-shadow, rgba(139, 92, 246, 0.3));
 }
 
 .btn-save:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.4);
+  box-shadow: 0 6px 16px var(--form-accent-shadow-hover, rgba(139, 92, 246, 0.4));
 }
 
 .btn-save:disabled {
@@ -298,8 +306,8 @@
   gap: 6px;
   padding: 8px 16px;
   background: white;
-  color: #8b5cf6;
-  border: 2px solid #8b5cf6;
+  color: var(--form-accent, #8b5cf6);
+  border: 2px solid var(--form-accent, #8b5cf6);
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
@@ -308,14 +316,61 @@
 }
 
 .btn-edit:hover {
-  background: #faf5ff;
-  border-color: #7c3aed;
+  background: var(--form-accent-light, #faf5ff);
+  border-color: var(--form-accent-dark, #7c3aed);
 }
 
 .btn-edit mat-icon {
   font-size: 16px;
   width: 16px;
   height: 16px;
+}
+
+/* ============================================
+   BUTTON SECONDARY (themed per module)
+   ============================================ */
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: white;
+  color: var(--form-accent, #8b5cf6);
+  border: 1px solid var(--form-accent, #8b5cf6);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: var(--form-accent-light, #faf5ff);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* ============================================
+   BUTTON SPINNER
+   ============================================ */
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 /* ============================================
