@@ -15,8 +15,10 @@ import { ProposalConfigService } from '../../services/proposal-config.service';
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 
-// Base Component
+// Base Component and Shared Components
 import { GenericGridConfigBaseComponent } from '../../../../shared/components/generic-grid-config-base/generic-grid-config-base.component';
+import { ModuleHeaderComponent } from '../../../../shared/components/module-header/module-header.component';
+import { GridConfigSectionComponent, ConfigChangeEvent } from '../../../../shared/components/grid-config-section/grid-config-section.component';
 
 // Models
 import { ProposalClientFieldsMapping, ProposalAddressMapping, MaterialMarkupCategory } from '../../models';
@@ -42,7 +44,9 @@ interface FieldMappingConfig {
     ReactiveFormsModule,
     MatIconModule,
     MatSnackBarModule,
-    MatTooltipModule
+    MatTooltipModule,
+    ModuleHeaderComponent,
+    GridConfigSectionComponent,
   ],
   templateUrl: './proposal-config.component.html',
   styleUrl: './proposal-config.component.css',
@@ -527,6 +531,16 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
       isActive: c.id === categoryId
     }));
     this.markupCategories.set(categories);
+  }
+
+  /**
+   * Handler para cambios desde GridConfigSectionComponent
+   */
+  onConfigChange(event: ConfigChangeEvent): void {
+    this.itemsPerPageSignal.set(
+      event.key === 'itemsPerPage' ? event.value : this.itemsPerPageSignal()
+    );
+    this.updateGridConfig(event.key, event.value);
   }
 
   // Los siguientes métodos ya están implementados en GenericGridConfigBaseComponent:

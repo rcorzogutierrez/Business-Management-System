@@ -1,0 +1,6 @@
+/* grid-config-section.component.css */
+/* Estilos mínimos - la mayoría usa Tailwind */
+
+:host {
+  display: block;
+}

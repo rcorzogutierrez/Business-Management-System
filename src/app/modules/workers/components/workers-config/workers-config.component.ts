@@ -13,6 +13,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { WorkersConfigService } from '../../services';
 import { GenericGridConfigBaseComponent } from '../../../../shared/components/generic-grid-config-base/generic-grid-config-base.component';
 import { ModuleHeaderComponent, ActionButton } from '../../../../shared/components/module-header/module-header.component';
+import { GridConfigSectionComponent, ConfigChangeEvent } from '../../../../shared/components/grid-config-section/grid-config-section.component';
 
 /**
  * Componente de configuración del módulo de Workers
@@ -33,7 +34,8 @@ import { ModuleHeaderComponent, ActionButton } from '../../../../shared/componen
     MatProgressSpinnerModule,
     MatSlideToggleModule,
     MatDividerModule,
-    ModuleHeaderComponent
+    ModuleHeaderComponent,
+    GridConfigSectionComponent,
   ],
   templateUrl: './workers-config.component.html',
   styleUrl: './workers-config.component.css',
@@ -57,4 +59,14 @@ export class WorkersConfigComponent extends GenericGridConfigBaseComponent {
       action: () => this.loadConfig()
     }
   ]);
+
+  /**
+   * Handler para cambios desde GridConfigSectionComponent
+   */
+  onConfigChange(event: ConfigChangeEvent): void {
+    this.itemsPerPageSignal.set(
+      event.key === 'itemsPerPage' ? event.value : this.itemsPerPageSignal()
+    );
+    this.updateGridConfig(event.key, event.value);
+  }
 }

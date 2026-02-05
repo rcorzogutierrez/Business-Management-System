@@ -7,3 +7,6 @@
 export * from './generic-list-base/generic-list-base.component';
 export * from './generic-grid-config-base/generic-grid-config-base.component';
 export * from './generic-config-base/generic-config-base.component';
+
+// Componentes de UI compartidos
+export * from './grid-config-section/grid-config-section.component';
