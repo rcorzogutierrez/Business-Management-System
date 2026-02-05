@@ -2,7 +2,7 @@
 
 import { Component, OnInit, signal, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +23,14 @@ import { Material } from '../../models';
 import { FieldConfig, FieldType } from '../../../../modules/clients/models';
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AuthService } from '../../../../core/services/auth.service';
+
+// Shared utilities
+import {
+  createFieldValidators,
+  getFieldInitialValue,
+  getFieldErrorMessage,
+  fieldHasError
+} from '../../../../shared/utils/form-validation.utils';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -208,104 +216,11 @@ export class MaterialFormComponent implements OnInit {
   }
 
   private getInitialValue(field: FieldConfig, material?: Material): any {
-    if (!material) {
-      // Modo crear: usar defaultValue si existe y no es null/undefined
-      if (field.defaultValue !== null && field.defaultValue !== undefined) {
-        // Si es string vacío y el tipo no es TEXT/TEXTAREA, usar valor por defecto del tipo
-        if (field.defaultValue === '' &&
-            field.type !== FieldType.TEXT &&
-            field.type !== FieldType.TEXTAREA &&
-            field.type !== FieldType.EMAIL &&
-            field.type !== FieldType.PHONE &&
-            field.type !== FieldType.URL) {
-          return this.getDefaultValueByType(field.type);
-        }
-        return field.defaultValue;
-      }
-      return this.getDefaultValueByType(field.type);
-    }
-
-    // Buscar en campos por defecto
-    if (field.name in material) {
-      return (material as any)[field.name];
-    }
-
-    // Buscar en customFields
-    if (material.customFields && field.name in material.customFields) {
-      return material.customFields[field.name];
-    }
-
-    // Fallback: usar defaultValue o valor por defecto del tipo
-    if (field.defaultValue !== null && field.defaultValue !== undefined) {
-      return field.defaultValue;
-    }
-    return this.getDefaultValueByType(field.type);
+    return getFieldInitialValue(field, material);
   }
 
-  private getDefaultValueByType(type: FieldType): any {
-    switch (type) {
-      case FieldType.CHECKBOX:
-        return false;
-      case FieldType.NUMBER:
-      case FieldType.CURRENCY:
-        return null;
-      case FieldType.MULTISELECT:
-        return [];
-      default:
-        return '';
-    }
-  }
-
-  private createValidators(field: FieldConfig): ValidatorFn[] {
-    const validators: ValidatorFn[] = [];
-    const validation = field.validation;
-
-    if (validation.required) {
-      validators.push(Validators.required);
-    }
-
-    if (validation.minLength) {
-      validators.push(Validators.minLength(validation.minLength));
-    }
-
-    if (validation.maxLength) {
-      validators.push(Validators.maxLength(validation.maxLength));
-    }
-
-    if (validation.pattern) {
-      validators.push(Validators.pattern(validation.pattern));
-    }
-
-    if (validation.email || field.type === FieldType.EMAIL) {
-      validators.push(Validators.email);
-    }
-
-    if (validation.min !== undefined) {
-      validators.push(Validators.min(validation.min));
-    }
-
-    if (validation.max !== undefined) {
-      validators.push(Validators.max(validation.max));
-    }
-
-    if (validation.url || field.type === FieldType.URL) {
-      validators.push(this.urlValidator());
-    }
-
-    return validators;
-  }
-
-  private urlValidator(): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      if (!control.value) {
-        return null;
-      }
-
-      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-      const valid = urlPattern.test(control.value);
-
-      return valid ? null : { url: { value: control.value } };
-    };
+  private createValidators(field: FieldConfig) {
+    return createFieldValidators(field);
   }
 
   async onSubmit() {
@@ -425,28 +340,12 @@ export class MaterialFormComponent implements OnInit {
 
   getErrorMessage(fieldName: string): string {
     const control = this.materialForm.get(fieldName);
-    if (!control || !control.errors || !control.touched) {
-      return '';
-    }
-
     const field = this.fields().find(f => f.name === fieldName);
-    const errors = control.errors;
-
-    if (errors['required']) return `${field?.label || fieldName} es requerido`;
-    if (errors['email']) return 'Formato de correo electrónico inválido';
-    if (errors['minlength']) return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
-    if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    if (errors['min']) return `El valor mínimo es ${errors['min'].min}`;
-    if (errors['max']) return `El valor máximo es ${errors['max'].max}`;
-    if (errors['pattern']) return 'Formato inválido';
-    if (errors['url']) return 'URL inválida';
-
-    return 'Campo inválido';
+    return getFieldErrorMessage(control, field?.label || fieldName);
   }
 
   hasError(fieldName: string): boolean {
-    const control = this.materialForm.get(fieldName);
-    return !!(control && control.invalid && control.touched);
+    return fieldHasError(this.materialForm.get(fieldName));
   }
 
   getFieldWidth(field: FieldConfig): string {

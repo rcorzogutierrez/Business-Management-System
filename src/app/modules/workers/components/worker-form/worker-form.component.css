@@ -1,13 +1,23 @@
-/* worker-form.component.css - DISEÑO COMPACTO */
+/* worker-form.component.css
+   Estilos específicos del formulario de trabajadores.
+   Estilos base heredados de: src/styles/form-base.css (global)
+   Tema: amber (#f59e0b)
+*/
 
 /* ============================================
-   HOST & CONTAINER
+   HOST & CSS VARIABLES (tema amber)
    ============================================ */
 
 :host {
   display: block;
   min-height: 100vh;
-  /* Background heredado del body global - NO duplicar aquí */
+  --form-accent: #f59e0b;
+  --form-accent-dark: #d97706;
+  --form-accent-light: #fffbeb;
+  --form-accent-ring: rgba(245, 158, 11, 0.1);
+  --form-accent-shadow: rgba(245, 158, 11, 0.3);
+  --form-accent-shadow-hover: rgba(245, 158, 11, 0.4);
+  --form-btn-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
 }
 
 .form-container {
@@ -17,181 +27,7 @@
 }
 
 /* ============================================
-   ANIMATIONS
-   ============================================ */
-
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* ============================================
-   HEADER ICON BOX
-   ============================================ */
-
-.header-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-icon-box.amber {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.header-icon-box mat-icon {
-  color: white;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-/* ============================================
-   BACK BUTTON
-   ============================================ */
-
-.back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.back-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #334155;
-  transform: translateX(-2px);
-}
-
-.back-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.back-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-/* ============================================
-   BUTTONS
-   ============================================ */
-
-.btn-secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: white;
-  color: #f59e0b;
-  border: 1px solid #fcd34d;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: #fffbeb;
-  border-color: #f59e0b;
-}
-
-.btn-secondary mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-cancel {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.btn-cancel:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-cancel mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-save {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.btn-save:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
-}
-
-.btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-save mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-
-/* ============================================
-   SECTION CARD
+   SECTION CARD (específico de worker-form)
    ============================================ */
 
 .section-card {
@@ -252,7 +88,45 @@
 }
 
 /* ============================================
-   RADIO CARDS
+   LABEL ICON (amber)
+   ============================================ */
+
+.label-icon {
+  font-size: 16px !important;
+  width: 16px !important;
+  height: 16px !important;
+  color: #f59e0b;
+}
+
+/* ============================================
+   FORM INPUT FOCUS (amber override)
+   Los estilos base están en form-base.css.
+   Solo sobreescribimos focus color para amber.
+   ============================================ */
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+}
+
+/* ============================================
+   FORM ACTIONS (worker layout variant)
+   ============================================ */
+
+.form-actions {
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 20px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* ============================================
+   RADIO CARDS (específico de worker-form)
    ============================================ */
 
 .radio-card {
@@ -311,7 +185,7 @@
 }
 
 /* ============================================
-   COMPANY SELECTOR
+   COMPANY SELECTOR (específico de worker-form)
    ============================================ */
 
 .company-selector {
@@ -321,116 +195,6 @@
   border-radius: 12px;
   border: 1px solid #e2e8f0;
 }
-
-/* ============================================
-   FORM ELEMENTS
-   ============================================ */
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.label-icon {
-  font-size: 16px !important;
-  width: 16px !important;
-  height: 16px !important;
-  color: #f59e0b;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 14px;
-  font-weight: 500;
-  color: #334155;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.form-input::placeholder,
-.form-textarea::placeholder {
-  color: #94a3b8;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  background: white;
-  border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
-}
-
-.form-input:read-only,
-.form-textarea:read-only {
-  background: #f1f5f9;
-  cursor: not-allowed;
-}
-
-.form-input.error,
-.form-select.error,
-.form-textarea.error {
-  border-color: #ef4444;
-  background: #fef2f2;
-}
-
-.form-input.error:focus,
-.form-select.error:focus,
-.form-textarea.error:focus {
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.form-textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-
-.form-help {
-  font-size: 11px;
-  color: #64748b;
-}
-
-.form-error {
-  font-size: 11px;
-  color: #ef4444;
-  font-weight: 500;
-}
-
-/* ============================================
-   FORM ACTIONS
-   ============================================ */
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-  padding: 20px;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-/* ============================================
-   LOADING SPINNER
-   ============================================ */
-
 
 /* ============================================
    RESPONSIVE
@@ -447,28 +211,5 @@
 
   .radio-card {
     min-width: 100%;
-  }
-
-  .form-actions {
-    flex-direction: column;
-  }
-
-  .btn-cancel,
-  .btn-save {
-    width: 100%;
-    justify-content: center;
-  }
-}
-
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
   }
 }

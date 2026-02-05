@@ -1,11 +1,29 @@
-/* materials-list.component.css - DISEÑO COMPACTO */
+/* materials-list.component.css
+   Estilos específicos de la lista de materiales.
+   Estilos compartidos heredados de: src/styles.css (global)
+   Tema: green (#10b981)
+
+   Clases globales usadas (NO duplicar):
+   - .icon-btn, .icon-btn-sm (styles.css)
+   - .stat-chip con variantes (styles.css)
+   - .status-badge (styles.css)
+   - .empty-state, .empty-state-icon (styles.css)
+   - .bulk-actions-bar, .bulk-icon (styles.css)
+   - .btn-primary, .btn-danger, .btn-cancel-sm (styles.css)
+   - .animate-fadeIn (styles.css)
+   - .header-icon-box (styles.css)
+*/
 
 /* ============================================
-   HOST & CONTAINER
+   HOST & CSS VARIABLES (tema green)
    ============================================ */
 
 :host {
   display: block;
+  --list-btn-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --list-accent: #10b981;
+  --list-accent-shadow: rgba(16, 185, 129, 0.3);
+  --list-accent-shadow-hover: rgba(16, 185, 129, 0.4);
 }
 
 .materials-container {
@@ -15,359 +33,11 @@
 }
 
 /* ============================================
-   ANIMATIONS
-   ============================================ */
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* ============================================
-   HEADER ICON BOX
-   ============================================ */
-
-.header-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-icon-box.green {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.header-icon-box mat-icon {
-  color: white;
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-/* ============================================
-   STAT CHIPS
-   ============================================ */
-
-.stat-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  border-radius: 10px;
-  padding: 6px 12px;
-  min-width: 65px;
-}
-
-.stat-chip.slate {
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-}
-
-.stat-chip.slate .stat-value { color: #475569; }
-.stat-chip.slate .stat-label { color: #64748b; }
-
-.stat-chip.green {
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-}
-
-.stat-chip.green .stat-value { color: #059669; }
-.stat-chip.green .stat-label { color: #10b981; }
-
-.stat-value {
-  font-size: 14px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 9px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-/* ============================================
-   BUTTONS
-   ============================================ */
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-primary mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-danger {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-.btn-danger:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-}
-
-.btn-danger mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.btn-cancel-sm {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-cancel-sm:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.btn-cancel-sm mat-icon {
-  font-size: 16px;
-  width: 16px;
-  height: 16px;
-}
-
-.icon-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.icon-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #334155;
-}
-
-.icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.icon-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-.icon-btn-sm {
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.icon-btn-sm:hover {
-  background: #f1f5f9;
-  color: #334155;
-}
-
-.icon-btn-sm mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* ============================================
-   BULK ACTIONS BAR
-   ============================================ */
-
-.bulk-actions-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 12px;
-  margin-bottom: 16px;
-}
-
-.bulk-icon {
-  width: 36px;
-  height: 36px;
-  background: #3b82f6;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bulk-icon mat-icon {
-  color: white;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-/* ============================================
-   STATUS BADGES
-   ============================================ */
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.status-badge mat-icon {
-  font-size: 12px;
-  width: 12px;
-  height: 12px;
-}
-
-.status-badge.active {
-  background: #ecfdf5;
-  color: #059669;
-  border: 1px solid #a7f3d0;
-}
-
-.status-badge.inactive {
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-}
-
-/* ============================================
-   EMPTY STATE
-   ============================================ */
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 24px;
-  text-align: center;
-}
-
-.empty-state-icon {
-  width: 64px;
-  height: 64px;
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 16px;
-}
-
-.empty-state-icon.green {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-}
-
-.empty-state-icon mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: #10b981;
-}
-
-.empty-state h3 {
-  font-size: 16px;
-  font-weight: 700;
-  color: #334155;
-  margin: 0 0 8px 0;
-}
-
-.empty-state p {
-  font-size: 13px;
-  color: #64748b;
-  margin: 0;
-  max-width: 300px;
-}
-
-/* ============================================
    RESPONSIVE
    ============================================ */
 
 @media (max-width: 768px) {
   .materials-container {
     padding: 16px;
-  }
-
-  .stat-chip {
-    display: none;
-  }
-
-  .btn-primary span,
-  .btn-danger span,
-  .btn-cancel-sm span {
-    display: none;
-  }
-
-  .btn-primary,
-  .btn-danger {
-    padding: 8px;
   }
 }

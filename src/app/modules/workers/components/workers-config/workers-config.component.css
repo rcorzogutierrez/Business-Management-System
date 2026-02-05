@@ -1,44 +1,10 @@
-/* workers-config.component.css - MINIMAL CSS, MOSTLY TAILWIND */
+/* workers-config.component.css
+   Estilos específicos de la configuración de trabajadores.
+   Estilos compartidos: styles.css (.animate-fadeIn, accessibility)
+   Tema: amber
+*/
 
-/* ============================================
-   HOST
-   ============================================ */
 :host {
   display: block;
   min-height: 100vh;
-  /* Background heredado del body global - NO duplicar aquí */
-}
-
-/* ============================================
-   CUSTOM ANIMATIONS (no disponibles en Tailwind)
-   ============================================ */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.3s ease-out;
-}
-
-/* ============================================
-   LOADING SPINNER (custom)
-   ============================================ */
-.loading-spinner {
-  @apply w-10 h-10 border-4 border-purple-200 border-t-purple-600 rounded-full animate-spin;
-}
-
-/* ============================================
-   ACCESSIBILITY
-   ============================================ */
-@media (prefers-reduced-motion: reduce) {
-  .animate-fadeIn {
-    animation: none !important;
-  }
 }
