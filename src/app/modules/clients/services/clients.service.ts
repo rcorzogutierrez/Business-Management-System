@@ -5,18 +5,24 @@ import {
   getFirestore,
   collection,
   doc,
-  getDocs,
-  getDoc,
-  addDoc,
-  updateDoc,
-  deleteDoc,
   query,
   where,
   orderBy,
   Timestamp,
-  DocumentData,
   QueryConstraint
 } from 'firebase/firestore';
+import {
+  getDocWithLogging as getDoc,
+  getDocsWithLogging as getDocs,
+  addDocWithLogging as addDoc,
+  updateDocWithLogging as updateDoc,
+  deleteDocWithLogging as deleteDoc
+} from '../../../shared/utils/firebase-logger.utils';
+import {
+  OperationResult,
+  createSuccessResult,
+  createErrorResult
+} from '../../../shared/models';
 import {
   Client,
   CreateClientData,
@@ -31,11 +37,11 @@ import { AuthService } from '../../../core/services/auth.service';
   providedIn: 'root'
 })
 export class ClientsService {
-  private firestore = getFirestore();
+  private db = getFirestore();
   private authService = inject(AuthService);
 
   // Collection reference
-  private clientsCollection = collection(this.firestore, 'clients');
+  private clientsCollection = collection(this.db, 'clients');
 
   // Signals
   clients = signal<Client[]>([]);
@@ -64,7 +70,13 @@ export class ClientsService {
 
     await this.loadClients();
     this.isInitialized = true;
-    
+  }
+
+  /**
+   * Forzar recarga de datos
+   */
+  async forceReload(): Promise<void> {
+    await this.loadClients();
   }
 
   /**
@@ -93,15 +105,10 @@ export class ClientsService {
 
       // NOTA: No usamos orderBy de Firestore porque requiere índices compuestos
       // y puede fallar si algunos documentos no tienen el campo de ordenamiento.
-      // En su lugar, ordenamos en memoria después de recuperar los documentos,
-      // lo cual es más eficiente para colecciones pequeñas/medianas (<1000 docs).
+      // En su lugar, ordenamos en memoria después de recuperar los documentos.
 
       const q = query(this.clientsCollection, ...constraints);
       const snapshot = await getDocs(q);
-
-      if (snapshot.empty) {
-
-      }
 
       const clients: Client[] = snapshot.docs.map((docSnapshot) => ({
         id: docSnapshot.id,
@@ -138,10 +145,9 @@ export class ClientsService {
       this.clients.set(filteredClients);
       this.calculateStats(filteredClients);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error cargando clientes:', error);
       this.error.set('Error al cargar los clientes');
-      throw error;
     } finally {
       this.isLoading.set(false);
     }
@@ -152,7 +158,7 @@ export class ClientsService {
    */
   async getClientById(id: string): Promise<Client | null> {
     try {
-      const docRef = doc(this.firestore, `clients/${id}`);
+      const docRef = doc(this.db, `clients/${id}`);
       const docSnap = await getDoc(docRef);
 
       if (docSnap.exists()) {
@@ -163,23 +169,23 @@ export class ClientsService {
       }
 
       return null;
-    } catch (error) {
+    } catch (error: any) {
       console.error(`❌ Error obteniendo cliente ${id}:`, error);
-      throw error;
+      return null;
     }
   }
 
   /**
    * Crear un nuevo cliente
    */
-  async createClient(data: CreateClientData): Promise<Client> {
+  async createClient(data: CreateClientData): Promise<OperationResult<Client>> {
     try {
       this.isLoading.set(true);
       this.error.set(null);
 
       const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
-        throw new Error('Usuario no autenticado');
+        return createErrorResult('Usuario no autenticado');
       }
 
       const now = Timestamp.now();
@@ -195,7 +201,7 @@ export class ClientsService {
         updatedBy: currentUser.uid
       };
 
-      const docRef = await addDoc(this.clientsCollection, clientData);
+      const docRef = await addDoc(this.clientsCollection, clientData as any);
 
       const newClient: Client = {
         id: docRef.id,
@@ -206,12 +212,12 @@ export class ClientsService {
       this.clients.update(clients => [...clients, newClient]);
       this.calculateStats(this.clients());
 
-      return newClient;
+      return createSuccessResult('Cliente creado exitosamente', newClient);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('❌ Error creando cliente:', error);
       this.error.set('Error al crear el cliente');
-      throw error;
+      return createErrorResult(`Error al crear cliente: ${error.message}`);
     } finally {
       this.isLoading.set(false);
     }
@@ -220,17 +226,17 @@ export class ClientsService {
   /**
    * Actualizar un cliente existente
    */
-  async updateClient(id: string, data: UpdateClientData): Promise<void> {
+  async updateClient(id: string, data: UpdateClientData): Promise<OperationResult> {
     try {
       this.isLoading.set(true);
       this.error.set(null);
 
       const currentUser = this.authService.authorizedUser();
       if (!currentUser) {
-        throw new Error('Usuario no autenticado');
+        return createErrorResult('Usuario no autenticado');
       }
 
-      const docRef = doc(this.firestore, `clients/${id}`);
+      const docRef = doc(this.db, `clients/${id}`);
 
       const updateData: Partial<Client> = {
         ...data,
@@ -238,7 +244,7 @@ export class ClientsService {
         updatedBy: currentUser.uid
       };
 
-      await updateDoc(docRef, updateData);
+      await updateDoc(docRef, updateData as any);
 
       // Actualizar la lista local
       this.clients.update(clients =>
@@ -251,10 +257,12 @@ export class ClientsService {
 
       this.calculateStats(this.clients());
 
-    } catch (error) {
+      return createSuccessResult('Cliente actualizado exitosamente');
+
+    } catch (error: any) {
       console.error(`❌ Error actualizando cliente ${id}:`, error);
       this.error.set('Error al actualizar el cliente');
-      throw error;
+      return createErrorResult(`Error al actualizar cliente: ${error.message}`);
     } finally {
       this.isLoading.set(false);
     }
@@ -263,59 +271,89 @@ export class ClientsService {
   /**
    * Eliminar un cliente
    */
-  async deleteClient(id: string): Promise<void> {
+  async deleteClient(id: string): Promise<OperationResult> {
     try {
       this.isLoading.set(true);
       this.error.set(null);
 
-      const docRef = doc(this.firestore, `clients/${id}`);
+      const docRef = doc(this.db, `clients/${id}`);
       await deleteDoc(docRef);
 
       // Actualizar la lista local
       this.clients.update(clients => clients.filter(client => client.id !== id));
       this.calculateStats(this.clients());
 
-    } catch (error) {
+      return createSuccessResult('Cliente eliminado exitosamente');
+
+    } catch (error: any) {
       console.error(`❌ Error eliminando cliente ${id}:`, error);
       this.error.set('Error al eliminar el cliente');
-      throw error;
+      return createErrorResult(`Error al eliminar cliente: ${error.message}`);
     } finally {
       this.isLoading.set(false);
     }
   }
 
   /**
+   * Eliminar múltiples clientes
+   */
+  async deleteMultipleClients(ids: string[]): Promise<OperationResult> {
+    const errors: string[] = [];
+    let successCount = 0;
+
+    this.isLoading.set(true);
+
+    for (const id of ids) {
+      try {
+        const docRef = doc(this.db, `clients/${id}`);
+        await deleteDoc(docRef);
+        successCount++;
+      } catch (error: any) {
+        errors.push(`Error eliminando cliente ${id}: ${error.message}`);
+      }
+    }
+
+    // Actualizar la lista local
+    this.clients.update(clients => clients.filter(client => !ids.includes(client.id)));
+    this.calculateStats(this.clients());
+
+    this.isLoading.set(false);
+
+    if (errors.length === 0) {
+      return createSuccessResult(`${successCount} cliente(s) eliminado(s) exitosamente`);
+    } else if (successCount > 0) {
+      return {
+        success: true,
+        message: `${successCount} eliminado(s), ${errors.length} fallido(s)`,
+        errors
+      };
+    } else {
+      return createErrorResult('Error al eliminar clientes', errors);
+    }
+  }
+
+  /**
    * Archivar/Desarchivar un cliente
    */
-  async toggleClientStatus(id: string, isActive: boolean): Promise<void> {
-    try {
-      await this.updateClient(id, { isActive });
-    } catch (error) {
-      console.error(`❌ Error cambiando estado del cliente ${id}:`, error);
-      throw error;
-    }
+  async toggleClientStatus(id: string, isActive: boolean): Promise<OperationResult> {
+    return this.updateClient(id, { isActive });
   }
 
   /**
    * Asignar cliente a un usuario
    */
-  async assignClient(clientId: string, userId: string): Promise<void> {
-    try {
-      await this.updateClient(clientId, { assignedTo: userId });
-    } catch (error) {
-      console.error(`❌ Error asignando cliente ${clientId}:`, error);
-      throw error;
-    }
+  async assignClient(clientId: string, userId: string): Promise<OperationResult> {
+    return this.updateClient(clientId, { assignedTo: userId });
   }
 
   /**
    * Actualizar campos personalizados de un cliente
    */
-  async updateCustomFields(clientId: string, customFields: Record<string, any>): Promise<void> {
+  async updateCustomFields(clientId: string, customFields: Record<string, any>): Promise<OperationResult> {
     try {
       const client = await this.getClientById(clientId);
       if (!client) {
-        throw new Error('Cliente no encontrado');
+        return createErrorResult('Cliente no encontrado');
       }
 
       const updatedFields = {
@@ -323,10 +361,10 @@ export class ClientsService {
         ...customFields
       };
 
-      await this.updateClient(clientId, { customFields: updatedFields });
-    } catch (error) {
+      return this.updateClient(clientId, { customFields: updatedFields });
+    } catch (error: any) {
       console.error(`❌ Error actualizando campos personalizados del cliente ${clientId}:`, error);
-      throw error;
+      return createErrorResult(`Error al actualizar campos: ${error.message}`);
     }
   }
 
