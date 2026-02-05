@@ -24,3 +24,9 @@ export * from './confirmation.utils';
 
 // Table utilities (new)
 export * from './table.utils';
+
+// Form validation utilities (shared by client-form, material-form, etc.)
+export * from './form-validation.utils';
+
+// Format utilities (currency, dates, file download)
+export * from './format.utils';

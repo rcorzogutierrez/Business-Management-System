@@ -3,7 +3,7 @@
 import { Component, OnInit, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 // Material imports
 import { MatButtonModule } from '@angular/material/button';
@@ -32,6 +32,16 @@ import { FormLayoutConfig, FieldPosition } from '../../models/client-module-conf
 
 // Components
 import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+
+// Shared utilities
+import {
+  createFieldValidators,
+  urlValidator,
+  getDefaultValueByFieldType,
+  getFieldInitialValue,
+  getFieldErrorMessage,
+  fieldHasError
+} from '../../../../shared/utils/form-validation.utils';
 
 type FormMode = 'create' | 'edit' | 'view';
 
@@ -268,41 +278,10 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Obtener valor inicial del campo
+   * Obtener valor inicial del campo (delegado a utilidad compartida)
    */
   private getInitialValue(field: FieldConfig, client?: Client): any {
-    if (!client) {
-      // Modo crear: usar defaultValue si existe y no es null/undefined
-      if (field.defaultValue !== null && field.defaultValue !== undefined) {
-        // Si es string vacío y el tipo no es TEXT/TEXTAREA, usar valor por defecto del tipo
-        if (field.defaultValue === '' &&
-            field.type !== FieldType.TEXT &&
-            field.type !== FieldType.TEXTAREA &&
-            field.type !== FieldType.EMAIL &&
-            field.type !== FieldType.PHONE &&
-            field.type !== FieldType.URL) {
-          return this.getDefaultValueByType(field.type);
-        }
-        return field.defaultValue;
-      }
-      return this.getDefaultValueByType(field.type);
-    }
-
-    // Buscar en campos por defecto
-    if (field.name in client) {
-      return (client as any)[field.name];
-    }
-
-    // Buscar en customFields
-    if (client.customFields && field.name in client.customFields) {
-      return client.customFields[field.name];
-    }
-
-    // Fallback: usar defaultValue o valor por defecto del tipo
-    if (field.defaultValue !== null && field.defaultValue !== undefined) {
-      return field.defaultValue;
-    }
-    return this.getDefaultValueByType(field.type);
+    return getFieldInitialValue(field, client);
   }
 
   /**
@@ -327,86 +306,10 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Obtener valor por defecto según tipo
+   * Crear validadores dinámicos (delegado a utilidad compartida)
    */
-  private getDefaultValueByType(type: FieldType): any {
-    switch (type) {
-      case FieldType.CHECKBOX:
-        return false;
-      case FieldType.NUMBER:
-      case FieldType.CURRENCY:
-        return null;
-      case FieldType.MULTISELECT:
-        return [];
-      default:
-        return '';
-    }
-  }
-
-  /**
-   * Crear validadores dinámicos
-   */
-  private createValidators(field: FieldConfig): ValidatorFn[] {
-    const validators: ValidatorFn[] = [];
-
-    const validation = field.validation;
-
-    // Required
-    if (validation.required) {
-      validators.push(Validators.required);
-    }
-
-    // MinLength
-    if (validation.minLength) {
-      validators.push(Validators.minLength(validation.minLength));
-    }
-
-    // MaxLength
-    if (validation.maxLength) {
-      validators.push(Validators.maxLength(validation.maxLength));
-    }
-
-    // Pattern
-    if (validation.pattern) {
-      validators.push(Validators.pattern(validation.pattern));
-    }
-
-    // Email
-    if (validation.email || field.type === FieldType.EMAIL) {
-      validators.push(Validators.email);
-    }
-
-    // Min/Max (para números)
-    if (validation.min !== undefined) {
-      validators.push(Validators.min(validation.min));
-    }
-
-    if (validation.max !== undefined) {
-      validators.push(Validators.max(validation.max));
-    }
-
-    // URL
-    if (validation.url || field.type === FieldType.URL) {
-      validators.push(this.urlValidator());
-    }
-
-    return validators;
-  }
-
-  /**
-   * Validador de URL personalizado
-   */
-  private urlValidator(): ValidatorFn {
-    return (control: AbstractControl): { [key: string]: any } | null => {
-      if (!control.value) {
-        return null;
-      }
-
-      const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-      const valid = urlPattern.test(control.value);
-
-      return valid ? null : { url: { value: control.value } };
-    };
+  private createValidators(field: FieldConfig) {
+    return createFieldValidators(field);
   }
 
   /**
@@ -539,58 +442,19 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Obtener mensaje de error de un campo
+   * Obtener mensaje de error de un campo (delegado a utilidad compartida)
    */
   getErrorMessage(fieldName: string): string {
     const control = this.clientForm.get(fieldName);
-    if (!control || !control.errors || !control.touched) {
-      return '';
-    }
-
     const field = this.fields().find(f => f.name === fieldName);
-    const errors = control.errors;
-
-    if (errors['required']) {
-      return `${field?.label || fieldName} es requerido`;
-    }
-
-    if (errors['email']) {
-      return 'Formato de correo electrónico inválido';
-    }
-
-    if (errors['minlength']) {
-      return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
-    }
-
-    if (errors['maxlength']) {
-      return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    }
-
-    if (errors['min']) {
-      return `El valor mínimo es ${errors['min'].min}`;
-    }
-
-    if (errors['max']) {
-      return `El valor máximo es ${errors['max'].max}`;
-    }
-
-    if (errors['pattern']) {
-      return 'Formato inválido';
-    }
-
-    if (errors['url']) {
-      return 'URL inválida';
-    }
-
-    return 'Campo inválido';
+    return getFieldErrorMessage(control, field?.label || fieldName);
   }
 
   /**
-   * Verificar si un campo tiene error
+   * Verificar si un campo tiene error (delegado a utilidad compartida)
    */
   hasError(fieldName: string): boolean {
-    const control = this.clientForm.get(fieldName);
-    return !!(control && control.invalid && control.touched);
+    return fieldHasError(this.clientForm.get(fieldName));
   }
 
   /**
