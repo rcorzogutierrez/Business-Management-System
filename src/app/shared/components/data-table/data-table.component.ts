@@ -15,8 +15,6 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TableColumn, TableConfig, SortState } from './models';
 
@@ -54,7 +52,6 @@ import { TableColumn, TableConfig, SortState } from './models';
   imports: [
     CommonModule,
     MatIconModule,
-    MatCheckboxModule,
     MatTooltipModule
   ],
   templateUrl: './data-table.component.html',
@@ -166,9 +163,9 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   /**
    * Toggle selección de una fila
    */
-  toggleSelection(row: T, event?: MatCheckboxChange): void {
+  toggleSelection(row: T, event?: Event): void {
     if (event) {
-      event.source._elementRef.nativeElement.blur(); // Quitar focus
+      (event.target as HTMLElement).blur();
     }
 
     const id = this.getRowId(row);
@@ -198,9 +195,8 @@ export class GenericDataTableComponent<T extends object> implements AfterContent
   /**
    * Toggle selección de todas las filas
    */
-  toggleSelectAll(event: MatCheckboxChange): void {
-    // Prevenir propagación si es necesario
-    event.source._elementRef.nativeElement.blur();
+  toggleSelectAll(event: Event): void {
+    (event.target as HTMLElement).blur();
 
     const allSelected = this.allSelected();
     const newSelection = new Set<string | number>();

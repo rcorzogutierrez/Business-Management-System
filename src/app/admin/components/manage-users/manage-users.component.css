@@ -25,71 +25,8 @@
 }
 
 /* ============================================
-   STAT CHIPS (Header Inline)
+   STAT CHIPS - Usa clase global .stat-chip-vertical de styles.css
    ============================================ */
-.stat-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 6px 14px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  min-width: 70px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.stat-chip:hover {
-  border-color: #cbd5e1;
-}
-
-.stat-chip.active-filter {
-  border-color: #8b5cf6;
-  background: #faf5ff;
-}
-
-.stat-chip .stat-value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #334155;
-  line-height: 1;
-}
-
-.stat-chip .stat-label {
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  margin-top: 2px;
-}
-
-.stat-chip.active {
-  background: #dcfce7;
-  border-color: #86efac;
-}
-
-.stat-chip.active .stat-value {
-  color: #166534;
-}
-
-.stat-chip.active .stat-label {
-  color: #15803d;
-}
-
-.stat-chip.admin {
-  background: #fef2f2;
-  border-color: #fecaca;
-}
-
-.stat-chip.admin .stat-value {
-  color: #dc2626;
-}
-
-.stat-chip.admin .stat-label {
-  color: #ef4444;
-}
 
 /* ============================================
    FILTER CHIPS
@@ -293,15 +230,6 @@ input[type="checkbox"]:indeterminate {
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
-  .stat-chip {
-    padding: 4px 10px;
-    min-width: 60px;
-  }
-
-  .stat-chip .stat-value {
-    font-size: 0.875rem;
-  }
-
   .filter-chip {
     padding: 4px 8px;
     font-size: 0.75rem;

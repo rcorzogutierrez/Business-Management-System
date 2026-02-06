@@ -15,17 +15,17 @@
       (backAction)="goBack()"
       (primaryAction)="addUser()">
 
-      <!-- Stats clickeables proyectados -->
+      <!-- Stats clickeables proyectados (usando clase global stat-chip-vertical) -->
       <div slot="extra-stats" class="hidden md:flex items-center gap-3">
-        <div class="stat-chip" [class.active-filter]="currentFilter === 'all'" (click)="setFilter('all')">
+        <div class="stat-chip-vertical" [class.active-filter]="currentFilter === 'all'" (click)="setFilter('all')">
           <span class="stat-value">{{ totalUsers }}</span>
           <span class="stat-label">Total</span>
         </div>
-        <div class="stat-chip active" [class.active-filter]="currentFilter === 'active'" (click)="setFilter('active')">
+        <div class="stat-chip-vertical green" [class.active-filter]="currentFilter === 'active'" (click)="setFilter('active')">
           <span class="stat-value">{{ activeUsers }}</span>
           <span class="stat-label">Activos</span>
         </div>
-        <div class="stat-chip admin" [class.active-filter]="currentFilter === 'admin'" (click)="setFilter('admin')">
+        <div class="stat-chip-vertical red" [class.active-filter]="currentFilter === 'admin'" (click)="setFilter('admin')">
           <span class="stat-value">{{ adminUsers }}</span>
           <span class="stat-label">Admins</span>
         </div>
@@ -97,7 +97,7 @@
             <tr>
               <th class="px-4 py-3 text-left w-10">
                 <input type="checkbox"
-                       class="w-4 h-4 rounded accent-purple-500 cursor-pointer"
+                       class="table-checkbox purple"
                        [checked]="isAllSelected()"
                        [indeterminate]="isSomeSelected()"
                        (change)="toggleSelectAll()"
@@ -118,7 +118,7 @@
                 <!-- Checkbox -->
                 <td class="px-4 py-3">
                   <input type="checkbox"
-                         class="w-4 h-4 rounded accent-purple-500 cursor-pointer"
+                         class="table-checkbox purple"
                          [checked]="isUserSelected(user.uid!)"
                          (change)="toggleUserSelection(user.uid!)"
                          [disabled]="!canSelectUser(user)"

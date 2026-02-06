@@ -1,22 +1,7 @@
 /* admin-panel.component.css - REDISEÑADO COMPACTO */
 /* Clases globales usadas de styles.css:
-   .btn-icon, .header-icon-box, .stat-chip, .animate-fadeIn, .animate-spin
+   .btn-icon, .header-icon-box, .stat-chip-vertical, .animate-fadeIn, .animate-spin
 */
-
-/* ============================================
-   STAT CHIPS ADMIN (variantes específicas)
-   ============================================ */
-.stat-chip.users { background: #eff6ff; border-color: #bfdbfe; }
-.stat-chip.users .stat-value { color: #2563eb; }
-
-.stat-chip.active { background: #dcfce7; border-color: #86efac; }
-.stat-chip.active .stat-value { color: #16a34a; }
-
-.stat-chip.modules { background: #faf5ff; border-color: #e9d5ff; }
-.stat-chip.modules .stat-value { color: #7c3aed; }
-
-.stat-chip.admin { background: #fef2f2; border-color: #fecaca; }
-.stat-chip.admin .stat-value { color: #dc2626; }
 
 /* ============================================
    ACTION CARDS
@@ -203,15 +188,6 @@
    RESPONSIVE
    ============================================ */
 @media (max-width: 768px) {
-  .stat-chip {
-    padding: 4px 10px;
-    min-width: 60px;
-  }
-
-  .stat-chip .stat-value {
-    font-size: 0.875rem;
-  }
-
   .action-card {
     padding: 16px 10px;
   }
@@ -237,8 +213,7 @@
    ============================================ */
 @media (prefers-reduced-motion: reduce) {
   .action-card,
-  .summary-card,
-  .stat-chip {
+  .summary-card {
     animation: none !important;
     transition: none !important;
   }

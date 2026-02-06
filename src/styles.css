@@ -562,7 +562,7 @@
     @apply font-medium opacity-80;
   }
 
-  /* Stat chip - color variants */
+  /* Stat chip - color variants (horizontal) */
   .stat-chip.slate   { @apply bg-slate-100 text-slate-600; }
   .stat-chip.blue    { @apply bg-blue-50 text-blue-600; }
   .stat-chip.green   { @apply bg-emerald-50 text-emerald-600; }
@@ -572,6 +572,74 @@
   .stat-chip.emerald { @apply bg-emerald-50 text-emerald-700; }
   .stat-chip.teal    { @apply bg-teal-50 text-teal-600; }
   .stat-chip.indigo  { @apply bg-indigo-50 text-indigo-600; }
+
+  /* ========== STAT CHIPS VERTICAL (para headers de módulos) ========== */
+  .stat-chip-vertical {
+    @apply flex flex-col items-center;
+    @apply px-3 py-1.5 min-w-[65px];
+    @apply bg-slate-50 border border-slate-200 rounded-[10px];
+    @apply cursor-pointer transition-all duration-150;
+  }
+
+  .stat-chip-vertical:hover {
+    @apply -translate-y-0.5 shadow-md border-slate-300;
+  }
+
+  .stat-chip-vertical .stat-value {
+    @apply text-base font-bold leading-tight text-slate-700;
+  }
+
+  .stat-chip-vertical .stat-label {
+    @apply text-[9px] font-semibold uppercase tracking-wide text-slate-500;
+  }
+
+  /* Stat chip vertical - color variants */
+  .stat-chip-vertical.blue {
+    @apply bg-blue-50 border-blue-200;
+  }
+  .stat-chip-vertical.blue .stat-value { @apply text-blue-600; }
+  .stat-chip-vertical.blue .stat-label { @apply text-blue-500; }
+
+  .stat-chip-vertical.green {
+    @apply bg-emerald-50 border-emerald-200;
+  }
+  .stat-chip-vertical.green .stat-value { @apply text-emerald-600; }
+  .stat-chip-vertical.green .stat-label { @apply text-emerald-500; }
+
+  .stat-chip-vertical.purple {
+    @apply bg-purple-50 border-purple-200;
+  }
+  .stat-chip-vertical.purple .stat-value { @apply text-purple-600; }
+  .stat-chip-vertical.purple .stat-label { @apply text-purple-500; }
+
+  .stat-chip-vertical.amber {
+    @apply bg-amber-50 border-amber-200;
+  }
+  .stat-chip-vertical.amber .stat-value { @apply text-amber-600; }
+  .stat-chip-vertical.amber .stat-label { @apply text-amber-500; }
+
+  .stat-chip-vertical.red {
+    @apply bg-red-50 border-red-200;
+  }
+  .stat-chip-vertical.red .stat-value { @apply text-red-600; }
+  .stat-chip-vertical.red .stat-label { @apply text-red-500; }
+
+  .stat-chip-vertical.teal {
+    @apply bg-teal-50 border-teal-200;
+  }
+  .stat-chip-vertical.teal .stat-value { @apply text-teal-600; }
+  .stat-chip-vertical.teal .stat-label { @apply text-teal-500; }
+
+  .stat-chip-vertical.indigo {
+    @apply bg-indigo-50 border-indigo-200;
+  }
+  .stat-chip-vertical.indigo .stat-value { @apply text-indigo-600; }
+  .stat-chip-vertical.indigo .stat-label { @apply text-indigo-500; }
+
+  /* Estado activo para filtros clickeables */
+  .stat-chip-vertical.active-filter {
+    @apply border-purple-400 ring-2 ring-purple-200;
+  }
 
   /* ========== ICON BUTTON SMALL ========== */
   .icon-btn-sm {
@@ -693,8 +761,21 @@
   }
 
   .data-table td {
-    @apply px-3.5 py-3 text-sm text-gray-700 align-middle;
+    @apply px-3.5 py-3 text-[13px] text-slate-600 align-middle;
   }
+
+  /* ========== TABLE CHECKBOX (compartido por todas las tablas) ========== */
+  .table-checkbox {
+    @apply w-3.5 h-3.5 rounded border-slate-300 cursor-pointer;
+    @apply focus:ring-2 focus:ring-offset-0;
+  }
+
+  /* Variantes de color para checkboxes */
+  .table-checkbox.purple { @apply text-purple-600 focus:ring-purple-500; }
+  .table-checkbox.amber  { @apply text-amber-600 focus:ring-amber-500; }
+  .table-checkbox.green  { @apply text-green-600 focus:ring-green-500; }
+  .table-checkbox.blue   { @apply text-blue-600 focus:ring-blue-500; }
+  .table-checkbox.teal   { @apply text-teal-600 focus:ring-teal-500; }
 
   /* ========== PAGINATION BAR (compartido) ========== */
   .pagination-bar {

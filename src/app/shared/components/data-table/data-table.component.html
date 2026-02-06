@@ -53,12 +53,14 @@
               role="columnheader"
               [attr.aria-label]="'Selección'">
               @if (isMultipleSelection() && config().showSelectAll !== false) {
-                <mat-checkbox
+                <input
+                  type="checkbox"
                   [checked]="allSelected()"
                   [indeterminate]="someSelected()"
                   [attr.aria-label]="allSelected() ? 'Deseleccionar todas las filas' : 'Seleccionar todas las filas'"
-                  (change)="toggleSelectAll($event)">
-                </mat-checkbox>
+                  (change)="toggleSelectAll($event)"
+                  class="table-checkbox"
+                  [ngClass]="config().themeColor || 'purple'">
               }
             </th>
           }
@@ -116,11 +118,13 @@
             <!-- Checkbox Cell -->
             @if (hasSelection()) {
               <td class="checkbox-cell" role="cell">
-                <mat-checkbox
+                <input
+                  type="checkbox"
                   [checked]="isRowSelected(row)"
                   [attr.aria-label]="'Seleccionar fila'"
-                  (change)="toggleSelection(row, $event)">
-                </mat-checkbox>
+                  (change)="toggleSelection(row, $event)"
+                  class="table-checkbox"
+                  [ngClass]="config().themeColor || 'purple'">
               </td>
             }
 
