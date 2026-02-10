@@ -395,7 +395,9 @@
       "directInvoice": "Factura Directa",
       "edit": "Editar Factura",
       "editSubtitle": "Modificar los datos de la factura",
-      "updateInvoice": "Guardar Cambios"
+      "updateInvoice": "Guardar Cambios",
+      "saveDraft": "Guardar Borrador",
+      "draft": "Borrador"
     }
   }
 }

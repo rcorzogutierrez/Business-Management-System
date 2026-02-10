@@ -356,7 +356,7 @@
                       <span>Ver detalles</span>
                     </button>
 
-                    @if (proposal.status === 'draft') {
+                    @if (proposal.status === 'draft' && !proposal.isDirectInvoice) {
                       <button mat-menu-item (click)="editProposal(proposal)">
                         <mat-icon>edit</mat-icon>
                         <span>Editar</span>
@@ -373,7 +373,7 @@
                     <mat-divider></mat-divider>
 
                     <!-- Cambiar estado -->
-                    @if (proposal.status === 'draft') {
+                    @if (proposal.status === 'draft' && !proposal.isDirectInvoice) {
                       <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
                         <mat-icon>send</mat-icon>
                         <span>Marcar como enviado</span>

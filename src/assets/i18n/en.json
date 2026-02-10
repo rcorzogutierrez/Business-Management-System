@@ -395,7 +395,9 @@
       "directInvoice": "Direct Invoice",
       "edit": "Edit Invoice",
       "editSubtitle": "Modify the invoice data",
-      "updateInvoice": "Save Changes"
+      "updateInvoice": "Save Changes",
+      "saveDraft": "Save Draft",
+      "draft": "Draft"
     }
   }
 }

@@ -48,6 +48,11 @@
           <span class="hidden sm:inline">{{ 'common.cancel' | translate }}</span>
         </button>
 
+        <button type="button" class="btn-draft" (click)="saveDraft()" [disabled]="isLoading()">
+          <mat-icon>save</mat-icon>
+          <span class="hidden sm:inline">{{ 'projects.directInvoice.saveDraft' | translate }}</span>
+        </button>
+
         <button type="button" class="btn-primary" (click)="save()" [disabled]="isLoading()">
           @if (isLoading()) {
             <div class="btn-spinner"></div>
@@ -94,21 +99,21 @@
       </div>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label required">
             <mat-icon>event</mat-icon>
             {{ 'projects.invoice.startDate' | translate }}
           </label>
           <input type="date" [(ngModel)]="workStartDate" class="form-input">
         </div>
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label required">
             <mat-icon>event_available</mat-icon>
             {{ 'projects.invoice.endDate' | translate }}
           </label>
           <input type="date" [(ngModel)]="workEndDate" class="form-input">
         </div>
         <div class="form-group">
-          <label class="form-label">
+          <label class="form-label required">
             <mat-icon>schedule</mat-icon>
             {{ 'projects.invoice.hoursWorked' | translate }}
           </label>
@@ -344,39 +349,30 @@
       </div>
     </div>
 
-    <!-- ========== 6. AJUSTE DE PRECIOS (condicional) ========== -->
-    @if (markupEnabled() && markupCategories().length > 0) {
-      <div class="form-section section-markup animate-fadeIn" style="animation-delay: 0.3s">
-        <div class="section-header">
-          <mat-icon class="text-amber-500">local_offer</mat-icon>
-          <div>
-            <h2>{{ 'projects.directInvoice.priceAdjustment' | translate }}</h2>
-            <p>{{ 'projects.directInvoice.priceAdjustmentDesc' | translate }}</p>
-          </div>
-        </div>
-        <div class="form-group">
-          <select [(ngModel)]="selectedMarkupCategoryId"
-                  (ngModelChange)="onMarkupCategoryChange()"
-                  class="form-input">
-            @for (category of markupCategories(); track category.id) {
-              <option [value]="category.id">
-                {{ category.name }} (+{{ category.percentage }}%)
-              </option>
-            }
-          </select>
-          <p class="text-xs text-slate-400 mt-1">{{ 'projects.directInvoice.markupHelper' | translate }}</p>
-        </div>
-      </div>
-    }
-
     <!-- ========== 7. MATERIALES ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.35s">
-      <div class="section-header">
+      <div class="section-header section-header-with-action">
         <mat-icon class="text-amber-500">inventory_2</mat-icon>
-        <div>
+        <div class="flex-1">
           <h2>{{ 'projects.invoice.materialsUsed' | translate }}</h2>
           <p>{{ 'projects.directInvoice.materialsDesc' | translate }}</p>
         </div>
+
+        <!-- Markup selector integrado en el header -->
+        @if (markupEnabled() && markupCategories().length > 0) {
+          <div class="markup-inline print:hidden">
+            <mat-icon class="text-amber-500">local_offer</mat-icon>
+            <select [(ngModel)]="selectedMarkupCategoryId"
+                    (ngModelChange)="onMarkupCategoryChange()"
+                    class="markup-select">
+              @for (category of markupCategories(); track category.id) {
+                <option [value]="category.id">
+                  {{ category.name }} (+{{ category.percentage }}%)
+                </option>
+              }
+            </select>
+          </div>
+        }
       </div>
 
       <!-- Search dropdown -->
@@ -680,14 +676,24 @@
     <!-- ========== BARRA DE ACCIONES STICKY ========== -->
     <div class="actions-bar animate-fadeIn" style="animation-delay: 0.55s">
       <div class="form-status">
-        <mat-icon class="text-blue-500">receipt_long</mat-icon>
-        <span class="text-blue-600">{{ 'projects.directInvoice.directInvoice' | translate }}</span>
+        @if (isDraft) {
+          <mat-icon class="text-amber-500">edit_note</mat-icon>
+          <span class="draft-badge">{{ 'projects.directInvoice.draft' | translate }}</span>
+        } @else {
+          <mat-icon class="text-blue-500">receipt_long</mat-icon>
+          <span class="text-blue-600">{{ 'projects.directInvoice.directInvoice' | translate }}</span>
+        }
       </div>
 
       <div class="flex gap-2">
         <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isLoading()">
           <mat-icon>close</mat-icon>
           <span>{{ 'common.cancel' | translate }}</span>
+        </button>
+
+        <button type="button" class="btn-draft" (click)="saveDraft()" [disabled]="isLoading()">
+          <mat-icon>save</mat-icon>
+          <span>{{ 'projects.directInvoice.saveDraft' | translate }}</span>
         </button>
 
         <button type="button" class="btn-primary" (click)="save()" [disabled]="isLoading()">

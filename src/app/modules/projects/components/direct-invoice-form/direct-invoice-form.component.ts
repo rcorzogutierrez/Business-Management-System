@@ -247,6 +247,7 @@ export class DirectInvoiceFormComponent implements OnInit {
    * Llenar todos los campos del formulario desde un proposal existente
    */
   private fillFormFromProposal(proposal: Proposal) {
+    this._loadedStatus = proposal.status || '';
     this.language = proposal.language || 'es';
     this.invoiceDate = this.timestampToInputDate(proposal.invoiceDate) || this.timestampToInputDate(proposal.date) || '';
     this.workStartDate = this.timestampToInputDate(proposal.workStartDate) || '';
@@ -621,7 +622,10 @@ export class DirectInvoiceFormComponent implements OnInit {
 
   // === Validation ===
 
-  validate(): boolean {
+  /**
+   * Validación mínima para guardar borrador
+   */
+  validateDraft(): boolean {
     if (!this.invoiceDate) {
       this.snackBar.open('Debes ingresar la fecha de emisión', 'Cerrar', { duration: 3000 });
       return false;
@@ -638,15 +642,35 @@ export class DirectInvoiceFormComponent implements OnInit {
       this.snackBar.open('Debes ingresar la ciudad', 'Cerrar', { duration: 3000 });
       return false;
     }
+    return true;
+  }
 
-    // Validar fechas de trabajo si se ingresaron
-    if (this.workStartDate && this.workEndDate) {
-      const startDate = new Date(this.workStartDate);
-      const endDate = new Date(this.workEndDate);
-      if (startDate > endDate) {
-        this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
-        return false;
-      }
+  /**
+   * Validación completa para finalizar factura
+   */
+  validate(): boolean {
+    if (!this.validateDraft()) return false;
+
+    // Fechas de trabajo obligatorias
+    if (!this.workStartDate) {
+      this.snackBar.open('Debes ingresar la fecha de inicio del trabajo', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+    if (!this.workEndDate) {
+      this.snackBar.open('Debes ingresar la fecha de fin del trabajo', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+    if (!this.workTime || this.workTime <= 0) {
+      this.snackBar.open('Debes ingresar las horas trabajadas', 'Cerrar', { duration: 3000 });
+      return false;
+    }
+
+    // Validar rango de fechas
+    const startDate = new Date(this.workStartDate);
+    const endDate = new Date(this.workEndDate);
+    if (startDate > endDate) {
+      this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
+      return false;
     }
 
     // Validar materiales
@@ -664,10 +688,38 @@ export class DirectInvoiceFormComponent implements OnInit {
     return true;
   }
 
+  /**
+   * Determinar si estamos editando un borrador
+   */
+  get isDraft(): boolean {
+    return this.editMode && this._loadedStatus === 'draft';
+  }
+
+  private _loadedStatus: string = '';
+
   // === Save ===
 
+  /**
+   * Guardar como borrador (validación mínima)
+   */
+  async saveDraft() {
+    await this.saveWithStatus('draft');
+  }
+
+  /**
+   * Guardar como factura finalizada (validación completa)
+   */
   async save() {
-    if (!this.validate()) return;
+    await this.saveWithStatus('converted_to_invoice');
+  }
+
+  private async saveWithStatus(status: 'draft' | 'converted_to_invoice') {
+    const isDraft = status === 'draft';
+    if (isDraft) {
+      if (!this.validateDraft()) return;
+    } else {
+      if (!this.validate()) return;
+    }
 
     try {
       this.isLoading.set(true);
@@ -692,7 +744,7 @@ export class DirectInvoiceFormComponent implements OnInit {
         tax,
         discount,
         total,
-        status: 'converted_to_invoice',
+        status,
         isDirectInvoice: true,
         invoiceDate: Timestamp.fromDate(this.parseDateFromInput(this.invoiceDate)),
         materialsUsed: this.selectedMaterials.map(m => ({
@@ -733,23 +785,31 @@ export class DirectInvoiceFormComponent implements OnInit {
         }
       }
 
+      const draftMsg = isDraft ? 'Borrador guardado' : 'Factura';
+
       if (this.editMode && this.proposalId) {
-        // Modo edición: actualizar
         await this.proposalsService.updateProposal(this.proposalId, proposalData as UpdateProposalData);
         this.router.navigate(['/modules/projects', this.proposalId]);
-        this.snackBar.open('Factura actualizada exitosamente', 'Cerrar', { duration: 3000 });
+        this.snackBar.open(
+          isDraft ? 'Borrador guardado exitosamente' : 'Factura actualizada exitosamente',
+          'Cerrar',
+          { duration: 3000 }
+        );
       } else {
-        // Modo crear
         const newProposal = await this.proposalsService.createProposal(proposalData as CreateProposalData);
         this.router.navigate(['/modules/projects']);
         const snackBarRef = this.snackBar.open(
-          `Factura ${newProposal.proposalNumber} creada exitosamente`,
-          'Ver Factura',
+          isDraft
+            ? `Borrador ${newProposal.proposalNumber} guardado`
+            : `Factura ${newProposal.proposalNumber} creada exitosamente`,
+          isDraft ? 'Cerrar' : 'Ver Factura',
           { duration: 5000 }
         );
-        snackBarRef.onAction().subscribe(() => {
-          this.router.navigate(['/modules/projects', newProposal.id]);
-        });
+        if (!isDraft) {
+          snackBarRef.onAction().subscribe(() => {
+            this.router.navigate(['/modules/projects', newProposal.id]);
+          });
+        }
       }
 
     } catch (error) {
