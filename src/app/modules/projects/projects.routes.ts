@@ -15,7 +15,7 @@ export const PROJECTS_ROUTES: Routes = [
           import('./components/proposals-list/proposals-list.component').then(
             m => m.ProposalsListComponent
           ),
-        title: 'Gestión de Proyectos - Estimados'
+        title: 'Estimados y Facturas'
       },
       // Rutas específicas DEBEN ir antes de las rutas dinámicas (:id)
       {
@@ -25,6 +25,14 @@ export const PROJECTS_ROUTES: Routes = [
             m => m.ProposalFormComponent
           ),
         title: 'Nuevo Estimado'
+      },
+      {
+        path: 'invoice/new',
+        loadComponent: () =>
+          import('./components/direct-invoice-form/direct-invoice-form.component').then(
+            m => m.DirectInvoiceFormComponent
+          ),
+        title: 'Nueva Factura'
       },
       {
         path: 'config',

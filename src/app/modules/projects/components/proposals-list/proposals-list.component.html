@@ -5,13 +5,16 @@
   <!-- ========== HEADER COMPACTO - Usando ModuleHeaderComponent ========== -->
   <app-module-header
     icon="description"
-    title="Gestión de Estimados"
-    subtitle="Control y seguimiento de propuestas"
+    title="Estimados y Facturas"
+    subtitle="Gestión de propuestas y facturación"
     moduleColor="blue"
     [stats]="headerStats()"
     [actionButtons]="headerActions()"
     primaryButtonLabel="Nuevo Estimado"
-    (primaryAction)="createProposal()">
+    (primaryAction)="createProposal()"
+    secondaryButtonLabel="Nueva Factura"
+    secondaryButtonIcon="receipt_long"
+    (secondaryAction)="createDirectInvoice()">
 
     <!-- Acciones personalizadas proyectadas -->
     <div slot="actions" class="flex items-center gap-2">

@@ -138,6 +138,10 @@ export interface Proposal {
   materialMarkupCategoryId?: string;    // ID de la categoría de markup seleccionada
   materialMarkupCategoryName?: string;  // Nombre de la categoría (para histórico)
   materialMarkupPercentage?: number;    // Porcentaje de markup aplicado (para histórico)
+
+  // ========== Factura Directa ==========
+  isDirectInvoice?: boolean;            // true si fue creada directamente sin estimado previo
+  customerName?: string;                // Nombre del cliente final en el sitio de trabajo (diferente al del CRM)
 }
 
 /**
@@ -171,6 +175,18 @@ export interface CreateProposalData {
   assignedTo?: string;
   tags?: string[];
   status?: ProposalStatus;
+  // Campos de factura (para factura directa)
+  invoiceDate?: Timestamp;
+  materialsUsed?: MaterialUsed[];
+  workStartDate?: Timestamp;
+  workEndDate?: Timestamp;
+  workTime?: number;
+  workers?: Worker[];
+  materialMarkupCategoryId?: string;
+  materialMarkupCategoryName?: string;
+  // Factura directa
+  isDirectInvoice?: boolean;
+  customerName?: string;
 }
 
 /**

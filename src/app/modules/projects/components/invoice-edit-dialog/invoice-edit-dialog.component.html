@@ -24,9 +24,7 @@
     <!-- Idioma y Fecha de Factura -->
     <div class="section section-primary">
       <div class="section-header">
-        <div class="section-icon">
-          <mat-icon>description</mat-icon>
-        </div>
+        <mat-icon class="text-purple-500">description</mat-icon>
         <h3 class="section-title">{{ 'projects.invoice.invoiceInformation' | translate }}</h3>
         <span class="required-badge">{{ 'common.required' | translate }}</span>
       </div>
@@ -60,9 +58,7 @@
     <!-- Fechas y Tiempo de Trabajo -->
     <div class="section">
       <div class="section-header">
-        <div class="section-icon">
-          <mat-icon>calendar_month</mat-icon>
-        </div>
+        <mat-icon class="text-purple-500">calendar_month</mat-icon>
         <h3 class="section-title">{{ 'projects.invoice.datesAndWorkTime' | translate }}</h3>
         <span class="required-badge">{{ 'common.required' | translate }}</span>
       </div>
@@ -134,9 +130,7 @@
     <!-- Materiales Usados -->
     <div class="section">
       <div class="section-header">
-        <div class="section-icon icon-amber">
-          <mat-icon>inventory_2</mat-icon>
-        </div>
+        <mat-icon class="text-amber-500">inventory_2</mat-icon>
         <h3 class="section-title">{{ 'projects.invoice.materialsUsed' | translate }}</h3>
       </div>
 
@@ -250,9 +244,7 @@
     <!-- Trabajadores -->
     <div class="section">
       <div class="section-header">
-        <div class="section-icon icon-green">
-          <mat-icon>engineering</mat-icon>
-        </div>
+        <mat-icon class="text-green-500">engineering</mat-icon>
         <h3 class="section-title">{{ 'projects.invoice.workers' | translate }}</h3>
       </div>
 
@@ -323,9 +315,7 @@
     @if (selectedMaterials.length > 0) {
       <div class="section section-summary">
         <div class="section-header">
-          <div class="section-icon icon-blue">
-            <mat-icon>payments</mat-icon>
-          </div>
+          <mat-icon class="text-blue-500">payments</mat-icon>
           <h3 class="section-title">{{ 'projects.invoice.costSummary' | translate }}</h3>
         </div>
 

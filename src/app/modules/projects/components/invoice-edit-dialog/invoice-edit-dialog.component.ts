@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
 
-import { Proposal } from '../../models';
+import { Proposal, SelectedMaterial, SelectedWorker } from '../../models';
 import { ProposalsService } from '../../services/proposals.service';
 import { ProposalConfigService } from '../../services/proposal-config.service';
 import { MaterialsService } from '../../../materials/services/materials.service';
@@ -21,19 +21,6 @@ import { MaterialMarkupCategory } from '../../models';
 import { FieldType } from '../../../materials/models';
 import { getFieldValue } from '../../../../shared/modules/dynamic-form-builder/utils';
 import { Timestamp } from 'firebase/firestore';
-
-interface SelectedMaterial {
-  materialId: string;
-  materialName: string;
-  amount: number;
-  basePrice: number;      // Precio original del material (sin modificar)
-  price: number;          // Precio aplicado (con markup o editado manualmente)
-}
-
-interface SelectedWorker {
-  workerId: string;
-  workerName: string;
-}
 
 @Component({
   selector: 'app-invoice-edit-dialog',

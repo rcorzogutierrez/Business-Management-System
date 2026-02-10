@@ -72,14 +72,14 @@ export class ProposalsService {
    */
   private async initializeCounter(): Promise<void> {
     try {
+      const currentPrefix = this.getCurrentFYPrefix();
       const snapshot = await getDocs(this.proposalsCollection);
       if (!snapshot.empty) {
-        // Obtener el número más alto de proposal
         const numbers = snapshot.docs
           .map(doc => {
             const data = doc.data();
             const num = data['proposalNumber'] as string;
-            if (num && num.startsWith('PROP-')) {
+            if (num && num.startsWith(currentPrefix)) {
               return parseInt(num.split('-')[1], 10);
             }
             return 0;
@@ -94,12 +94,21 @@ export class ProposalsService {
   }
 
   /**
-   * Generar número de proposal único
+   * Obtener prefijo del año fiscal actual (ej: "FY26-")
+   */
+  private getCurrentFYPrefix(): string {
+    const year = new Date().getFullYear() % 100;
+    return `FY${year}-`;
+  }
+
+  /**
+   * Generar número de documento único (formato FY26-0001)
    */
   private generateProposalNumber(): string {
     this.proposalCounter++;
-    const paddedNumber = this.proposalCounter.toString().padStart(6, '0');
-    return `PROP-${paddedNumber}`;
+    const prefix = this.getCurrentFYPrefix();
+    const paddedNumber = this.proposalCounter.toString().padStart(4, '0');
+    return `${prefix}${paddedNumber}`;
   }
 
   /**
@@ -198,7 +207,8 @@ export class ProposalsService {
           proposal.proposalNumber.toLowerCase().includes(term) ||
           proposal.ownerName.toLowerCase().includes(term) ||
           proposal.address?.toLowerCase().includes(term) ||
-          proposal.city?.toLowerCase().includes(term)
+          proposal.city?.toLowerCase().includes(term) ||
+          (proposal.customerName || '').toLowerCase().includes(term)
         );
       }
 

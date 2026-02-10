@@ -1,0 +1,694 @@
+<!-- direct-invoice-form.component.html - Factura Directa -->
+
+<div class="form-container">
+
+  <!-- ========== HEADER ========== -->
+  <header class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 mb-5 animate-fadeIn">
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+
+      <!-- Left: Back + Icon + Title -->
+      <div class="flex items-center gap-3">
+        <button type="button" class="back-btn" (click)="cancel()" title="Volver">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div class="header-icon-box blue">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-800">{{ 'projects.directInvoice.title' | translate }}</h1>
+          <p class="text-xs text-slate-500">{{ 'projects.directInvoice.subtitle' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Right: Language + Actions -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <!-- Selector de Idioma -->
+        <div class="language-selector">
+          <mat-icon>translate</mat-icon>
+          <select [(ngModel)]="language" (ngModelChange)="onLanguageChange($event)">
+            <option value="es">ES Español</option>
+            <option value="en">EN English</option>
+          </select>
+        </div>
+
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isLoading()">
+          <mat-icon>close</mat-icon>
+          <span class="hidden sm:inline">{{ 'common.cancel' | translate }}</span>
+        </button>
+
+        <button type="button" class="btn-primary" (click)="save()" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
+          } @else {
+            <mat-icon>check</mat-icon>
+          }
+          <span>{{ 'projects.directInvoice.createInvoice' | translate }}</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <div class="space-y-4">
+
+    <!-- ========== 1. INFO DE FACTURA ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.05s">
+      <div class="section-header">
+        <mat-icon class="text-purple-500">description</mat-icon>
+        <div>
+          <h2>{{ 'projects.invoice.invoiceInformation' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.invoiceInfoDesc' | translate }}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>calendar_today</mat-icon>
+            {{ 'projects.invoice.issueDate' | translate }}
+          </label>
+          <input type="date" [(ngModel)]="invoiceDate" class="form-input">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 2. FECHAS Y TIEMPO DE TRABAJO ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.1s">
+      <div class="section-header">
+        <mat-icon class="text-purple-500">calendar_month</mat-icon>
+        <div>
+          <h2>{{ 'projects.invoice.datesAndWorkTime' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.datesDesc' | translate }}</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>event</mat-icon>
+            {{ 'projects.invoice.startDate' | translate }}
+          </label>
+          <input type="date" [(ngModel)]="workStartDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>event_available</mat-icon>
+            {{ 'projects.invoice.endDate' | translate }}
+          </label>
+          <input type="date" [(ngModel)]="workEndDate" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>schedule</mat-icon>
+            {{ 'projects.invoice.hoursWorked' | translate }}
+          </label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="workTime" min="0.5" step="0.5"
+                   class="form-input pr-12" placeholder="0">
+            <span class="input-suffix">hrs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 3. INFORMACIÓN DEL CLIENTE ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.15s">
+      <div class="section-header">
+        <mat-icon class="text-blue-500">person</mat-icon>
+        <div>
+          <h2>{{ 'projects.proposal.client_info.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.client_info.selectAndVerify' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Cliente Autocomplete -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>search</mat-icon>
+            {{ 'projects.proposal.client_info.client' | translate }}
+          </label>
+          <div class="flex gap-1.5">
+            <div class="relative flex-1">
+              <input
+                type="text"
+                [value]="clientSearchTerm()"
+                (input)="onClientSearchChange($event)"
+                [matAutocomplete]="autoClients"
+                [placeholder]="'projects.proposal.client_info.searchClient' | translate"
+                class="form-input w-full pl-10">
+              <mat-icon class="input-icon-left">search</mat-icon>
+
+              <mat-autocomplete #autoClients="matAutocomplete" (optionSelected)="selectClient($event.option.value)">
+                @if (filteredClients().length === 0) {
+                  <mat-option disabled>
+                    <span class="text-slate-400 text-sm">{{ 'projects.proposal.client_info.noClientsFound' | translate }}</span>
+                  </mat-option>
+                }
+                @for (client of filteredClients(); track client.id) {
+                  <mat-option [value]="client">
+                    <div class="flex flex-col py-1">
+                      <span class="font-semibold text-slate-800">{{ getClientName(client) }}</span>
+                      @if (getClientEmail(client) || getClientPhone(client)) {
+                        <span class="text-xs text-slate-500">
+                          {{ getClientEmail(client) }}
+                          @if (getClientEmail(client) && getClientPhone(client)) { • }
+                          {{ getClientPhone(client) }}
+                        </span>
+                      }
+                    </div>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </div>
+            <button type="button" class="btn-icon blue" (click)="openAddClientDialog()"
+                    title="{{ 'projects.proposal.client_info.addNewClient' | translate }}">
+              <mat-icon>add</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Nombre del Cliente -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>badge</mat-icon>
+            {{ 'projects.proposal.client_info.name' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="ownerName" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.namePlaceholder' | translate">
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>email</mat-icon>
+            {{ 'projects.proposal.client_info.email' | translate }}
+          </label>
+          <input type="email" [(ngModel)]="ownerEmail" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.emailPlaceholder' | translate">
+        </div>
+
+        <!-- Teléfono -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>phone</mat-icon>
+            {{ 'projects.proposal.client_info.phone' | translate }}
+          </label>
+          <input type="tel" [(ngModel)]="ownerPhone" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.phonePlaceholder' | translate">
+        </div>
+
+        <!-- Compañía -->
+        <div class="form-group md:col-span-2">
+          <label class="form-label">
+            <mat-icon>business</mat-icon>
+            {{ 'projects.proposal.client_info.company' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="ownerCompany" readonly
+                 class="form-input readonly"
+                 [placeholder]="'projects.proposal.client_info.companyPlaceholder' | translate">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 4. UBICACIÓN DEL TRABAJO + CUSTOMER NAME ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.2s">
+      <div class="section-header">
+        <mat-icon class="text-green-500">place</mat-icon>
+        <div class="flex-1">
+          <h2>{{ 'projects.proposal.location.title' | translate }}</h2>
+          <p>{{ 'projects.proposal.location.description' | translate }}</p>
+        </div>
+
+        <!-- Checkbox: Usar misma dirección que el cliente -->
+        <label class="same-address-toggle" [class.active]="useSameAddress()" [class.disabled]="!ownerId">
+          <input type="checkbox"
+                 [checked]="useSameAddress()"
+                 (change)="onUseSameAddressChange($any($event.target).checked)"
+                 [disabled]="!ownerId">
+          <mat-icon>home_work</mat-icon>
+          <span>{{ 'projects.proposal.location.sameAsClient' | translate }}</span>
+        </label>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <!-- Tipo de Trabajo -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>business</mat-icon>
+            {{ 'projects.proposal.project.type' | translate }}
+          </label>
+          <select [(ngModel)]="workType" class="form-input">
+            <option value="residential">{{ 'projects.proposal.project.residential' | translate }}</option>
+            <option value="commercial">{{ 'projects.proposal.project.commercial' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Clasificación del Servicio -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>construction</mat-icon>
+            {{ 'projects.proposal.project.category' | translate }}
+          </label>
+          <select [(ngModel)]="jobCategory" class="form-input">
+            <option value="">{{ 'projects.proposal.project.selectOption' | translate }}</option>
+            <option value="remodeling">{{ 'projects.proposal.project.remodeling' | translate }}</option>
+            <option value="plumbing">{{ 'projects.proposal.project.plumbing' | translate }}</option>
+            <option value="services">{{ 'projects.proposal.project.services' | translate }}</option>
+            <option value="equipment">{{ 'projects.proposal.project.equipment' | translate }}</option>
+            <option value="new_construction">{{ 'projects.proposal.project.newConstruction' | translate }}</option>
+          </select>
+        </div>
+
+        <!-- Customer Name (NEW) -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>person_pin</mat-icon>
+            {{ 'projects.directInvoice.customerName' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="customerName" class="form-input"
+                 [placeholder]="'projects.directInvoice.customerNamePlaceholder' | translate">
+        </div>
+
+        <!-- Dirección del Trabajo -->
+        <div class="form-group lg:col-span-3">
+          <label class="form-label required">
+            <mat-icon>location_on</mat-icon>
+            {{ 'projects.proposal.location.address' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="address" class="form-input"
+                 [placeholder]="'projects.proposal.location.addressPlaceholder' | translate">
+        </div>
+
+        <!-- Ciudad -->
+        <div class="form-group">
+          <label class="form-label required">
+            <mat-icon>location_city</mat-icon>
+            {{ 'projects.proposal.location.city' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="city" class="form-input"
+                 [placeholder]="'projects.proposal.location.cityPlaceholder' | translate">
+        </div>
+
+        <!-- Estado -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>map</mat-icon>
+            {{ 'projects.proposal.location.state' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="state" class="form-input"
+                 [placeholder]="'projects.proposal.location.statePlaceholder' | translate">
+        </div>
+
+        <!-- Código Postal -->
+        <div class="form-group">
+          <label class="form-label">
+            <mat-icon>markunread_mailbox</mat-icon>
+            {{ 'projects.proposal.location.zipCode' | translate }}
+          </label>
+          <input type="text" [(ngModel)]="zipCode" class="form-input"
+                 [placeholder]="'projects.proposal.location.zipCodePlaceholder' | translate">
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== 5. NOTAS ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.25s">
+      <div class="section-header">
+        <mat-icon class="text-slate-500">notes</mat-icon>
+        <div>
+          <h2>{{ 'projects.proposal.notes.title' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.notesDesc' | translate }}</p>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">
+          <mat-icon>visibility</mat-icon>
+          {{ 'projects.proposal.notes.clientNotes' | translate }}
+        </label>
+        <textarea [(ngModel)]="notes" rows="3" class="form-textarea"
+                  [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
+      </div>
+    </div>
+
+    <!-- ========== 6. AJUSTE DE PRECIOS (condicional) ========== -->
+    @if (markupEnabled() && markupCategories().length > 0) {
+      <div class="form-section section-markup animate-fadeIn" style="animation-delay: 0.3s">
+        <div class="section-header">
+          <mat-icon class="text-amber-500">local_offer</mat-icon>
+          <div>
+            <h2>{{ 'projects.directInvoice.priceAdjustment' | translate }}</h2>
+            <p>{{ 'projects.directInvoice.priceAdjustmentDesc' | translate }}</p>
+          </div>
+        </div>
+        <div class="form-group">
+          <select [(ngModel)]="selectedMarkupCategoryId"
+                  (ngModelChange)="onMarkupCategoryChange()"
+                  class="form-input">
+            @for (category of markupCategories(); track category.id) {
+              <option [value]="category.id">
+                {{ category.name }} (+{{ category.percentage }}%)
+              </option>
+            }
+          </select>
+          <p class="text-xs text-slate-400 mt-1">{{ 'projects.directInvoice.markupHelper' | translate }}</p>
+        </div>
+      </div>
+    }
+
+    <!-- ========== 7. MATERIALES ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.35s">
+      <div class="section-header">
+        <mat-icon class="text-amber-500">inventory_2</mat-icon>
+        <div>
+          <h2>{{ 'projects.invoice.materialsUsed' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.materialsDesc' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Search dropdown -->
+      <div class="add-item-row">
+        <div class="material-search-container">
+          <div class="search-input-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              class="search-input"
+              [value]="materialSearchTerm()"
+              (input)="onMaterialSearch($event)"
+              (focus)="openMaterialDropdown()"
+              placeholder="{{ 'projects.invoice.searchMaterial' | translate }}">
+            @if (materialSearchTerm()) {
+              <button type="button" class="clear-search-btn" (click)="closeMaterialDropdown()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+          @if (materialDropdownOpen()) {
+            <div class="material-dropdown">
+              @if (filteredMaterials().length > 0) {
+                <div class="dropdown-list">
+                  @for (material of filteredMaterials(); track material.id) {
+                    <button type="button" class="dropdown-item"
+                            (click)="selectMaterial(material.id!)">
+                      <span class="material-name">{{ getMaterialName(material) }}</span>
+                      <span class="material-price">{{ formatCurrency(getMaterialPrice(material)) }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="dropdown-empty">
+                  <span>{{ 'projects.invoice.noMaterialsFound' | translate }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Selected materials list -->
+      <div class="items-list">
+        @for (material of selectedMaterials; track $index; let i = $index) {
+          <div class="item-row">
+            <div class="item-name">
+              <mat-icon class="item-icon">category</mat-icon>
+              <span>{{ material.materialName }}</span>
+            </div>
+            <div class="item-inputs">
+              <div class="item-input-group">
+                <label class="item-label">{{ 'projects.invoice.qty' | translate }}</label>
+                <input type="number" [(ngModel)]="material.amount" min="0" step="1"
+                       class="item-input" placeholder="0">
+              </div>
+              <div class="item-input-group">
+                <label class="item-label">P. Base</label>
+                <div class="price-input-wrapper readonly">
+                  <span class="price-symbol">$</span>
+                  <input type="number" [value]="material.basePrice" readonly
+                         class="item-input price-input readonly" placeholder="0.00">
+                </div>
+              </div>
+              <div class="item-input-group">
+                <label class="item-label">P. Final</label>
+                <div class="price-input-wrapper">
+                  <span class="price-symbol">$</span>
+                  <input type="number" [(ngModel)]="material.price" min="0" step="0.01"
+                         class="item-input price-input" placeholder="0.00">
+                </div>
+              </div>
+              <div class="item-input-group">
+                <label class="item-label">Subtotal</label>
+                <div class="price-display">
+                  {{ formatCurrency(material.amount * material.price) }}
+                </div>
+              </div>
+            </div>
+            <button type="button" (click)="removeMaterial(i)" class="remove-btn">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+        @if (selectedMaterials.length === 0) {
+          <div class="empty-state">
+            <mat-icon>inventory_2</mat-icon>
+            <p>{{ 'projects.invoice.noMaterialsAdded' | translate }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ========== 8. TRABAJADORES ========== -->
+    <div class="form-section animate-fadeIn" style="animation-delay: 0.4s">
+      <div class="section-header">
+        <mat-icon class="text-green-500">engineering</mat-icon>
+        <div>
+          <h2>{{ 'projects.invoice.workers' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.workersDesc' | translate }}</p>
+        </div>
+      </div>
+
+      <!-- Search dropdown -->
+      <div class="add-item-row">
+        <div class="worker-search-container">
+          <div class="search-input-wrapper">
+            <mat-icon class="search-icon">search</mat-icon>
+            <input
+              type="text"
+              class="search-input"
+              [value]="workerSearchTerm()"
+              (input)="onWorkerSearch($event)"
+              (focus)="openWorkerDropdown()"
+              placeholder="{{ 'projects.invoice.searchWorker' | translate }}">
+            @if (workerSearchTerm()) {
+              <button type="button" class="clear-search-btn" (click)="closeWorkerDropdown()">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+          @if (workerDropdownOpen()) {
+            <div class="worker-dropdown">
+              @if (filteredWorkers().length > 0) {
+                <div class="dropdown-list">
+                  @for (worker of filteredWorkers(); track worker.id) {
+                    <button type="button" class="dropdown-item"
+                            (click)="selectWorker(worker.id!)">
+                      <span class="worker-name">{{ getWorkerName(worker) }}</span>
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="dropdown-empty">
+                  <span>{{ 'projects.invoice.noWorkersFound' | translate }}</span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Selected workers list -->
+      <div class="items-list">
+        @for (worker of selectedWorkers; track $index; let i = $index) {
+          <div class="item-row worker-row">
+            <div class="item-name">
+              <mat-icon class="item-icon">person</mat-icon>
+              <span>{{ worker.workerName }}</span>
+            </div>
+            <button type="button" (click)="removeWorker(i)" class="remove-btn">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+        @if (selectedWorkers.length === 0) {
+          <div class="empty-state">
+            <mat-icon>engineering</mat-icon>
+            <p>{{ 'projects.invoice.noWorkersAdded' | translate }}</p>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- ========== 9. RESUMEN DE COSTOS (condicional) ========== -->
+    @if (selectedMaterials.length > 0) {
+      <div class="form-section section-summary animate-fadeIn" style="animation-delay: 0.45s">
+        <div class="section-header">
+          <mat-icon class="text-blue-500">payments</mat-icon>
+          <div>
+            <h2>{{ 'projects.invoice.costSummary' | translate }}</h2>
+            <p>{{ 'projects.directInvoice.costSummaryDesc' | translate }}</p>
+          </div>
+        </div>
+
+        <!-- Materials table -->
+        <div class="summary-table-wrapper">
+          <table class="summary-table">
+            <thead>
+              <tr>
+                <th class="text-left">{{ 'projects.invoice.material' | translate }}</th>
+                <th class="text-center">{{ 'projects.invoice.qty' | translate }}</th>
+                <th class="text-right">{{ 'projects.invoice.unitPrice' | translate }}</th>
+                <th class="text-right">{{ 'projects.invoice.total' | translate }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (material of selectedMaterials; track $index) {
+                <tr>
+                  <td>{{ material.materialName }}</td>
+                  <td class="text-center">{{ material.amount }}</td>
+                  <td class="text-right">{{ formatCurrency(material.price) }}</td>
+                  <td class="text-right font-semibold">{{ formatCurrency(material.amount * material.price) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="cost-totals">
+          <div class="cost-row">
+            <span class="cost-label">{{ 'projects.directInvoice.materialsSubtotal' | translate }}:</span>
+            <span class="cost-value">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ========== 10. TOTALES ========== -->
+    <div class="totals-section animate-fadeIn" style="animation-delay: 0.5s">
+      <div class="section-header">
+        <mat-icon class="text-blue-800">calculate</mat-icon>
+        <div>
+          <h2>{{ 'projects.proposal.totals.title' | translate }}</h2>
+          <p>{{ 'projects.directInvoice.totalsDesc' | translate }}</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <!-- Subtotal de Trabajo -->
+        <div class="form-group">
+          <label class="form-label-light required">
+            <mat-icon>payments</mat-icon>
+            {{ 'projects.directInvoice.workSubtotal' | translate }}
+          </label>
+          <div class="relative">
+            <span class="input-prefix">$</span>
+            <input type="number" [(ngModel)]="subtotal" min="0" step="0.01"
+                   class="form-input-totals pl-8" placeholder="0.00">
+          </div>
+        </div>
+
+        <!-- Impuesto -->
+        <div class="form-group">
+          <label class="form-label-light">
+            <mat-icon>percent</mat-icon>
+            {{ 'projects.proposal.totals.taxPercent' | translate }}
+          </label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="taxPercentage" min="0" max="100" step="0.01"
+                   class="form-input-totals pr-8" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+
+        <!-- Descuento -->
+        <div class="form-group">
+          <label class="form-label-light">
+            <mat-icon>local_offer</mat-icon>
+            {{ 'projects.proposal.totals.discountPercent' | translate }}
+          </label>
+          <div class="relative">
+            <input type="number" [(ngModel)]="discountPercentage" min="0" max="100" step="0.01"
+                   class="form-input-totals pr-8" placeholder="0">
+            <span class="input-suffix">%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen de cálculos -->
+      <div class="totals-summary">
+        <div class="summary-row">
+          <span>{{ 'projects.directInvoice.workSubtotal' | translate }}:</span>
+          <span class="value">{{ formatCurrency(subtotal || 0) }}</span>
+        </div>
+
+        @if (selectedMaterials.length > 0) {
+          <div class="summary-row">
+            <span>{{ 'projects.directInvoice.materialsSubtotal' | translate }}:</span>
+            <span class="value">{{ formatCurrency(calculateMaterialsSubtotal()) }}</span>
+          </div>
+          <div class="summary-row combined">
+            <span>{{ 'projects.directInvoice.combinedSubtotal' | translate }}:</span>
+            <span class="value font-bold">{{ formatCurrency(getCombinedSubtotal()) }}</span>
+          </div>
+        }
+
+        @if (taxPercentage > 0) {
+          <div class="summary-row">
+            <span>{{ 'projects.proposal.totals.tax' | translate }} ({{ taxPercentage }}%):</span>
+            <span class="value positive">+ {{ formatCurrency(calculateTax()) }}</span>
+          </div>
+        }
+
+        @if (discountPercentage > 0) {
+          <div class="summary-row">
+            <span>{{ 'projects.proposal.totals.discount' | translate }} ({{ discountPercentage }}%):</span>
+            <span class="value negative">- {{ formatCurrency(calculateDiscount()) }}</span>
+          </div>
+        }
+
+        <div class="summary-divider"></div>
+
+        <div class="summary-total">
+          <span>{{ 'projects.proposal.totals.totalLabel' | translate }}</span>
+          <span class="total-value">{{ formatCurrency(calculateTotal()) }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== BARRA DE ACCIONES STICKY ========== -->
+    <div class="actions-bar animate-fadeIn" style="animation-delay: 0.55s">
+      <div class="form-status">
+        <mat-icon class="text-blue-500">receipt_long</mat-icon>
+        <span class="text-blue-600">{{ 'projects.directInvoice.directInvoice' | translate }}</span>
+      </div>
+
+      <div class="flex gap-2">
+        <button type="button" class="btn-cancel" (click)="cancel()" [disabled]="isLoading()">
+          <mat-icon>close</mat-icon>
+          <span>{{ 'common.cancel' | translate }}</span>
+        </button>
+
+        <button type="button" class="btn-primary" (click)="save()" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <div class="btn-spinner"></div>
+          } @else {
+            <mat-icon>check</mat-icon>
+          }
+          <span>{{ 'projects.directInvoice.createInvoice' | translate }}</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>

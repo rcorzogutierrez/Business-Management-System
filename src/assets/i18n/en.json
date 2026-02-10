@@ -371,6 +371,28 @@
         "error": "Error processing invoice",
         "convertSuccess": "Proposal converted to invoice successfully"
       }
+    },
+    "directInvoice": {
+      "title": "Direct Invoice",
+      "subtitle": "Create an invoice without a prior estimate",
+      "detailedView": "Detailed view of direct invoice",
+      "createInvoice": "Create Invoice",
+      "invoiceInfoDesc": "Configure the language and issue date for the invoice",
+      "datesDesc": "Start/end dates and work hours",
+      "customerName": "End Customer (site)",
+      "customerNamePlaceholder": "Customer name at the work site",
+      "notesDesc": "Notes visible to the customer on the invoice",
+      "priceAdjustment": "Price Adjustment",
+      "priceAdjustmentDesc": "Select a markup category to adjust material prices",
+      "markupHelper": "Prices will be automatically adjusted based on the selected category",
+      "materialsDesc": "Search and add the materials used",
+      "workersDesc": "Search and add the workers who participated",
+      "costSummaryDesc": "Materials and costs breakdown",
+      "materialsSubtotal": "Materials Subtotal",
+      "totalsDesc": "Enter the work subtotal and configure taxes and discounts",
+      "workSubtotal": "Work Subtotal",
+      "combinedSubtotal": "Combined Subtotal",
+      "directInvoice": "Direct Invoice"
     }
   }
 }

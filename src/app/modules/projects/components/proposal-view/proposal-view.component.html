@@ -25,14 +25,22 @@
           <div>
             <h1 class="text-lg font-bold text-slate-800">
               @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
-                {{ 'projects.proposal.view.invoice' | translate }} {{ proposal()!.proposalNumber }}
+                @if (proposal()!.isDirectInvoice) {
+                  {{ 'projects.directInvoice.title' | translate }} {{ proposal()!.proposalNumber }}
+                } @else {
+                  {{ 'projects.proposal.view.invoice' | translate }} {{ proposal()!.proposalNumber }}
+                }
               } @else {
                 {{ 'projects.proposal.view.estimate' | translate }} {{ proposal()!.proposalNumber }}
               }
             </h1>
             <p class="text-xs text-slate-500">
               @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
-                {{ 'projects.proposal.view.detailedViewInvoice' | translate }}
+                @if (proposal()!.isDirectInvoice) {
+                  {{ 'projects.directInvoice.detailedView' | translate }}
+                } @else {
+                  {{ 'projects.proposal.view.detailedViewInvoice' | translate }}
+                }
               } @else {
                 {{ 'projects.proposal.view.detailedView' | translate }}
               }
@@ -42,8 +50,8 @@
 
         <!-- Right: Actions -->
         <div class="flex items-center gap-2 flex-wrap">
-          <!-- Toggle para mostrar detalles del estimado (solo en facturas) -->
-          @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+          <!-- Toggle para mostrar detalles del estimado (solo en facturas convertidas, no directas) -->
+          @if ((proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') && !proposal()!.isDirectInvoice) {
             <label class="details-toggle" [class.active]="showProposalDetails()">
               <input type="checkbox" [checked]="showProposalDetails()" (change)="toggleProposalDetails()">
               <mat-icon>{{ showProposalDetails() ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -128,6 +136,12 @@
               <span class="doc-label">{{ 'projects.proposal.location.address' | translate }}</span>
               <span class="doc-value">{{ proposal()!.address }}, {{ proposal()!.city }}@if (proposal()!.state) {, {{ proposal()!.state }}}@if (proposal()!.zipCode) { {{ proposal()!.zipCode }}}</span>
             </p>
+            @if (proposal()!.customerName) {
+              <p class="doc-info-row">
+                <span class="doc-label">{{ 'projects.directInvoice.customerName' | translate }}</span>
+                <span class="doc-value">{{ proposal()!.customerName }}</span>
+              </p>
+            }
             <p class="doc-info-row">
               <span class="doc-label">
                 @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
@@ -150,7 +164,11 @@
           <div class="col-span-3 flex items-start justify-center">
             <div class="document-number-box">
               @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
-                <span class="doc-type-label">{{ 'projects.proposal.view.invoice' | translate }}</span>
+                @if (proposal()!.isDirectInvoice) {
+                  <span class="doc-type-label">{{ 'projects.directInvoice.title' | translate }}</span>
+                } @else {
+                  <span class="doc-type-label">{{ 'projects.proposal.view.invoice' | translate }}</span>
+                }
               } @else {
                 <span class="doc-type-label">{{ 'projects.proposal.view.estimate' | translate }}</span>
               }
@@ -198,7 +216,7 @@
       </div>
 
       <!-- ========== DETALLES DEL ESTIMADO ORIGINAL ========== -->
-      @if ((proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') || showProposalDetails()) {
+      @if (!proposal()!.isDirectInvoice && ((proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') || showProposalDetails())) {
 
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {

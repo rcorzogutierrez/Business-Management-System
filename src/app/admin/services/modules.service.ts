@@ -678,8 +678,8 @@ export class ModulesService {
       },
       {
         value: 'projects',
-        label: 'Gestión de Proyectos',
-        description: 'Módulo para gestionar propuestas y proyectos',
+        label: 'Estimados y Facturas',
+        description: 'Módulo para gestionar estimados y facturación',
         icon: 'description',
         route: '/modules/projects',
         isActive: true

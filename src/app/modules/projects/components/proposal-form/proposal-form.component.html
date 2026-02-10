@@ -67,9 +67,7 @@
     <!-- ========== INFORMACIÓN DEL CLIENTE ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.05s">
       <div class="section-header">
-        <div class="section-icon blue">
-          <mat-icon>person</mat-icon>
-        </div>
+        <mat-icon class="text-blue-500">person</mat-icon>
         <div>
           <h2>{{ 'projects.proposal.client_info.title' | translate }}</h2>
           <p>{{ 'projects.proposal.client_info.selectAndVerify' | translate }}</p>
@@ -180,9 +178,7 @@
     <!-- ========== UBICACIÓN DEL TRABAJO ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.1s">
       <div class="section-header">
-        <div class="section-icon green">
-          <mat-icon>place</mat-icon>
-        </div>
+        <mat-icon class="text-green-500">place</mat-icon>
         <div class="flex-1">
           <h2>{{ 'projects.proposal.location.title' | translate }}</h2>
           <p>{{ 'projects.proposal.location.description' | translate }}</p>
@@ -287,9 +283,7 @@
     <!-- ========== FECHAS ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.15s">
       <div class="section-header">
-        <div class="section-icon purple">
-          <mat-icon>event</mat-icon>
-        </div>
+        <mat-icon class="text-purple-500">event</mat-icon>
         <div>
           <h2>{{ 'projects.proposal.dates.title' | translate }}</h2>
           <p>{{ 'projects.proposal.dates.description' | translate }}</p>
@@ -323,9 +317,7 @@
     <!-- ========== ITEMS INCLUIDOS ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.2s">
       <div class="section-header">
-        <div class="section-icon blue">
-          <mat-icon>checklist</mat-icon>
-        </div>
+        <mat-icon class="text-blue-500">checklist</mat-icon>
         <div>
           <h2>{{ 'projects.proposal.items.includedItems' | translate }}</h2>
           <p>{{ 'projects.proposal.items.includedItemsDescription' | translate }}</p>
@@ -459,9 +451,7 @@
     <div class="form-section animate-fadeIn" style="animation-delay: 0.25s"
          [class.extras-active]="includeExtrasSection()">
       <div class="section-header">
-        <div class="section-icon" [class.amber]="includeExtrasSection()" [class.amber-light]="!includeExtrasSection()">
-          <mat-icon>do_not_disturb_on</mat-icon>
-        </div>
+        <mat-icon [class]="includeExtrasSection() ? 'text-amber-500' : 'text-amber-600'">do_not_disturb_on</mat-icon>
         <div class="flex-1">
           <h2>{{ 'projects.proposal.items.extrasNotIncluded' | translate }}</h2>
           <p>{{ 'projects.proposal.items.extrasDescription' | translate }}</p>
@@ -496,9 +486,7 @@
     <!-- ========== TOTALES ========== -->
     <div class="totals-section animate-fadeIn" style="animation-delay: 0.3s">
       <div class="section-header">
-        <div class="section-icon blue-dark">
-          <mat-icon>calculate</mat-icon>
-        </div>
+        <mat-icon class="text-blue-800">calculate</mat-icon>
         <div>
           <h2>{{ 'projects.proposal.totals.title' | translate }}</h2>
           <p>{{ 'projects.proposal.totals.description' | translate }}</p>
@@ -583,9 +571,7 @@
     <!-- ========== NOTAS Y TÉRMINOS ========== -->
     <div class="form-section animate-fadeIn" style="animation-delay: 0.35s">
       <div class="section-header">
-        <div class="section-icon slate">
-          <mat-icon>notes</mat-icon>
-        </div>
+        <mat-icon class="text-slate-500">notes</mat-icon>
         <div>
           <h2>{{ 'projects.proposal.notes.title' | translate }}</h2>
           <p>{{ 'projects.proposal.notes.description' | translate }}</p>

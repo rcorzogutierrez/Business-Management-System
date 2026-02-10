@@ -518,6 +518,13 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Navegar a crear factura directa
+   */
+  createDirectInvoice() {
+    this.router.navigate(['/modules/projects/invoice/new']);
+  }
+
+  /**
    * Abrir configuración del módulo
    */
   openConfig() {

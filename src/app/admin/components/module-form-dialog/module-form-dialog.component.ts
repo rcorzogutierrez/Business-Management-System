@@ -53,7 +53,7 @@ export interface ModuleFormDialogData {
         <!-- Información Básica -->
         <div class="mb-6">
           <h3 class="section-title">
-            <mat-icon class="section-icon">info</mat-icon>
+            <mat-icon class="text-purple-500 !text-lg">info</mat-icon>
             <span>Información Básica</span>
           </h3>
 
@@ -129,7 +129,7 @@ export interface ModuleFormDialogData {
         <!-- Icono -->
         <div class="mb-6">
           <h3 class="section-title">
-            <mat-icon class="section-icon">emoji_symbols</mat-icon>
+            <mat-icon class="text-purple-500 !text-lg">emoji_symbols</mat-icon>
             <span>Icono del Módulo</span>
           </h3>
 
@@ -182,7 +182,7 @@ export interface ModuleFormDialogData {
         <!-- Configuración -->
         <div class="mb-6">
           <h3 class="section-title">
-            <mat-icon class="section-icon">settings</mat-icon>
+            <mat-icon class="text-purple-500 !text-lg">settings</mat-icon>
             <span>Configuración</span>
           </h3>
 
@@ -290,13 +290,6 @@ export interface ModuleFormDialogData {
       font-weight: 600;
       color: #475569;
       margin: 0 0 16px 0;
-    }
-
-    .section-icon {
-      font-size: 18px !important;
-      width: 18px !important;
-      height: 18px !important;
-      color: #a855f7;
     }
 
     .input-field {

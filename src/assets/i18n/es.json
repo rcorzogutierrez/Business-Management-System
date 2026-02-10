@@ -371,6 +371,28 @@
         "error": "Error al procesar la factura",
         "convertSuccess": "Propuesta convertida a factura exitosamente"
       }
+    },
+    "directInvoice": {
+      "title": "Factura Directa",
+      "subtitle": "Crear una factura sin estimado previo",
+      "detailedView": "Vista detallada de factura directa",
+      "createInvoice": "Crear Factura",
+      "invoiceInfoDesc": "Configura el idioma y fecha de emisión de la factura",
+      "datesDesc": "Fechas de inicio/fin y horas de trabajo",
+      "customerName": "Cliente Final (sitio)",
+      "customerNamePlaceholder": "Nombre del cliente en el sitio de trabajo",
+      "notesDesc": "Notas visibles para el cliente en la factura",
+      "priceAdjustment": "Ajuste de Precios",
+      "priceAdjustmentDesc": "Selecciona una categoría de markup para ajustar precios de materiales",
+      "markupHelper": "Los precios se ajustarán automáticamente según la categoría seleccionada",
+      "materialsDesc": "Busca y agrega los materiales utilizados",
+      "workersDesc": "Busca y agrega los trabajadores que participaron",
+      "costSummaryDesc": "Detalle de materiales y costos",
+      "materialsSubtotal": "Subtotal de Materiales",
+      "totalsDesc": "Ingresa el subtotal del trabajo y configura impuestos y descuentos",
+      "workSubtotal": "Subtotal del Trabajo",
+      "combinedSubtotal": "Subtotal Combinado",
+      "directInvoice": "Factura Directa"
     }
   }
 }
