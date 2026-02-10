@@ -539,6 +539,13 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Editar factura directa desde la lista
+   */
+  editDirectInvoiceFromList(proposal: Proposal) {
+    this.router.navigate(['/modules/projects', proposal.id, 'edit-invoice']);
+  }
+
+  /**
    * Ver detalles del proposal
    */
   viewProposal(proposal: Proposal) {

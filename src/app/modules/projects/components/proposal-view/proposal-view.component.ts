@@ -122,6 +122,16 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
+   * Editar factura directa (navegar al formulario completo)
+   */
+  editDirectInvoice() {
+    const proposal = this.proposal();
+    if (proposal) {
+      this.router.navigate(['/modules/projects', proposal.id, 'edit-invoice']);
+    }
+  }
+
+  /**
    * Cambiar estado
    */
   async changeStatus(newStatus: ProposalStatus) {

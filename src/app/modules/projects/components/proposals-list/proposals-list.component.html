@@ -363,6 +363,13 @@
                       </button>
                     }
 
+                    @if (proposal.isDirectInvoice) {
+                      <button mat-menu-item (click)="editDirectInvoiceFromList(proposal)">
+                        <mat-icon>edit</mat-icon>
+                        <span>Editar factura</span>
+                      </button>
+                    }
+
                     <mat-divider></mat-divider>
 
                     <!-- Cambiar estado -->

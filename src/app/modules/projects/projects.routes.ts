@@ -59,6 +59,15 @@ export const PROJECTS_ROUTES: Routes = [
           ),
         data: { mode: 'edit' },
         title: 'Editar Estimado'
+      },
+      {
+        path: ':id/edit-invoice',
+        loadComponent: () =>
+          import('./components/direct-invoice-form/direct-invoice-form.component').then(
+            m => m.DirectInvoiceFormComponent
+          ),
+        data: { mode: 'edit' },
+        title: 'Editar Factura'
       }
     ]
   }

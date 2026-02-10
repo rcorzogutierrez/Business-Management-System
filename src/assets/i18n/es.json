@@ -392,7 +392,10 @@
       "totalsDesc": "Ingresa el subtotal del trabajo y configura impuestos y descuentos",
       "workSubtotal": "Subtotal del Trabajo",
       "combinedSubtotal": "Subtotal Combinado",
-      "directInvoice": "Factura Directa"
+      "directInvoice": "Factura Directa",
+      "edit": "Editar Factura",
+      "editSubtitle": "Modificar los datos de la factura",
+      "updateInvoice": "Guardar Cambios"
     }
   }
 }

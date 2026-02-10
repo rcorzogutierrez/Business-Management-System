@@ -3,7 +3,7 @@
 import { Component, OnInit, inject, signal, computed, ChangeDetectionStrategy, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -24,7 +24,7 @@ import { WorkersService } from '../../../workers/services/workers.service';
 import { LanguageService } from '../../../../core/services/language.service';
 
 // Models
-import { CreateProposalData, SelectedMaterial, SelectedWorker, MaterialMarkupCategory } from '../../models';
+import { CreateProposalData, UpdateProposalData, Proposal, SelectedMaterial, SelectedWorker, MaterialMarkupCategory } from '../../models';
 import { Client } from '../../../clients/models';
 import { Material, FieldType } from '../../../materials/models';
 import { Worker } from '../../../workers/models';
@@ -64,9 +64,14 @@ export class DirectInvoiceFormComponent implements OnInit {
   private workersService = inject(WorkersService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
   private elementRef = inject(ElementRef);
+
+  // === Edit Mode ===
+  editMode = false;
+  proposalId = '';
 
   // Close dropdowns on outside click
   @HostListener('document:click', ['$event'])
@@ -167,8 +172,16 @@ export class DirectInvoiceFormComponent implements OnInit {
   // === Lifecycle ===
 
   async ngOnInit() {
-    // Set default date
-    this.invoiceDate = this.formatDateForInput(new Date());
+    // Detect edit mode
+    this.editMode = this.route.snapshot.data['mode'] === 'edit';
+    if (this.editMode) {
+      this.proposalId = this.route.snapshot.paramMap.get('id') || '';
+    }
+
+    // Set default date (solo en modo crear)
+    if (!this.editMode) {
+      this.invoiceDate = this.formatDateForInput(new Date());
+    }
 
     // Initialize all services in parallel
     await Promise.all([
@@ -184,18 +197,122 @@ export class DirectInvoiceFormComponent implements OnInit {
     this.availableMaterials.set(this.materialsService.activeMaterials());
     this.availableWorkers.set(this.workersService.activeWorkers());
 
-    // Load config defaults
-    this.workType = this.proposalConfigService.getDefaultWorkType() as 'residential' | 'commercial';
-    this.taxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
+    // Load config defaults (solo en modo crear)
+    if (!this.editMode) {
+      this.workType = this.proposalConfigService.getDefaultWorkType() as 'residential' | 'commercial';
+      this.taxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
+    }
 
     // Load markup config
     this.markupEnabled.set(this.proposalConfigService.isMarkupEnabled());
     if (this.markupEnabled()) {
       const activeCategories = this.proposalConfigService.getActiveMarkupCategories();
       this.markupCategories.set(activeCategories);
-      const defaultCategory = this.proposalConfigService.getDefaultMarkupCategory();
-      this.selectedMarkupCategoryId = defaultCategory?.id || null;
+      if (!this.editMode) {
+        const defaultCategory = this.proposalConfigService.getDefaultMarkupCategory();
+        this.selectedMarkupCategoryId = defaultCategory?.id || null;
+      }
     }
+
+    // En modo edición, cargar los datos existentes
+    if (this.editMode && this.proposalId) {
+      await this.loadProposal(this.proposalId);
+    }
+  }
+
+  /**
+   * Cargar datos de una factura directa existente para edición
+   */
+  private async loadProposal(id: string) {
+    try {
+      this.isLoading.set(true);
+      const proposal = await this.proposalsService.getProposalById(id);
+      if (!proposal) {
+        this.snackBar.open('Factura no encontrada', 'Cerrar', { duration: 3000 });
+        this.router.navigate(['/modules/projects']);
+        return;
+      }
+
+      this.fillFormFromProposal(proposal);
+    } catch (error) {
+      console.error('Error cargando factura:', error);
+      this.snackBar.open('Error al cargar la factura', 'Cerrar', { duration: 3000 });
+      this.router.navigate(['/modules/projects']);
+    } finally {
+      this.isLoading.set(false);
+    }
+  }
+
+  /**
+   * Llenar todos los campos del formulario desde un proposal existente
+   */
+  private fillFormFromProposal(proposal: Proposal) {
+    this.language = proposal.language || 'es';
+    this.invoiceDate = this.timestampToInputDate(proposal.invoiceDate) || this.timestampToInputDate(proposal.date) || '';
+    this.workStartDate = this.timestampToInputDate(proposal.workStartDate) || '';
+    this.workEndDate = this.timestampToInputDate(proposal.workEndDate) || '';
+    this.workTime = proposal.workTime || null;
+
+    this.ownerId = proposal.ownerId || '';
+    this.ownerName = proposal.ownerName || '';
+    this.ownerEmail = proposal.ownerEmail || '';
+    this.ownerPhone = proposal.ownerPhone || '';
+    this.clientSearchTerm.set(this.ownerName);
+
+    // Cargar company desde el cliente original
+    if (this.ownerId) {
+      const client = this.clients().find(c => c.id === this.ownerId);
+      if (client) {
+        this.ownerCompany = this.getClientCompany(client);
+      }
+    }
+
+    this.workType = (proposal.workType as 'residential' | 'commercial') || 'residential';
+    this.jobCategory = proposal.jobCategory || '';
+    this.address = proposal.address || '';
+    this.city = proposal.city || '';
+    this.state = proposal.state || '';
+    this.zipCode = proposal.zipCode || '';
+    this.customerName = proposal.customerName || '';
+
+    this.notes = proposal.notes || '';
+
+    this.subtotal = proposal.subtotal || 0;
+    this.taxPercentage = proposal.taxPercentage || 0;
+    this.discountPercentage = proposal.discountPercentage || 0;
+
+    // Markup
+    if (proposal.materialMarkupCategoryId) {
+      this.selectedMarkupCategoryId = proposal.materialMarkupCategoryId;
+    }
+
+    // Materiales
+    if (proposal.materialsUsed && proposal.materialsUsed.length > 0) {
+      this.selectedMaterials = proposal.materialsUsed.map(m => ({
+        materialId: m.id,
+        materialName: m.material,
+        amount: m.amount,
+        basePrice: m.basePrice || m.price,
+        price: m.price
+      }));
+    }
+
+    // Trabajadores
+    if (proposal.workers && proposal.workers.length > 0) {
+      this.selectedWorkers = proposal.workers.map(w => ({
+        workerId: w.id,
+        workerName: w.name
+      }));
+    }
+  }
+
+  /**
+   * Convertir Timestamp de Firestore a string yyyy-mm-dd para input date
+   */
+  private timestampToInputDate(timestamp: any): string | null {
+    if (!timestamp) return null;
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return this.formatDateForInput(date);
   }
 
   // === Client Methods ===
@@ -616,19 +733,24 @@ export class DirectInvoiceFormComponent implements OnInit {
         }
       }
 
-      const newProposal = await this.proposalsService.createProposal(proposalData as CreateProposalData);
-
-      this.router.navigate(['/modules/projects']);
-
-      const snackBarRef = this.snackBar.open(
-        `Factura ${newProposal.proposalNumber} creada exitosamente`,
-        'Ver Factura',
-        { duration: 5000 }
-      );
-
-      snackBarRef.onAction().subscribe(() => {
-        this.router.navigate(['/modules/projects', newProposal.id]);
-      });
+      if (this.editMode && this.proposalId) {
+        // Modo edición: actualizar
+        await this.proposalsService.updateProposal(this.proposalId, proposalData as UpdateProposalData);
+        this.router.navigate(['/modules/projects', this.proposalId]);
+        this.snackBar.open('Factura actualizada exitosamente', 'Cerrar', { duration: 3000 });
+      } else {
+        // Modo crear
+        const newProposal = await this.proposalsService.createProposal(proposalData as CreateProposalData);
+        this.router.navigate(['/modules/projects']);
+        const snackBarRef = this.snackBar.open(
+          `Factura ${newProposal.proposalNumber} creada exitosamente`,
+          'Ver Factura',
+          { duration: 5000 }
+        );
+        snackBarRef.onAction().subscribe(() => {
+          this.router.navigate(['/modules/projects', newProposal.id]);
+        });
+      }
 
     } catch (error) {
       console.error('Error creando factura directa:', error);

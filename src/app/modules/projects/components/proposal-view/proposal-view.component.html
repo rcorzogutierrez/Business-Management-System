@@ -70,6 +70,13 @@
             </button>
           }
 
+          @if (proposal()!.isDirectInvoice) {
+            <button type="button" class="btn-primary" (click)="editDirectInvoice()">
+              <mat-icon>edit</mat-icon>
+              <span>{{ 'projects.directInvoice.edit' | translate }}</span>
+            </button>
+          }
+
           <button type="button" class="icon-btn" [matMenuTriggerFor]="menu" title="{{ 'projects.proposal.view.moreOptions' | translate }}">
             <mat-icon>more_vert</mat-icon>
           </button>
@@ -295,10 +302,17 @@
               <mat-icon>receipt_long</mat-icon>
               {{ 'projects.proposal.view.invoiceInfo' | translate }}
             </h2>
-            <button type="button" class="btn-edit print:hidden" (click)="editInvoiceData()">
-              <mat-icon>edit</mat-icon>
-              {{ 'projects.proposal.view.editData' | translate }}
-            </button>
+            @if (proposal()!.isDirectInvoice) {
+              <button type="button" class="btn-edit print:hidden" (click)="editDirectInvoice()">
+                <mat-icon>edit</mat-icon>
+                {{ 'projects.directInvoice.edit' | translate }}
+              </button>
+            } @else {
+              <button type="button" class="btn-edit print:hidden" (click)="editInvoiceData()">
+                <mat-icon>edit</mat-icon>
+                {{ 'projects.proposal.view.editData' | translate }}
+              </button>
+            }
           </div>
 
           <!-- Info Grid -->
