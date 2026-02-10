@@ -34,7 +34,7 @@
 **Business Management System** es una aplicación web empresarial moderna diseñada para pequeñas y medianas empresas que necesitan gestionar eficientemente sus operaciones diarias. Este es un **sistema CRM/ERP completo** que incluye:
 
 - 🤝 **Gestión de Clientes**: CRM con campos totalmente personalizables
-- 📊 **Propuestas y Estimados**: Creación de presupuestos profesionales con conversión a facturas
+- 📊 **Estimados y Facturas**: Creación de presupuestos profesionales, conversión a facturas y facturación directa
 - 👷 **Gestión de Trabajadores**: Control de personal y asignación a proyectos
 - 📦 **Catálogo de Materiales**: Inventario y uso de materiales en proyectos
 - 📅 **Planificación de Trabajo**: Calendario semanal con gestión de tareas y estados
@@ -68,10 +68,10 @@ Este sistema está diseñado para empresas de:
 - **Asignación de Usuarios**: Asigna clientes a vendedores o responsables
 - **Tags y Categorización**: Organiza clientes con etiquetas personalizadas
 
-### 📑 Propuestas y Estimados
+### 📑 Estimados y Facturas
 
 - **Creación de Estimados Profesionales**
-  - Numeración automática de propuestas
+  - Numeración automática con formato año fiscal (`FY26-0001`, `FY26-0002`, etc.)
   - Información del cliente auto-rellenada
   - Ubicación del trabajo (dirección, ciudad, estado, código postal)
   - Clasificación: Residencial/Comercial, Remodelación/Plomería/Servicios/Equipos/Nueva Construcción
@@ -88,7 +88,7 @@ Este sistema está diseñado para empresas de:
   - Descuentos por porcentaje
   - Total final calculado automáticamente
 - **Estados del Estimado**
-  - `Draft` → `Sent` → `Approved`/`Rejected` → `Converted to Invoice`
+  - `Draft` → `Sent` → `Approved`/`Rejected` → `Converted to Invoice` → `Paid`
 - **Conversión a Factura**
   - Cuando un estimado se aprueba, se puede convertir a factura
   - Agrega información de trabajo realizado:
@@ -97,7 +97,14 @@ Este sistema está diseñado para empresas de:
     - Fechas de inicio y fin del trabajo
     - Horas de trabajo
   - Recálculo automático de totales incluyendo materiales
-- **Multi-idioma**: Genera estimados en Español o Inglés
+- **Facturación Directa** (sin estimado previo)
+  - Crear facturas directamente sin pasar por el flujo de estimados
+  - Formulario completo con: cliente, ubicación, materiales, trabajadores, fechas y totales
+  - Soporte para nombre de cliente final (customer name) en el sitio de trabajo
+  - Ajuste de precios de materiales por categoría de markup integrado en la sección de materiales
+  - Opción de guardar como borrador para completar más tarde
+  - Edición completa de facturas directas existentes
+- **Multi-idioma**: Genera estimados y facturas en Español o Inglés
 - **Vista de Impresión**: Diseño profesional optimizado para imprimir o exportar PDF
 - **Términos y Condiciones**: Plantillas configurables
 - **Notas Internas**: Visibles solo para el equipo, no para el cliente
@@ -297,7 +304,7 @@ Este sistema está diseñado para empresas de:
 │   └── admin-logs/          # Logs de auditoría
 ├── modules/                 # Módulos de negocio
 │   ├── clients/             # CRM - Gestión de clientes
-│   ├── projects/            # Propuestas y estimados
+│   ├── projects/            # Estimados y Facturas (incluye facturación directa)
 │   ├── workers/             # Gestión de trabajadores (incluye submódulo empresas)
 │   ├── materials/           # Gestión de materiales
 │   ├── work-planning/       # Planificación de trabajo
@@ -341,7 +348,7 @@ Este sistema está diseñado para empresas de:
 /firestore/
 ├── authorized_users          # Usuarios del sistema
 ├── clients                   # Clientes
-├── proposals                 # Propuestas/Estimados
+├── proposals                 # Estimados, facturas y facturas directas
 ├── catalog_items             # Catálogo de items
 ├── workers                   # Trabajadores
 ├── companies                 # Empresas asociadas a trabajadores
@@ -514,11 +521,11 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Ver cliente**: Detalles completos
 - **Configuración**: Panel admin para configurar campos dinámicos
 
-### 3. Proyectos (Propuestas)
+### 3. Estimados y Facturas
 
 **Ruta**: `/modules/projects`
 
-- **Listar propuestas**: Tabla con estados y filtros
+- **Listar estimados y facturas**: Tabla con estados, filtros y menú contextual
 - **Crear estimado**: Formulario multi-paso
   1. Información del cliente
   2. Ubicación del trabajo
@@ -527,10 +534,16 @@ Usa el email y contraseña que creaste en Firebase Authentication.
   5. Extras no incluidos
   6. Totales (subtotal, impuestos, descuentos)
   7. Notas y términos
-- **Ver propuesta**: Vista previa profesional (imprimible)
+- **Crear factura directa** (`/modules/projects/invoice/new`):
+  - Formulario completo sin necesidad de estimado previo
+  - 10 secciones: info factura, fechas/tiempo, cliente, ubicación, notas, materiales con markup, trabajadores, resumen de costos, totales
+  - Guardar como borrador o como factura final
+- **Ver propuesta/factura**: Vista previa profesional (imprimible)
 - **Editar propuesta**: Modificar antes de enviar
-- **Cambiar estado**: Draft → Sent → Approved/Rejected
+- **Editar factura directa** (`/modules/projects/:id/edit-invoice`): Edición completa de todos los campos
+- **Cambiar estado**: Draft → Sent → Approved/Rejected → Converted to Invoice → Paid
 - **Convertir a factura**: Agregar materiales, trabajadores, fechas
+- **Numeración automática**: Formato `FY{año}-{secuencial}` (ej: FY26-0001)
 - **Configuración**: Gestión del catálogo de items
 
 ### 4. Trabajadores
@@ -931,6 +944,9 @@ Usa prefijos descriptivos:
 - [x] Header compartido reutilizable (`ModuleHeaderComponent`)
 - [x] Componentes base genéricos con herencia (`GenericListBaseComponent`, `GenericConfigBaseComponent`)
 - [x] Servicios base genéricos (`ModuleConfigBaseService<T>`, `GenericFirestoreService<T>`)
+- [x] Facturación directa sin estimado previo (crear, editar, borradores)
+- [x] Numeración automática con año fiscal (`FY26-XXXX`)
+- [x] Soporte de borradores para facturas directas
 
 ### 🚧 En Desarrollo
 
