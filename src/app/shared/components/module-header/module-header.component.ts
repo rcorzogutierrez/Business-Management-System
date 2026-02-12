@@ -45,7 +45,7 @@ export interface ActionButton {
   standalone: true,
   imports: [CommonModule, MatIconModule, MatTooltipModule],
   template: `
-    <header class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn">
+    <header class="bg-white rounded-2xl p-4 mb-5 border border-slate-200 shadow-sm animate-fadeIn" [attr.data-module-color]="moduleColor()">
       <div class="flex items-center justify-between gap-4 flex-wrap">
 
         <!-- Sección izquierda: Back Button + Icono + Título -->
@@ -106,11 +106,10 @@ export interface ActionButton {
           <!-- Botón secundario (opcional) -->
           @if (secondaryButtonLabel()) {
             <button
-              class="inline-flex items-center gap-2 border-2 rounded-xl font-semibold text-sm px-4 py-2 transition-colors duration-200"
-              [class]="secondaryButtonClass()"
+              class="btn-secondary btn-lg"
               (click)="secondaryAction.emit()">
               @if (secondaryButtonIcon()) {
-                <mat-icon class="!w-5 !h-5 !text-[20px]">{{ secondaryButtonIcon() }}</mat-icon>
+                <mat-icon>{{ secondaryButtonIcon() }}</mat-icon>
               }
               {{ secondaryButtonLabel() }}
             </button>
@@ -119,10 +118,9 @@ export interface ActionButton {
           <!-- Botón principal CTA -->
           @if (primaryButtonLabel()) {
             <button
-              class="inline-flex items-center gap-2 rounded-xl font-semibold text-sm px-6 py-2.5 shadow-lg hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5"
-              [class]="primaryButtonClass()"
+              class="btn-primary btn-lg"
               (click)="primaryAction.emit()">
-              <mat-icon class="!w-5 !h-5 !text-[20px]">add</mat-icon>
+              <mat-icon>add</mat-icon>
               {{ primaryButtonLabel() }}
             </button>
           }
@@ -158,32 +156,6 @@ export class ModuleHeaderComponent {
   iconBoxClass = computed(() => {
     const color = this.moduleColor();
     return `header-icon-box ${color}`;
-  });
-
-  primaryButtonClass = computed(() => {
-    const color = this.moduleColor();
-    const colorMap: Record<string, string> = {
-      purple: 'bg-gradient-to-br from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-purple-500/30 hover:shadow-purple-600/40',
-      green: 'bg-gradient-to-br from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white shadow-green-500/30 hover:shadow-green-600/40',
-      amber: 'bg-gradient-to-br from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white shadow-amber-500/30 hover:shadow-amber-600/40',
-      blue: 'bg-gradient-to-br from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-blue-500/30 hover:shadow-blue-600/40',
-      teal: 'bg-gradient-to-br from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 text-white shadow-teal-500/30 hover:shadow-teal-600/40',
-      indigo: 'bg-gradient-to-br from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white shadow-indigo-500/30 hover:shadow-indigo-600/40',
-    };
-    return colorMap[color] || colorMap['blue'];
-  });
-
-  secondaryButtonClass = computed(() => {
-    const color = this.moduleColor();
-    const colorMap: Record<string, string> = {
-      purple: 'border-purple-600 text-purple-600 hover:bg-purple-50',
-      green: 'border-green-600 text-green-600 hover:bg-green-50',
-      amber: 'border-amber-600 text-amber-600 hover:bg-amber-50',
-      blue: 'border-blue-600 text-blue-600 hover:bg-blue-50',
-      teal: 'border-teal-600 text-teal-600 hover:bg-teal-50',
-      indigo: 'border-indigo-600 text-indigo-600 hover:bg-indigo-50',
-    };
-    return colorMap[color] || colorMap['blue'];
   });
 
   getStatChipClass(color: string): string {

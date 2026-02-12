@@ -90,12 +90,10 @@
               </p>
             </div>
 
-            <!-- Botón de Google con Material -->
+            <!-- Botón de Google -->
             <button
-              mat-raised-button
-              color="primary"
               type="button"
-              class="w-full !h-12 !text-base !font-semibold"
+              class="btn-primary btn-lg w-full justify-center !py-3 !text-base"
               (click)="loginWithGoogle()"
               [disabled]="isLoggingIn()"
               [attr.aria-label]="isLoggingIn() ? 'Iniciando sesi\u00f3n con Google, por favor espera' : 'Iniciar sesi\u00f3n con Google'"

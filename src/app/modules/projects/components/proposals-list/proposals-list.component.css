@@ -95,41 +95,7 @@
 .stat-card.blue-outline { border-color: #3b82f6; background: #eff6ff; }
 .stat-card.blue-outline mat-icon, .stat-card.blue-outline .stat-card-value { color: #2563eb; }
 
-/* ============================================
-   BUTTONS (específico: btn-primary blue)
-   ============================================ */
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(59, 130, 246, 0.45);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-primary mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
+/* BOTONES → centralizados en styles.css (BUTTON SYSTEM) */
 
 /* ============================================
    STATUS FILTER CHIP (específico de proposals)

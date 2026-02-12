@@ -44,17 +44,14 @@
     <!-- Action Buttons -->
     <div class="space-y-3">
       <button
-        mat-raised-button
-        color="primary"
-        class="w-full"
-        (click)="goToDashboard()"
-      >
-        <mat-icon class="mr-2">dashboard</mat-icon>
+        class="btn-primary w-full justify-center"
+        (click)="goToDashboard()">
+        <mat-icon>dashboard</mat-icon>
         Volver al Dashboard
       </button>
 
-      <button mat-stroked-button class="w-full" (click)="logout()">
-        <mat-icon class="mr-2">logout</mat-icon>
+      <button class="btn-secondary w-full justify-center" (click)="logout()">
+        <mat-icon>logout</mat-icon>
         Cerrar Sesión
       </button>
     </div>

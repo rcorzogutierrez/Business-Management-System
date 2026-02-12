@@ -35,14 +35,13 @@
         <p class="text-sm text-slate-500 mb-6">Comienza agregando el primer módulo del sistema</p>
         <div class="flex gap-3 justify-center">
           <button
-            mat-raised-button
-            class="!bg-purple-600 !text-white"
+            class="btn-primary"
             (click)="addModule()">
             <mat-icon>add</mat-icon>
             Crear Módulo
           </button>
           <button
-            mat-stroked-button
+            class="btn-secondary"
             (click)="initializeDefaultModules()">
             <mat-icon>auto_fix_high</mat-icon>
             Inicializar por Defecto

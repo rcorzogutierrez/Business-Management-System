@@ -274,12 +274,11 @@
           Cancelar
         </button>
         <button
-          mat-raised-button
+          class="btn-primary"
           (click)="saveRole()"
-          [disabled]="roleForm.invalid || isLoading"
-          class="!bg-blue-600 !text-white font-semibold">
+          [disabled]="roleForm.invalid || isLoading">
           @if (isLoading) {
-            <mat-spinner diameter="18" class="inline-block mr-2"></mat-spinner>
+            <span class="btn-spinner"></span>
           } @else {
             <mat-icon>{{ viewMode === 'add' ? 'add' : 'save' }}</mat-icon>
           }

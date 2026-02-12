@@ -222,16 +222,15 @@ export interface ModuleFormDialogData {
 
       <!-- Footer -->
       <div class="flex justify-end gap-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
-        <button mat-stroked-button (click)="onCancel()" [disabled]="isSaving()">
+        <button class="btn-cancel" (click)="onCancel()" [disabled]="isSaving()">
           Cancelar
         </button>
         <button
-          mat-raised-button
+          class="btn-primary"
           (click)="onSubmit()"
-          [disabled]="moduleForm.invalid || isSaving()"
-          class="!bg-purple-600 !text-white">
+          [disabled]="moduleForm.invalid || isSaving()">
           @if (isSaving()) {
-            <div class="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+            <span class="btn-spinner"></span>
           } @else {
             <mat-icon>{{ isEditMode ? 'save' : 'add' }}</mat-icon>
           }

@@ -70,6 +70,7 @@ Para CONFIGURACIÓN:
 - `.icon-btn`
 - `.loading-spinner`
 - Gradientes: `.bg-gradient-purple`, `.bg-gradient-green`, `.bg-gradient-blue`, `.bg-gradient-amber`
+- **Sistema de Botones** (ver sección dedicada abajo)
 
 ### 2. **Arquitectura del Proyecto**
 
@@ -617,6 +618,113 @@ src/
 4. **Clean y simple**: Menos código, más mantenible
 5. **Usuario primero**: UX intuitiva sobre complejidad técnica
 
+## 🔘 Sistema de Botones (BUTTON SYSTEM)
+
+**Ubicación:** `src/styles.css` - Sección "BUTTON SYSTEM"
+
+**REGLA FUNDAMENTAL:** NO definir estilos de botones en archivos de componentes. Todos los botones usan las clases globales.
+
+### Nomenclatura
+
+| Tipo | Clases | Uso |
+|------|--------|-----|
+| **Variantes** | `.btn-primary`, `.btn-secondary`, `.btn-danger`, `.btn-ghost`, `.btn-cancel`, `.btn-draft` | Botones de texto |
+| **Tamaños** | `.btn-sm`, `.btn-lg` | Modificadores (md es default) |
+| **Icon-only** | `.btn-icon` / `.icon-btn`, `.btn-icon-sm`, `.btn-icon-lg`, `.btn-icon-ghost` | Botones solo icono |
+| **Loading** | `.btn-spinner` | Spinner dentro de botón |
+| **Aliases** | `.btn-save`, `.btn-edit`, `.back-btn`, `.close-btn` | Compatibilidad |
+
+### Design Tokens
+
+| Propiedad | sm | md (default) | lg |
+|-----------|-----|-------------|-----|
+| padding | 6px 12px | 8px 16px | 10px 24px |
+| font-size | 12px | 13px | 14px |
+| border-radius | 8px | 10px | 12px |
+| icon-size | 16px | 18px | 20px |
+
+### Tematización por Módulo (CSS Variables)
+
+Los botones primarios se adaptan al color del módulo usando CSS variables en `:host`:
+
+```css
+/* En el componente de lista o formulario */
+:host {
+  --btn-accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-accent: #f59e0b;
+  --btn-accent-shadow: rgba(245, 158, 11, 0.3);
+  --btn-accent-shadow-hover: rgba(245, 158, 11, 0.4);
+}
+```
+
+**ModuleHeaderComponent** usa `data-module-color` automáticamente:
+```html
+<header [attr.data-module-color]="moduleColor()">
+  <button class="btn-secondary btn-lg">Secundario</button>
+  <button class="btn-primary btn-lg">Primario</button>
+</header>
+```
+
+### Colores por Módulo
+
+| Módulo | Variable | Colores |
+|--------|----------|---------|
+| Workers | `--btn-accent: #f59e0b` | amber |
+| Clients | `--btn-accent: #9333ea` | purple |
+| Materials | `--btn-accent: #10b981` | green |
+| Projects | `--btn-accent: #3b82f6` | blue |
+| Treasury | `--btn-accent: #14b8a6` | teal |
+| Work Planning | `--btn-accent: #6366f1` | indigo |
+
+### Ejemplo de Uso
+
+```html
+<!-- Botón primario (hereda color del módulo via CSS vars) -->
+<button class="btn-primary" (click)="save()">
+  <mat-icon>save</mat-icon> Guardar
+</button>
+
+<!-- Botón cancelar -->
+<button class="btn-cancel" (click)="cancel()">
+  <mat-icon>close</mat-icon> Cancelar
+</button>
+
+<!-- Botón peligro -->
+<button class="btn-danger" (click)="delete()">
+  <mat-icon>delete</mat-icon> Eliminar
+</button>
+
+<!-- Botón icono -->
+<button class="btn-icon" (click)="settings()">
+  <mat-icon>settings</mat-icon>
+</button>
+
+<!-- Botón con spinner de carga -->
+<button class="btn-primary" [disabled]="saving()">
+  @if (saving()) {
+    <span class="btn-spinner"></span>
+  } @else {
+    <mat-icon>save</mat-icon>
+  }
+  Guardar
+</button>
+```
+
+### Variables CSS para Formularios (no-button)
+
+Los formularios aún usan variables `--form-accent-*` para estilos de inputs:
+```css
+:host {
+  /* Para botones */
+  --btn-accent-gradient: linear-gradient(...);
+  --btn-accent-shadow: rgba(...);
+  /* Para inputs (form-base.css) */
+  --form-accent: #f59e0b;
+  --form-accent-ring: rgba(245, 158, 11, 0.1);
+  --form-accent-light: #fffbeb;
+}
+```
+
 ---
 
-**Última actualización:** 2026-02-04
+**Última actualización:** 2026-02-12

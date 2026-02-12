@@ -59,8 +59,7 @@
           </button>
 
           <button
-            mat-raised-button
-            class="!bg-amber-500 !text-white"
+            class="btn-primary"
             (click)="exportLogs()"
             [disabled]="isLoading">
             <mat-icon>download</mat-icon>
@@ -129,7 +128,7 @@
           <h3 class="text-base font-semibold text-slate-600 mb-1">No hay logs disponibles</h3>
           <p class="text-sm text-slate-500 mb-4">No se encontraron registros con los filtros aplicados</p>
           @if (hasActiveFilters()) {
-            <button mat-raised-button class="!bg-amber-500 !text-white" (click)="clearFilters()">
+            <button class="btn-primary" (click)="clearFilters()">
               Limpiar Filtros
             </button>
           }

@@ -15,9 +15,9 @@
   --form-accent-dark: #d97706;
   --form-accent-light: #fffbeb;
   --form-accent-ring: rgba(245, 158, 11, 0.1);
-  --form-accent-shadow: rgba(245, 158, 11, 0.3);
-  --form-accent-shadow-hover: rgba(245, 158, 11, 0.4);
-  --form-btn-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-accent-shadow: rgba(245, 158, 11, 0.3);
+  --btn-accent-shadow-hover: rgba(245, 158, 11, 0.4);
 }
 
 .form-container {

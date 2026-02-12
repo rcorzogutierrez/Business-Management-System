@@ -1,5 +1,12 @@
 /* work-plan-form-dialog.component.css - Estilo consistente con proposals (color púrpura) */
 
+:host {
+  --btn-accent-gradient: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
+  --btn-accent: #9333ea;
+  --btn-accent-shadow: rgba(147, 51, 234, 0.3);
+  --btn-accent-shadow-hover: rgba(147, 51, 234, 0.4);
+}
+
 /* ========== DIALOG CONTAINER ========== */
 .dialog-container {
   display: flex;
@@ -54,37 +61,7 @@
   margin: 0.25rem 0 0 0;
 }
 
-.close-btn {
-  width: 36px;
-  height: 36px;
-  min-width: 36px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.close-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #9333ea;
-  color: #9333ea;
-}
-
-.close-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.close-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
+/* BOTONES (.close-btn) → centralizados en styles.css (BUTTON SYSTEM) */
 
 /* ========== LOADING STATE ========== */
 .loading-state {
@@ -491,73 +468,7 @@
   flex-shrink: 0;
 }
 
-.btn-primary,
-.btn-cancel {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.375rem;
-  padding: 0.625rem 1.25rem;
-  border-radius: 10px;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-}
-
-.btn-cancel {
-  background: white;
-  color: #64748b;
-  border: 1px solid #e2e8f0;
-}
-
-.btn-cancel:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-}
-
-.btn-cancel:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-cancel mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #9333ea 0%, #7e22ce 100%);
-  color: white;
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.3);
-}
-
-.btn-primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(147, 51, 234, 0.4);
-}
-
-.btn-primary:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.btn-primary mat-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-}
-
-.btn-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: white;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
+/* BOTONES (.btn-primary, .btn-cancel, .btn-spinner) → centralizados en styles.css (BUTTON SYSTEM) */
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {

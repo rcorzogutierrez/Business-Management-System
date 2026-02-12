@@ -14,71 +14,8 @@
   padding: 20px;
 }
 
-/* ============================================
-   BACK BUTTON
-   ============================================ */
-
-.config-back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.config-back-btn:hover {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #334155;
-  transform: translateX(-2px);
-}
-
-.config-back-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
-
-/* ============================================
-   ICON BUTTON
-   ============================================ */
-
-.config-icon-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  color: #64748b;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.config-icon-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  border-color: #cbd5e1;
-  color: #334155;
-}
-
-.config-icon-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.config-icon-btn mat-icon {
-  font-size: 20px;
-  width: 20px;
-  height: 20px;
-}
+/* BACK BUTTON / ICON BUTTON → centralizados en styles.css (BUTTON SYSTEM)
+   .config-back-btn y .config-icon-btn ahora viven en el sistema global */
 
 /* ============================================
    STAT CHIP

@@ -22,10 +22,10 @@
 
 :host {
   display: block;
-  --list-btn-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  --list-accent: #f59e0b;
-  --list-accent-shadow: rgba(245, 158, 11, 0.3);
-  --list-accent-shadow-hover: rgba(245, 158, 11, 0.4);
+  --btn-accent-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  --btn-accent: #f59e0b;
+  --btn-accent-shadow: rgba(245, 158, 11, 0.3);
+  --btn-accent-shadow-hover: rgba(245, 158, 11, 0.4);
 }
 
 .workers-container {
