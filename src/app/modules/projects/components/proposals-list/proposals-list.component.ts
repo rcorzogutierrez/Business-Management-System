@@ -553,6 +553,32 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Abrir vista del estimado/factura para guardar como PDF
+   */
+  openPrintView(proposal: Proposal): void {
+    this.router.navigate(['/modules/projects', proposal.id], {
+      queryParams: { autoPrint: 'true' }
+    });
+  }
+
+  /**
+   * Enviar email al cliente del estimado/factura
+   */
+  sendEmail(proposal: Proposal): void {
+    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid';
+    const docType = isInvoice ? 'Factura' : 'Estimado';
+    const subject = encodeURIComponent(`${docType} ${proposal.proposalNumber}`);
+    const body = encodeURIComponent(
+      `Estimado/a ${proposal.ownerName},\n\n` +
+      `Adjunto encontrará el ${docType.toLowerCase()} ${proposal.proposalNumber}.\n\n` +
+      `Dirección del trabajo: ${proposal.address}, ${proposal.city}\n\n` +
+      `Saludos cordiales.`
+    );
+
+    window.open(`mailto:${proposal.ownerEmail}?subject=${subject}&body=${body}`, '_self');
+  }
+
+  /**
    * Eliminar proposal
    */
   async deleteProposal(proposal: Proposal) {

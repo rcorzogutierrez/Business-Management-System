@@ -4,7 +4,14 @@
       "Bash(npm run build:*)",
       "Bash(find:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx ng lint)"
+      "Bash(npx ng lint)",
+      "Bash(npm install:*)",
+      "Bash(del \"d:\\\\Projects\\\\Business-Management-System\\\\src\\\\types\\\\html2pdf.d.ts\")",
+      "Bash(gsutil:*)",
+      "Bash(gcloud --version:*)",
+      "Bash(npx firebase:*)",
+      "WebFetch(domain:hulyam.medium.com)",
+      "Bash(npm uninstall:*)"
     ]
   }
 }

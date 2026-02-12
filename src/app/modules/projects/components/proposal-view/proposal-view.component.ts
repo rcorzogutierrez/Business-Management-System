@@ -78,10 +78,17 @@ export class ProposalViewComponent implements OnInit {
       // Si viene el query param para abrir el diálogo de factura, abrirlo
       const openInvoiceDialog = this.route.snapshot.queryParamMap.get('openInvoiceDialog');
       if (openInvoiceDialog === 'true' && this.proposal()?.status === 'converted_to_invoice') {
-        // Esperar un tick para asegurar que el componente esté completamente renderizado
         setTimeout(() => {
           this.editInvoiceData();
         }, 100);
+      }
+
+      // Si viene el query param autoPrint, abrir diálogo de impresión
+      const autoPrint = this.route.snapshot.queryParamMap.get('autoPrint');
+      if (autoPrint === 'true' && this.proposal()) {
+        setTimeout(() => {
+          this.generatePdf();
+        }, 500);
       }
     }
   }
@@ -350,10 +357,18 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
-   * Imprimir o generar PDF
+   * Abre el diálogo de impresión del navegador.
+   * El usuario puede seleccionar "Guardar como PDF" para descargar.
+   * Usa el motor de impresión nativo que respeta @media print CSS,
+   * imágenes y colores perfectamente.
    */
   print() {
     window.print();
+  }
+
+  /** Alias de print() usado por el flujo autoPrint desde proposals-list */
+  generatePdf(): void {
+    this.print();
   }
 
   /**

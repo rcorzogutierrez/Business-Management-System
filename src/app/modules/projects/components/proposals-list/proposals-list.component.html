@@ -343,12 +343,35 @@
 
                 <!-- Acciones -->
                 <td class="actions-cell" (click)="$event.stopPropagation()">
-                  <button type="button"
-                          class="icon-btn"
-                          [matMenuTriggerFor]="menu"
-                          title="Opciones">
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
+                  <div class="flex items-center justify-end gap-1">
+
+                    @if (proposal.status !== 'draft') {
+                      <button type="button"
+                              class="btn-icon-ghost"
+                              (click)="openPrintView(proposal)"
+                              matTooltip="Guardar como PDF"
+                              matTooltipPosition="above">
+                        <mat-icon>picture_as_pdf</mat-icon>
+                      </button>
+
+                      @if (proposal.ownerEmail) {
+                        <button type="button"
+                                class="btn-icon-ghost"
+                                (click)="sendEmail(proposal)"
+                                matTooltip="Enviar por email"
+                                matTooltipPosition="above">
+                          <mat-icon>forward_to_inbox</mat-icon>
+                        </button>
+                      }
+                    }
+
+                    <button type="button"
+                            class="icon-btn"
+                            [matMenuTriggerFor]="menu"
+                            title="Opciones">
+                      <mat-icon>more_vert</mat-icon>
+                    </button>
+                  </div>
 
                   <mat-menu #menu="matMenu">
                     <button mat-menu-item (click)="viewProposal(proposal)">
