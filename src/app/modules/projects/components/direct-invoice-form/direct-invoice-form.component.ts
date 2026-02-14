@@ -127,6 +127,7 @@ export class DirectInvoiceFormComponent implements OnInit {
   customerName = '';
 
   notes = '';
+  terms = '';
 
   subtotal = 0;
   taxPercentage = 0;
@@ -277,6 +278,7 @@ export class DirectInvoiceFormComponent implements OnInit {
     this.customerName = proposal.customerName || '';
 
     this.notes = proposal.notes || '';
+    this.terms = proposal.terms || '';
 
     this.subtotal = proposal.subtotal || 0;
     this.taxPercentage = proposal.taxPercentage || 0;
@@ -768,6 +770,7 @@ export class DirectInvoiceFormComponent implements OnInit {
       if (this.jobCategory) proposalData.jobCategory = this.jobCategory;
       if (this.customerName) proposalData.customerName = this.customerName;
       if (this.notes) proposalData.notes = this.notes;
+      if (this.terms) proposalData.terms = this.terms;
       if (this.workTime) proposalData.workTime = this.workTime;
       if (this.workStartDate) {
         proposalData.workStartDate = Timestamp.fromDate(this.parseDateFromInput(this.workStartDate));

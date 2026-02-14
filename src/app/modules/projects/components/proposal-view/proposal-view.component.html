@@ -378,6 +378,22 @@
         </div>
       }
 
+      <!-- ========== NOTAS Y TÉRMINOS (para facturas directas o cuando hay datos) ========== -->
+      @if (proposal()!.isDirectInvoice) {
+        @if (proposal()!.notes) {
+          <div class="notes-box">
+            <h3>{{ 'projects.proposal.notes.title' | translate }}</h3>
+            <p>{{ proposal()!.notes }}</p>
+          </div>
+        }
+        @if (proposal()!.terms) {
+          <div class="terms-box">
+            <h3>{{ 'projects.proposal.terms.title' | translate }}</h3>
+            <p>{{ proposal()!.terms }}</p>
+          </div>
+        }
+      }
+
       <!-- ========== SECCIÓN DE TOTALES ========== -->
       <div class="totals-section">
         <div class="totals-content">
