@@ -48,6 +48,7 @@ export class ProposalsService {
     total: 0,
     byStatus: {
       draft: 0,
+      not_sent: 0,
       sent: 0,
       approved: 0,
       rejected: 0,
@@ -606,6 +607,7 @@ export class ProposalsService {
       total: proposals.length,
       byStatus: {
         draft: proposals.filter(p => p.status === 'draft').length,
+        not_sent: proposals.filter(p => p.status === 'not_sent').length,
         sent: proposals.filter(p => p.status === 'sent').length,
         approved: proposals.filter(p => p.status === 'approved').length,
         rejected: proposals.filter(p => p.status === 'rejected').length,
@@ -655,6 +657,7 @@ export class ProposalsService {
       total: 0,
       byStatus: {
         draft: 0,
+        not_sent: 0,
         sent: 0,
         approved: 0,
         rejected: 0,

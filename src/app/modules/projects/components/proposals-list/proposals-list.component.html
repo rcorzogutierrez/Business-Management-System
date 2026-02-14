@@ -97,7 +97,7 @@
   </div>
 
   <!-- ========== STATS CARDS (clickeable para filtrar) ========== -->
-  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-9 gap-3 mb-4 animate-fadeIn" style="animation-delay: 0.05s">
+  <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 xl:grid-cols-10 gap-3 mb-4 animate-fadeIn" style="animation-delay: 0.05s">
 
     <!-- Total -->
     <div class="stat-card blue"
@@ -115,6 +115,15 @@
       <mat-icon>edit</mat-icon>
       <span class="stat-card-value">{{ dateFilteredStats().byStatus.draft }}</span>
       <span class="stat-card-label">Borradores</span>
+    </div>
+
+    <!-- No Enviados -->
+    <div class="stat-card sky"
+         [class.active]="statusFilter() === 'not_sent'"
+         (click)="filterByStatus('not_sent')">
+      <mat-icon>mark_email_unread</mat-icon>
+      <span class="stat-card-value">{{ dateFilteredStats().byStatus.not_sent }}</span>
+      <span class="stat-card-label">No Enviados</span>
     </div>
 
     <!-- Enviados -->
@@ -395,37 +404,68 @@
 
                     <mat-divider></mat-divider>
 
-                    <!-- Cambiar estado -->
-                    @if (proposal.status === 'draft' && !proposal.isDirectInvoice) {
-                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
-                        <mat-icon>send</mat-icon>
-                        <span>Marcar como enviado</span>
-                      </button>
-                    }
-
-                    @if (proposal.status === 'sent') {
-                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'approved')">
-                        <mat-icon class="text-green-600">check_circle</mat-icon>
-                        <span>Marcar como aprobado</span>
-                      </button>
-                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'rejected')">
-                        <mat-icon class="text-red-600">cancel</mat-icon>
-                        <span>Marcar como rechazado</span>
-                      </button>
-                    }
-
-                    @if (proposal.status === 'approved') {
-                      <button mat-menu-item (click)="convertToInvoice(proposal)">
-                        <mat-icon class="text-purple-600">receipt_long</mat-icon>
-                        <span>Convertir a factura</span>
-                      </button>
-                    }
-
-                    @if (proposal.status === 'converted_to_invoice') {
-                      <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
-                        <mat-icon class="text-emerald-600">payments</mat-icon>
-                        <span>Marcar como pagado</span>
-                      </button>
+                    <!-- Cambiar estado: FACTURA DIRECTA -->
+                    @if (proposal.isDirectInvoice) {
+                      @if (proposal.status === 'draft') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'not_sent')">
+                          <mat-icon>mark_email_unread</mat-icon>
+                          <span>Guardar como factura</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'not_sent') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
+                          <mat-icon>send</mat-icon>
+                          <span>Marcar como enviado</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'sent') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'converted_to_invoice')">
+                          <mat-icon class="text-purple-600">receipt_long</mat-icon>
+                          <span>Marcar como facturado</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'converted_to_invoice') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
+                          <mat-icon class="text-emerald-600">payments</mat-icon>
+                          <span>Marcar como pagado</span>
+                        </button>
+                      }
+                    } @else {
+                      <!-- Cambiar estado: ESTIMADO -->
+                      @if (proposal.status === 'draft') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'not_sent')">
+                          <mat-icon>mark_email_unread</mat-icon>
+                          <span>Marcar como no enviado</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'not_sent') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'sent')">
+                          <mat-icon>send</mat-icon>
+                          <span>Marcar como enviado</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'sent') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'approved')">
+                          <mat-icon class="text-green-600">check_circle</mat-icon>
+                          <span>Marcar como aprobado</span>
+                        </button>
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'rejected')">
+                          <mat-icon class="text-red-600">cancel</mat-icon>
+                          <span>Marcar como rechazado</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'approved') {
+                        <button mat-menu-item (click)="convertToInvoice(proposal)">
+                          <mat-icon class="text-purple-600">receipt_long</mat-icon>
+                          <span>Convertir a factura</span>
+                        </button>
+                      }
+                      @if (proposal.status === 'converted_to_invoice') {
+                        <button mat-menu-item (click)="changeProposalStatus(proposal, 'paid')">
+                          <mat-icon class="text-emerald-600">payments</mat-icon>
+                          <span>Marcar como pagado</span>
+                        </button>
+                      }
                     }
 
                     <mat-divider></mat-divider>

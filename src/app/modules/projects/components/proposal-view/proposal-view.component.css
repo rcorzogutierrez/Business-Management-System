@@ -226,34 +226,44 @@
   font-weight: 600;
 }
 
-.status-draft {
+.status-draft, .badge-status-draft {
   background: #f1f5f9;
   color: #475569;
 }
 
-.status-sent {
+.badge-status-not-sent {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.status-sent, .badge-status-sent {
   background: #fef3c7;
   color: #d97706;
 }
 
-.status-approved {
+.status-approved, .badge-status-approved {
   background: #d1fae5;
   color: #059669;
 }
 
-.status-rejected {
+.status-rejected, .badge-status-rejected {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.status-converted_to_invoice {
+.status-converted_to_invoice, .badge-status-converted {
   background: #dbeafe;
   color: #2563eb;
 }
 
-.status-paid {
+.status-paid, .badge-status-paid {
   background: #d1fae5;
   color: #047857;
+}
+
+.badge-status-cancelled {
+  background: #f3f4f6;
+  color: #6b7280;
 }
 
 .status-cancelled {

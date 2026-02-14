@@ -58,6 +58,7 @@ export type JobCategory =
  */
 export type ProposalStatus =
   | 'draft'                // Borrador
+  | 'not_sent'             // Creado pero no enviado al cliente
   | 'sent'                 // Enviado al cliente
   | 'approved'             // Aprobado por el cliente
   | 'rejected'             // Rechazado por el cliente

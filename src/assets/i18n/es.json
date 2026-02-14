@@ -96,6 +96,7 @@
       "status": {
         "label": "Estado",
         "draft": "Borrador",
+        "not_sent": "No Enviado",
         "sent": "Enviado",
         "approved": "Aprobado",
         "rejected": "Rechazado",
@@ -150,6 +151,7 @@
         "category": "Clasificación del Servicio",
         "selectOption": "Seleccione una opción",
         "remodeling": "Remodelación",
+        "prePlumbing": "Pre-Plomería",
         "plumbing": "Plomería",
         "services": "Servicios",
         "equipment": "Instalación de equipos",

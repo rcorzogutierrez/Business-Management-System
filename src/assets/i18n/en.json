@@ -96,6 +96,7 @@
       "status": {
         "label": "Status",
         "draft": "Draft",
+        "not_sent": "Not Sent",
         "sent": "Sent",
         "approved": "Approved",
         "rejected": "Rejected",
@@ -150,6 +151,7 @@
         "category": "Service Classification",
         "selectOption": "Select an option",
         "remodeling": "Remodeling",
+        "prePlumbing": "Pre-Plumbing",
         "plumbing": "Plumbing",
         "services": "Services",
         "equipment": "Equipment Installation",

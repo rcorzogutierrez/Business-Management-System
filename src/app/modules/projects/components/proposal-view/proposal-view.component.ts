@@ -309,11 +309,24 @@ export class ProposalViewComponent implements OnInit {
   }
 
   /**
+   * Determina si la vista actual debe mostrarse como factura.
+   * True para: converted_to_invoice, paid, o factura directa en cualquier estado no-draft.
+   */
+  isInvoiceView(): boolean {
+    const p = this.proposal();
+    if (!p) return false;
+    if (p.status === 'converted_to_invoice' || p.status === 'paid') return true;
+    if (p.isDirectInvoice && p.status !== 'draft') return true;
+    return false;
+  }
+
+  /**
    * Obtener label del status
    */
   getStatusLabel(status: ProposalStatus): string {
     const labels: Record<ProposalStatus, string> = {
       draft: 'Borrador',
+      not_sent: 'No Enviado',
       sent: 'Enviado',
       approved: 'Aprobado',
       rejected: 'Rechazado',
@@ -330,6 +343,7 @@ export class ProposalViewComponent implements OnInit {
   getStatusClass(status: ProposalStatus): string {
     const classes: Record<ProposalStatus, string> = {
       draft: 'badge-status-draft',
+      not_sent: 'badge-status-not-sent',
       sent: 'badge-status-sent',
       approved: 'badge-status-approved',
       rejected: 'badge-status-rejected',

@@ -712,10 +712,10 @@ export class DirectInvoiceFormComponent implements OnInit {
    * Guardar como factura finalizada (validación completa)
    */
   async save() {
-    await this.saveWithStatus('converted_to_invoice');
+    await this.saveWithStatus('not_sent');
   }
 
-  private async saveWithStatus(status: 'draft' | 'converted_to_invoice') {
+  private async saveWithStatus(status: 'draft' | 'not_sent') {
     const isDraft = status === 'draft';
     if (isDraft) {
       if (!this.validateDraft()) return;

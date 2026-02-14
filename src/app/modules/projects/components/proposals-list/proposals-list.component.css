@@ -68,6 +68,10 @@
 .stat-card.slate mat-icon, .stat-card.slate .stat-card-value { color: #64748b; }
 .stat-card.slate.active { background: #f8fafc; border-color: #64748b; }
 
+.stat-card.sky { border-color: #bae6fd; }
+.stat-card.sky mat-icon, .stat-card.sky .stat-card-value { color: #0284c7; }
+.stat-card.sky.active { background: #f0f9ff; border-color: #0ea5e9; }
+
 .stat-card.amber { border-color: #fde68a; }
 .stat-card.amber mat-icon, .stat-card.amber .stat-card-value { color: #d97706; }
 .stat-card.amber.active { background: #fffbeb; border-color: #f59e0b; }
@@ -232,6 +236,7 @@
    STATUS BADGES (específico de proposals: draft, sent, etc.)
    ============================================ */
 .badge-status-draft { background: #f1f5f9; color: #475569; }
+.badge-status-not-sent { background: #e0f2fe; color: #0284c7; }
 .badge-status-sent { background: #fef3c7; color: #d97706; }
 .badge-status-approved { background: #d1fae5; color: #059669; }
 .badge-status-rejected { background: #fee2e2; color: #dc2626; }

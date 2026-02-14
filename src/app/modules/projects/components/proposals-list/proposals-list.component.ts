@@ -89,6 +89,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     const stats = this.dateFilteredStats();
     return [
       { value: stats.total, label: 'TOTAL', color: 'info' as const },
+      { value: stats.byStatus.not_sent, label: 'NO ENVIADOS', color: 'info' as const },
       { value: stats.byStatus.sent, label: 'ENVIADOS', color: 'warning' as const },
       { value: stats.byStatus.approved, label: 'APROBADOS', color: 'success' as const },
       { value: stats.byStatus.converted_to_invoice, label: 'FACTURADOS', color: 'purple' as const }
@@ -281,6 +282,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       total: proposals.length,
       byStatus: {
         draft: proposals.filter(p => p.status === 'draft').length,
+        not_sent: proposals.filter(p => p.status === 'not_sent').length,
         sent: proposals.filter(p => p.status === 'sent').length,
         approved: proposals.filter(p => p.status === 'approved').length,
         rejected: proposals.filter(p => p.status === 'rejected').length,
@@ -300,7 +302,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
     // Calcular tasa de aprobación
     const sentOrApproved = proposals.filter(
-      p => ['sent', 'approved', 'converted_to_invoice'].includes(p.status)
+      p => ['not_sent', 'sent', 'approved', 'converted_to_invoice'].includes(p.status)
     ).length;
 
     if (sentOrApproved > 0) {
@@ -322,6 +324,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       total: proposals.length,
       byStatus: {
         draft: proposals.filter(p => p.status === 'draft').length,
+        not_sent: proposals.filter(p => p.status === 'not_sent').length,
         sent: proposals.filter(p => p.status === 'sent').length,
         approved: proposals.filter(p => p.status === 'approved').length,
         rejected: proposals.filter(p => p.status === 'rejected').length,
@@ -341,7 +344,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
 
     // Calcular tasa de aprobación
     const sentOrApproved = proposals.filter(
-      p => ['sent', 'approved', 'converted_to_invoice'].includes(p.status)
+      p => ['not_sent', 'sent', 'approved', 'converted_to_invoice'].includes(p.status)
     ).length;
 
     if (sentOrApproved > 0) {
@@ -565,7 +568,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    * Enviar email al cliente del estimado/factura
    */
   sendEmail(proposal: Proposal): void {
-    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid';
+    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid' || (proposal.isDirectInvoice && proposal.status !== 'draft');
     const docType = isInvoice ? 'Factura' : 'Estimado';
     const subject = encodeURIComponent(`${docType} ${proposal.proposalNumber}`);
     const body = encodeURIComponent(
@@ -615,8 +618,8 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    */
   async changeProposalStatus(proposal: Proposal, newStatus: ProposalStatus) {
     try {
-      // Validar que el proposal esté completo antes de enviarlo
-      if (proposal.status === 'draft' && newStatus === 'sent') {
+      // Validar que el proposal esté completo antes de sacarlo de borrador
+      if (proposal.status === 'draft' && (newStatus === 'not_sent' || newStatus === 'sent')) {
         const validation = this.validateProposalComplete(proposal);
         if (!validation.isValid) {
           this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
@@ -873,7 +876,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
    * Si no, retornar el total del estimado
    */
   getProposalTotal(proposal: Proposal): number {
-    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid';
+    const isInvoice = proposal.status === 'converted_to_invoice' || proposal.status === 'paid' || (proposal.isDirectInvoice && proposal.status !== 'draft');
     const hasMaterials = proposal.materialsUsed && proposal.materialsUsed.length > 0;
 
     if (isInvoice && hasMaterials) {
@@ -1074,6 +1077,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     if (status === 'all') return 'Todos';
     const labels: Record<ProposalStatus, string> = {
       draft: 'Borrador',
+      not_sent: 'No Enviado',
       sent: 'Enviado',
       approved: 'Aprobado',
       rejected: 'Rechazado',
@@ -1090,6 +1094,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   getStatusClass(status: ProposalStatus): string {
     const classes: Record<ProposalStatus, string> = {
       draft: 'badge-status-draft',
+      not_sent: 'badge-status-not-sent',
       sent: 'badge-status-sent',
       approved: 'badge-status-approved',
       rejected: 'badge-status-rejected',

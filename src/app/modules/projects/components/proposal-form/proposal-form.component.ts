@@ -701,7 +701,7 @@ export class ProposalFormComponent implements OnInit {
         : [];
 
       // Determinar el estado según si es borrador o no
-      const status: 'draft' | 'sent' = asDraft ? 'draft' : 'sent';
+      const status: 'draft' | 'not_sent' = asDraft ? 'draft' : 'not_sent';
 
       // Construir objeto de datos base
       const baseData = {
@@ -742,7 +742,7 @@ export class ProposalFormComponent implements OnInit {
       proposalData.includes = includesToSave;
       proposalData.extras = extrasToSave;
       proposalData.total = total || 0;
-      proposalData.status = asDraft ? 'draft' : 'sent';
+      proposalData.status = asDraft ? 'draft' : 'not_sent';
 
       // Asegurar que los porcentajes siempre se guarden (incluso si son 0)
       proposalData.taxPercentage = taxPercentage;

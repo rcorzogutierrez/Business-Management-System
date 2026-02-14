@@ -19,12 +19,12 @@
           <button type="button" class="back-btn" (click)="back()" title="Volver">
             <mat-icon>arrow_back</mat-icon>
           </button>
-          <div class="header-icon-box" [class.blue]="proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid'" [class.green]="proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid'">
-            <mat-icon>{{ (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') ? 'receipt_long' : 'description' }}</mat-icon>
+          <div class="header-icon-box" [class.blue]="!isInvoiceView()" [class.green]="isInvoiceView()">
+            <mat-icon>{{ isInvoiceView() ? 'receipt_long' : 'description' }}</mat-icon>
           </div>
           <div>
             <h1 class="text-lg font-bold text-slate-800">
-              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+              @if (isInvoiceView()) {
                 @if (proposal()!.isDirectInvoice) {
                   {{ 'projects.directInvoice.title' | translate }} {{ proposal()!.proposalNumber }}
                 } @else {
@@ -35,7 +35,7 @@
               }
             </h1>
             <p class="text-xs text-slate-500">
-              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+              @if (isInvoiceView()) {
                 @if (proposal()!.isDirectInvoice) {
                   {{ 'projects.directInvoice.detailedView' | translate }}
                 } @else {
@@ -51,7 +51,7 @@
         <!-- Right: Actions -->
         <div class="flex items-center gap-2 flex-wrap">
           <!-- Toggle para mostrar detalles del estimado (solo en facturas convertidas, no directas) -->
-          @if ((proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') && !proposal()!.isDirectInvoice) {
+          @if (isInvoiceView() && !proposal()!.isDirectInvoice) {
             <label class="details-toggle" [class.active]="showProposalDetails()">
               <input type="checkbox" [checked]="showProposalDetails()" (change)="toggleProposalDetails()">
               <mat-icon>{{ showProposalDetails() ? 'visibility' : 'visibility_off' }}</mat-icon>
@@ -63,7 +63,7 @@
             <mat-icon>print</mat-icon>
           </button>
 
-          @if (proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') {
+          @if (!isInvoiceView() && !proposal()!.isDirectInvoice) {
             <button type="button" class="btn-primary" (click)="editProposal()">
               <mat-icon>edit</mat-icon>
               <span>{{ 'projects.proposal.view.editEstimate' | translate }}</span>
@@ -82,36 +82,68 @@
           </button>
 
           <mat-menu #menu="matMenu">
-            @if (proposal()!.status === 'draft') {
-              <button mat-menu-item (click)="changeStatus('sent')">
-                <mat-icon>send</mat-icon>
-                <span>{{ 'projects.proposal.view.markAsSent' | translate }}</span>
-              </button>
-            }
-
-            @if (proposal()!.status === 'sent') {
-              <button mat-menu-item (click)="changeStatus('approved')">
-                <mat-icon class="text-green-600">check_circle</mat-icon>
-                <span>{{ 'projects.proposal.view.markAsApproved' | translate }}</span>
-              </button>
-              <button mat-menu-item (click)="changeStatus('rejected')">
-                <mat-icon class="text-red-600">cancel</mat-icon>
-                <span>{{ 'projects.proposal.view.markAsRejected' | translate }}</span>
-              </button>
-            }
-
-            @if (proposal()!.status === 'approved') {
-              <button mat-menu-item (click)="convertToInvoice()">
-                <mat-icon class="text-blue-600">receipt</mat-icon>
-                <span>{{ 'projects.proposal.view.convertToInvoice' | translate }}</span>
-              </button>
-            }
-
-            @if (proposal()!.status === 'converted_to_invoice') {
-              <button mat-menu-item (click)="markAsPaid()">
-                <mat-icon class="text-emerald-600">payments</mat-icon>
-                <span>{{ 'projects.proposal.view.markAsPaid' | translate }}</span>
-              </button>
+            <!-- === Transiciones para FACTURA DIRECTA === -->
+            @if (proposal()!.isDirectInvoice) {
+              @if (proposal()!.status === 'draft') {
+                <button mat-menu-item (click)="changeStatus('not_sent')">
+                  <mat-icon>mark_email_unread</mat-icon>
+                  <span>Guardar como factura</span>
+                </button>
+              }
+              @if (proposal()!.status === 'not_sent') {
+                <button mat-menu-item (click)="changeStatus('sent')">
+                  <mat-icon>send</mat-icon>
+                  <span>Marcar como enviado</span>
+                </button>
+              }
+              @if (proposal()!.status === 'sent') {
+                <button mat-menu-item (click)="changeStatus('converted_to_invoice')">
+                  <mat-icon class="text-purple-600">receipt_long</mat-icon>
+                  <span>Marcar como facturado</span>
+                </button>
+              }
+              @if (proposal()!.status === 'converted_to_invoice') {
+                <button mat-menu-item (click)="markAsPaid()">
+                  <mat-icon class="text-emerald-600">payments</mat-icon>
+                  <span>{{ 'projects.proposal.view.markAsPaid' | translate }}</span>
+                </button>
+              }
+            } @else {
+              <!-- === Transiciones para ESTIMADO === -->
+              @if (proposal()!.status === 'draft') {
+                <button mat-menu-item (click)="changeStatus('not_sent')">
+                  <mat-icon>mark_email_unread</mat-icon>
+                  <span>Marcar como no enviado</span>
+                </button>
+              }
+              @if (proposal()!.status === 'not_sent') {
+                <button mat-menu-item (click)="changeStatus('sent')">
+                  <mat-icon>send</mat-icon>
+                  <span>{{ 'projects.proposal.view.markAsSent' | translate }}</span>
+                </button>
+              }
+              @if (proposal()!.status === 'sent') {
+                <button mat-menu-item (click)="changeStatus('approved')">
+                  <mat-icon class="text-green-600">check_circle</mat-icon>
+                  <span>{{ 'projects.proposal.view.markAsApproved' | translate }}</span>
+                </button>
+                <button mat-menu-item (click)="changeStatus('rejected')">
+                  <mat-icon class="text-red-600">cancel</mat-icon>
+                  <span>{{ 'projects.proposal.view.markAsRejected' | translate }}</span>
+                </button>
+              }
+              @if (proposal()!.status === 'approved') {
+                <button mat-menu-item (click)="convertToInvoice()">
+                  <mat-icon class="text-blue-600">receipt</mat-icon>
+                  <span>{{ 'projects.proposal.view.convertToInvoice' | translate }}</span>
+                </button>
+              }
+              @if (proposal()!.status === 'converted_to_invoice') {
+                <button mat-menu-item (click)="markAsPaid()">
+                  <mat-icon class="text-emerald-600">payments</mat-icon>
+                  <span>{{ 'projects.proposal.view.markAsPaid' | translate }}</span>
+                </button>
+              }
             }
 
             <mat-divider></mat-divider>
@@ -130,7 +162,7 @@
     <div class="document-card animate-fadeIn" style="animation-delay: 0.05s">
 
       <!-- Encabezado del documento -->
-      <div class="document-header" [class.invoice]="proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid'">
+      <div class="document-header" [class.invoice]="isInvoiceView()">
         <div class="grid grid-cols-12 gap-4">
 
           <!-- Columna Izquierda: Info del Cliente -->
@@ -151,14 +183,14 @@
             }
             <p class="doc-info-row">
               <span class="doc-label">
-                @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+                @if (isInvoiceView()) {
                   {{ 'projects.proposal.view.invoiceDate' | translate }}
                 } @else {
                   {{ 'projects.proposal.view.date' | translate }}
                 }
               </span>
               <span class="doc-value font-semibold">
-                @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+                @if (isInvoiceView()) {
                   {{ proposal()!.invoiceDate ? formatDate(proposal()!.invoiceDate) : formatDate(proposal()!.date) }}
                 } @else {
                   {{ formatDate(proposal()!.date) }}
@@ -170,7 +202,7 @@
           <!-- Columna Central: Número -->
           <div class="col-span-3 flex items-start justify-center">
             <div class="document-number-box">
-              @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+              @if (isInvoiceView()) {
                 @if (proposal()!.isDirectInvoice) {
                   <span class="doc-type-label">{{ 'projects.directInvoice.title' | translate }}</span>
                 } @else {
@@ -223,7 +255,7 @@
       </div>
 
       <!-- ========== DETALLES DEL ESTIMADO ORIGINAL ========== -->
-      @if (!proposal()!.isDirectInvoice && ((proposal()!.status !== 'converted_to_invoice' && proposal()!.status !== 'paid') || showProposalDetails())) {
+      @if (!proposal()!.isDirectInvoice && (!isInvoiceView() || showProposalDetails())) {
 
         <!-- Items Incluidos -->
         @if (proposal()!.includes && proposal()!.includes.length > 0) {
@@ -295,7 +327,7 @@
       }
 
       <!-- ========== SECCIÓN DE FACTURA ========== -->
-      @if (proposal()!.status === 'converted_to_invoice' || proposal()!.status === 'paid') {
+      @if (isInvoiceView()) {
         <div class="invoice-section">
           <div class="invoice-header">
             <h2>
