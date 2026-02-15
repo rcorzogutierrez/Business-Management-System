@@ -10,6 +10,8 @@ export interface ConfirmDialogData {
   confirmText?: string;
   cancelText?: string;
   type?: 'warning' | 'danger' | 'info';
+  icon?: string;
+  confirmColor?: string;
 }
 
 @Component({
@@ -23,18 +25,20 @@ export interface ConfirmDialogData {
   template: `
     <div class="min-w-[300px] max-w-[500px]">
       <!-- Header con icono y título -->
-      <div class="flex items-center gap-3 px-6 pt-6 pb-4">
-        <mat-icon [class]="getIconClass()" class="!text-3xl">{{ getIcon() }}</mat-icon>
-        <h2 class="text-xl font-semibold text-slate-800">{{ data.title }}</h2>
+      <div class="flex items-center gap-3 px-6 pt-5 pb-3">
+        <div class="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center" [class]="getIconBgClass()">
+          <mat-icon [class]="getIconClass()" class="!text-[22px]">{{ getIcon() }}</mat-icon>
+        </div>
+        <h2 class="text-lg font-semibold text-slate-800">{{ data.title }}</h2>
       </div>
 
       <!-- Contenido del mensaje -->
-      <div class="px-6 py-4">
-        <p class="text-base text-slate-700">{{ data.message }}</p>
+      <div class="px-6 py-3">
+        <p class="text-sm text-slate-600 leading-relaxed whitespace-pre-line">{{ data.message }}</p>
       </div>
 
       <!-- Botones de acción -->
-      <div class="flex items-center justify-end gap-2 px-6 pb-6 pt-4">
+      <div class="flex items-center justify-end gap-2 px-6 pb-5 pt-3">
         <button
           type="button"
           (click)="onCancel()"
@@ -59,6 +63,7 @@ export class ConfirmDialogComponent {
   ) {}
 
   getIcon(): string {
+    if (this.data.icon) return this.data.icon;
     switch (this.data.type) {
       case 'warning':
         return 'warning';
@@ -67,6 +72,18 @@ export class ConfirmDialogComponent {
       case 'info':
       default:
         return 'help_outline';
+    }
+  }
+
+  getIconBgClass(): string {
+    switch (this.data.type) {
+      case 'warning':
+        return 'bg-amber-50';
+      case 'danger':
+        return 'bg-red-50';
+      case 'info':
+      default:
+        return 'bg-blue-50';
     }
   }
 

@@ -12,6 +12,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatDialog } from '@angular/material/dialog';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../shared/components/module-header/module-header.component';
@@ -46,6 +47,7 @@ export class SystemConfigComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   // ============================================
   // STATE
@@ -278,26 +280,41 @@ export class SystemConfigComponent implements OnInit {
     
     if (!currentUserUid) return;
 
-    const confirm = window.confirm('¿Seguro que quieres eliminar el logo actual?');
-    if (!confirm) return;
+    import('../../../shared/components/confirm-dialog/confirm-dialog.component').then(({ ConfirmDialogComponent }) => {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '420px',
+        data: {
+          title: 'Eliminar Logo',
+          message: '¿Seguro que quieres eliminar el logo actual?',
+          confirmText: 'Eliminar',
+          cancelText: 'Cancelar',
+          type: 'danger' as const,
+          icon: 'delete'
+        }
+      });
 
-    this.isUploadingLogo.set(true);
+      dialogRef.afterClosed().subscribe(async (confirmed) => {
+        if (!confirmed) return;
 
-    try {
-      const result = await this.configService.removeCurrentLogo(currentUserUid);
-      
-      if (result.success) {
-        this.logoPreviewUrl.set('');
-        this.selectedLogoFile.set(null);
-        this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
-      } else {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
-      }
-    } catch (error) {
-      this.snackBar.open('Error al eliminar el logo', 'Cerrar', { duration: 3000 });
-    } finally {
-      this.isUploadingLogo.set(false);
-    }
+        this.isUploadingLogo.set(true);
+
+        try {
+          const result = await this.configService.removeCurrentLogo(currentUserUid!);
+
+          if (result.success) {
+            this.logoPreviewUrl.set('');
+            this.selectedLogoFile.set(null);
+            this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+          } else {
+            this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+          }
+        } catch (error) {
+          this.snackBar.open('Error al eliminar el logo', 'Cerrar', { duration: 3000 });
+        } finally {
+          this.isUploadingLogo.set(false);
+        }
+      });
+    });
   }
 
   /**

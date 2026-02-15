@@ -120,6 +120,21 @@ export class DirectInvoiceFormComponent implements OnInit {
 
   workType: 'residential' | 'commercial' = 'residential';
   jobCategory = '';
+  jobCategoryOptions = computed(() => {
+    const config = this.proposalConfigService.config();
+    const categories = config?.jobCategories;
+    if (categories && categories.length > 0) {
+      return categories.filter(c => c.isActive);
+    }
+    return [
+      { id: 'remodeling', label: 'Remodelación', order: 1, isActive: true },
+      { id: 'pre_plumbing', label: 'Pre-Plomería', order: 2, isActive: true },
+      { id: 'plumbing', label: 'Plomería', order: 3, isActive: true },
+      { id: 'services', label: 'Servicios', order: 4, isActive: true },
+      { id: 'equipment', label: 'Instalación de equipos', order: 5, isActive: true },
+      { id: 'new_construction', label: 'Nueva Construcción', order: 6, isActive: true }
+    ];
+  });
   address = '';
   city = '';
   state = '';

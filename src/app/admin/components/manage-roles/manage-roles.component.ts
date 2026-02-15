@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 
+import { MatDialog } from '@angular/material/dialog';
 import { RolesService } from '../../services/roles.service';
 import { AdminService, User } from '../../services/admin.service';
 import { Role } from '../../models/role.interface';
@@ -51,6 +52,7 @@ export class ManageRolesComponent implements OnInit {
   private rolesService = inject(RolesService);
   private adminService = inject(AdminService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -312,24 +314,38 @@ export class ManageRolesComponent implements OnInit {
       return;
     }
 
-    if (!confirm(`¿Estás seguro de eliminar el rol "${role.label}"?`)) {
-      return;
-    }
+    import('../../../shared/components/confirm-dialog/confirm-dialog.component').then(({ ConfirmDialogComponent }) => {
+      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+        width: '420px',
+        data: {
+          title: 'Eliminar Rol',
+          message: `¿Estás seguro de eliminar el rol "${role.label}"?`,
+          confirmText: 'Eliminar',
+          cancelText: 'Cancelar',
+          type: 'danger' as const,
+          icon: 'delete'
+        }
+      });
 
-    this.isLoading = true;
-    this.cdr.markForCheck(); // ✅ Forzar detección de cambios
+      dialogRef.afterClosed().subscribe(async (confirmed) => {
+        if (!confirmed) return;
 
-    try {
-      await this.rolesService.deleteRole(role.id);
-      this.snackBar.open('Rol eliminado exitosamente', 'Cerrar', { duration: 3000 });
-      await this.loadData();
-    } catch (error: any) {
-      console.error('Error eliminando rol:', error);
-      this.snackBar.open(error.message || 'Error eliminando rol', 'Cerrar', { duration: 4000 });
-    } finally {
-      this.isLoading = false;
-      this.cdr.markForCheck(); // ✅ Forzar detección de cambios
-    }
+        this.isLoading = true;
+        this.cdr.markForCheck();
+
+        try {
+          await this.rolesService.deleteRole(role.id);
+          this.snackBar.open('Rol eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          await this.loadData();
+        } catch (error: any) {
+          console.error('Error eliminando rol:', error);
+          this.snackBar.open(error.message || 'Error eliminando rol', 'Cerrar', { duration: 4000 });
+        } finally {
+          this.isLoading = false;
+          this.cdr.markForCheck();
+        }
+      });
+    });
   }
 
   /**

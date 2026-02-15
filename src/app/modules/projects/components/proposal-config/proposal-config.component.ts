@@ -21,7 +21,7 @@ import { ModuleHeaderComponent } from '../../../../shared/components/module-head
 import { GridConfigSectionComponent, ConfigChangeEvent } from '../../../../shared/components/grid-config-section/grid-config-section.component';
 
 // Models
-import { ProposalClientFieldsMapping, ProposalAddressMapping, MaterialMarkupCategory } from '../../models';
+import { ProposalClientFieldsMapping, ProposalAddressMapping, MaterialMarkupCategory, JobCategoryConfig } from '../../models';
 import { FieldConfig } from '../../../clients/models/field-config.interface';
 
 /**
@@ -67,6 +67,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
   availableFields = signal<FieldConfig[]>([]);
   markupCategories = signal<MaterialMarkupCategory[]>([]);
   markupEnabled = signal<boolean>(false);
+  jobCategories = signal<JobCategoryConfig[]>([]);
 
   // Form
   configForm!: FormGroup;
@@ -83,7 +84,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
   addressFieldMappings: FieldMappingConfig[] = [
     { formControlName: 'address', icon: 'home', destinationIcon: 'location_on', label: 'Dirección del Trabajo', targetTheme: 'purple' },
     { formControlName: 'city', icon: 'location_city', label: 'Ciudad', targetTheme: 'purple' },
-    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'purple', badge: 'IMPORTANTE' },
+    { formControlName: 'state', icon: 'map', label: 'Estado', targetTheme: 'purple' },
     { formControlName: 'zipCode', icon: 'markunread_mailbox', label: 'Código Postal', targetTheme: 'purple' }
   ];
 
@@ -236,6 +237,13 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
         defaultTerms: config.defaultTerms || this.configService.getDefaultTerms()
       });
 
+      // Cargar clasificación de servicios
+      if (config.jobCategories) {
+        this.jobCategories.set([...config.jobCategories]);
+      } else {
+        this.jobCategories.set(this.getDefaultJobCategories());
+      }
+
       // Cargar configuración de markup
       if (config.materialMarkupConfig) {
         this.markupEnabled.set(config.materialMarkupConfig.enabled);
@@ -258,6 +266,9 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
         defaultWorkType: 'residential',
         defaultTerms: this.configService.getDefaultTerms()
       });
+
+      // Cargar clasificación de servicios por defecto
+      this.jobCategories.set(this.getDefaultJobCategories());
 
       // Cargar configuración de markup por defecto
       const markupConfig = this.configService.getMaterialMarkupConfig();
@@ -354,6 +365,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
         defaultValidityDays: formValue.defaultValidityDays,
         defaultWorkType: formValue.defaultWorkType,
         defaultTerms: formValue.defaultTerms,
+        jobCategories: this.jobCategories().filter(c => c.label.trim()),
         materialMarkupConfig: {
           enabled: this.markupEnabled(),
           categories: categories,
@@ -531,6 +543,53 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
       isActive: c.id === categoryId
     }));
     this.markupCategories.set(categories);
+  }
+
+  // ========== Clasificación de Servicios ==========
+
+  getDefaultJobCategories(): JobCategoryConfig[] {
+    return [
+      { id: 'remodeling', label: 'Remodelación', order: 1, isActive: true },
+      { id: 'pre_plumbing', label: 'Pre-Plomería', order: 2, isActive: true },
+      { id: 'plumbing', label: 'Plomería', order: 3, isActive: true },
+      { id: 'services', label: 'Servicios', order: 4, isActive: true },
+      { id: 'equipment', label: 'Instalación de equipos', order: 5, isActive: true },
+      { id: 'new_construction', label: 'Nueva Construcción', order: 6, isActive: true }
+    ];
+  }
+
+  addJobCategory() {
+    const categories = this.jobCategories();
+    const newOrder = categories.length + 1;
+    const newCategory: JobCategoryConfig = {
+      id: `job_${Date.now()}`,
+      label: '',
+      order: newOrder,
+      isActive: true
+    };
+    this.jobCategories.set([...categories, newCategory]);
+  }
+
+  updateJobCategoryLabel(categoryId: string, label: string) {
+    const updated = this.jobCategories().map(c =>
+      c.id === categoryId ? { ...c, label } : c
+    );
+    this.jobCategories.set(updated);
+  }
+
+  deleteJobCategory(categoryId: string) {
+    const categories = this.jobCategories().filter(c => c.id !== categoryId);
+    categories.forEach((cat, index) => {
+      cat.order = index + 1;
+    });
+    this.jobCategories.set([...categories]);
+  }
+
+  toggleJobCategoryActive(categoryId: string) {
+    const updated = this.jobCategories().map(c =>
+      c.id === categoryId ? { ...c, isActive: !c.isActive } : c
+    );
+    this.jobCategories.set(updated);
   }
 
   /**

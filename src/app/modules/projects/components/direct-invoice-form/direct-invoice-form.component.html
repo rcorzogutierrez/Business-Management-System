@@ -270,12 +270,9 @@
           </label>
           <select [(ngModel)]="jobCategory" class="form-input">
             <option value="">{{ 'projects.proposal.project.selectOption' | translate }}</option>
-            <option value="remodeling">{{ 'projects.proposal.project.remodeling' | translate }}</option>
-            <option value="pre_plumbing">{{ 'projects.proposal.project.prePlumbing' | translate }}</option>
-            <option value="plumbing">{{ 'projects.proposal.project.plumbing' | translate }}</option>
-            <option value="services">{{ 'projects.proposal.project.services' | translate }}</option>
-            <option value="equipment">{{ 'projects.proposal.project.equipment' | translate }}</option>
-            <option value="new_construction">{{ 'projects.proposal.project.newConstruction' | translate }}</option>
+            @for (cat of jobCategoryOptions(); track cat.id) {
+              <option [value]="cat.id">{{ cat.label }}</option>
+            }
           </select>
         </div>
 

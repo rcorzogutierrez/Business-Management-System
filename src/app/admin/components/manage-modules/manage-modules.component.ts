@@ -268,34 +268,54 @@ export class ManageModulesComponent implements OnInit {
    * Inicializa módulos por defecto (para migración)
    */
   async initializeDefaultModules() {
+    const doInit = async () => {
+      this.isLoading = true;
+      this.cdr.markForCheck();
+
+      try {
+        await this.modulesService.initializeDefaultModules(
+          this.currentUser()?.uid || ''
+        );
+
+        this.snackBar.open(
+          'Módulos por defecto inicializados exitosamente',
+          'Cerrar',
+          { duration: 4000 }
+        );
+      } catch (error) {
+        this.snackBar.open(
+          'Error al inicializar módulos',
+          'Cerrar',
+          { duration: 3000 }
+        );
+      } finally {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    };
+
     if (this.modules.length > 0) {
-      const confirm = window.confirm(
-        '⚠️ Ya existen módulos en el sistema. ¿Seguro que quieres agregar los módulos por defecto?'
-      );
-      if (!confirm) return;
+      import('../../../shared/components/confirm-dialog/confirm-dialog.component').then(({ ConfirmDialogComponent }) => {
+        const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+          width: '420px',
+          data: {
+            title: 'Agregar Módulos por Defecto',
+            message: 'Ya existen módulos en el sistema.\n¿Seguro que quieres agregar los módulos por defecto?',
+            confirmText: 'Agregar',
+            cancelText: 'Cancelar',
+            type: 'warning' as const,
+            icon: 'warning'
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(async (confirmed) => {
+          if (confirmed) await doInit();
+        });
+      });
+      return;
     }
 
-    this.isLoading = true;
-    
-    try {
-      await this.modulesService.initializeDefaultModules(
-        this.currentUser()?.uid || ''
-      );
-      
-      this.snackBar.open(
-        'Módulos por defecto inicializados exitosamente',
-        'Cerrar',
-        { duration: 4000 }
-      );
-    } catch (error) {
-      this.snackBar.open(
-        'Error al inicializar módulos',
-        'Cerrar',
-        { duration: 3000 }
-      );
-    } finally {
-      this.isLoading = false;
-    }
+    await doInit();
   }
 
   /**

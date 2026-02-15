@@ -76,6 +76,16 @@ export interface MaterialMarkupCategory {
 }
 
 /**
+ * Categoría de clasificación de servicio/trabajo
+ */
+export interface JobCategoryConfig {
+  id: string;
+  label: string;        // Label visible (ej: 'Remodelación', 'Plomería')
+  order: number;
+  isActive: boolean;
+}
+
+/**
  * Configuración del sistema de markup de materiales
  */
 export interface MaterialMarkupConfig {
@@ -103,6 +113,9 @@ export interface ProposalModuleConfig {
   defaultWorkType?: 'residential' | 'commercial';  // Tipo de trabajo por defecto
   defaultTerms?: string;                // Términos y condiciones por defecto
 
+  // Clasificación de servicios configurables
+  jobCategories?: JobCategoryConfig[];
+
   // Configuración de markup de materiales
   materialMarkupConfig?: MaterialMarkupConfig;  // Sistema de categorías de markup
 
@@ -126,6 +139,7 @@ export interface CreateProposalConfigData {
   defaultValidityDays?: number;
   defaultWorkType?: 'residential' | 'commercial';
   defaultTerms?: string;
+  jobCategories?: JobCategoryConfig[];
   materialMarkupConfig?: MaterialMarkupConfig;
   gridConfig?: GridConfiguration;
 }
@@ -167,6 +181,14 @@ export const DEFAULT_PROPOSAL_CONFIG: Omit<ProposalModuleConfig, 'id' | 'created
 5. Este estimado es válido por el periodo especificado. Después de esta fecha, los precios están sujetos a cambios.
 
 6. La empresa no se hace responsable por daños a estructuras ocultas o no visibles durante la inspección inicial.`,
+  jobCategories: [
+    { id: 'remodeling', label: 'Remodelación', order: 1, isActive: true },
+    { id: 'pre_plumbing', label: 'Pre-Plomería', order: 2, isActive: true },
+    { id: 'plumbing', label: 'Plomería', order: 3, isActive: true },
+    { id: 'services', label: 'Servicios', order: 4, isActive: true },
+    { id: 'equipment', label: 'Instalación de equipos', order: 5, isActive: true },
+    { id: 'new_construction', label: 'Nueva Construcción', order: 6, isActive: true }
+  ],
   materialMarkupConfig: {
     enabled: false,
     categories: [

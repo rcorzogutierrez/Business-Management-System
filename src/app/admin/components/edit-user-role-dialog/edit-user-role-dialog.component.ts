@@ -2,7 +2,7 @@
 import { Component, Inject, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -51,6 +51,7 @@ export class EditUserRoleDialogComponent implements OnInit {
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
+  private nestedDialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
   userForm!: FormGroup;
@@ -440,9 +441,26 @@ export class EditUserRoleDialogComponent implements OnInit {
 
   onCancel() {
     if (this.hasChanges()) {
-      if (!confirm('¿Descartar los cambios?')) {
-        return;
-      }
+      import('../../../shared/components/confirm-dialog/confirm-dialog.component').then(({ ConfirmDialogComponent }) => {
+        const ref = this.nestedDialog.open(ConfirmDialogComponent, {
+          width: '420px',
+          data: {
+            title: 'Descartar Cambios',
+            message: '¿Descartar los cambios realizados?',
+            confirmText: 'Descartar',
+            cancelText: 'Seguir editando',
+            type: 'warning' as const,
+            icon: 'edit_off'
+          }
+        });
+
+        ref.afterClosed().subscribe((confirmed) => {
+          if (confirmed) {
+            this.dialogRef.close(false);
+          }
+        });
+      });
+      return;
     }
     this.dialogRef.close(false);
   }

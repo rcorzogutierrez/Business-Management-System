@@ -132,25 +132,36 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
       return;
     }
 
-    const confirm = window.confirm(
-      `¿Estás seguro de eliminar el campo "${field.label}"?\n\nEsta acción no se puede deshacer y los datos existentes se perderán.`
-    );
+    const { ConfirmDialogComponent } = await import('../../../../shared/components/confirm-dialog/confirm-dialog.component');
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '420px',
+      data: {
+        title: 'Eliminar Campo',
+        message: `¿Estás seguro de eliminar el campo "${field.label}"?\n\nEsta acción no se puede deshacer y los datos existentes se perderán.`,
+        confirmText: 'Eliminar',
+        cancelText: 'Cancelar',
+        type: 'danger' as const,
+        icon: 'delete'
+      }
+    });
 
-    if (!confirm) return;
+    dialogRef.afterClosed().subscribe(async (confirmed) => {
+      if (!confirmed) return;
 
-    this.isLoading = true;
-    this.cdr.markForCheck();
-
-    try {
-      await this.configService.deleteField(field.id);
-      this.snackBar.open('Campo eliminado exitosamente', 'Cerrar', { duration: 3000 });
-    } catch (error) {
-      console.error('Error eliminando campo:', error);
-      this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
-    } finally {
-      this.isLoading = false;
+      this.isLoading = true;
       this.cdr.markForCheck();
-    }
+
+      try {
+        await this.configService.deleteField(field.id);
+        this.snackBar.open('Campo eliminado exitosamente', 'Cerrar', { duration: 3000 });
+      } catch (error) {
+        console.error('Error eliminando campo:', error);
+        this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
+      } finally {
+        this.isLoading = false;
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   /**

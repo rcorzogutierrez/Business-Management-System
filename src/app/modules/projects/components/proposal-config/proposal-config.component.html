@@ -149,13 +149,72 @@
       </div>
     </div>
 
+    <!-- ========== CLASIFICACIÓN DE SERVICIOS ========== -->
+    <div class="config-section animate-fadeIn" style="animation-delay: 0.225s">
+      <div class="section-header">
+        <mat-icon class="text-blue-500">handyman</mat-icon>
+        <div>
+          <h2>Clasificación de Servicios</h2>
+          <p>Opciones disponibles en estimados y facturas</p>
+        </div>
+        <button
+          type="button"
+          class="ml-auto flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700 font-medium px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors"
+          (click)="addJobCategory()">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">add</mat-icon>
+          Agregar
+        </button>
+      </div>
+
+      <div class="flex flex-wrap gap-2">
+        @for (category of jobCategories(); track category.id) {
+          <div class="group flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm transition-all"
+               [class]="category.isActive
+                 ? 'bg-white border-slate-200 hover:border-blue-300'
+                 : 'bg-slate-50 border-slate-200 opacity-50'">
+            <button
+              type="button"
+              (click)="toggleJobCategoryActive(category.id)"
+              [matTooltip]="category.isActive ? 'Desactivar' : 'Activar'"
+              class="flex-shrink-0 w-4 h-4 rounded border transition-all"
+              [class]="category.isActive
+                ? 'bg-blue-600 border-blue-600 text-white'
+                : 'bg-white border-slate-300'">
+              @if (category.isActive) {
+                <svg class="w-3 h-3 mx-auto" fill="currentColor" viewBox="0 0 16 16">
+                  <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                </svg>
+              }
+            </button>
+            <input
+              type="text"
+              [value]="category.label"
+              (input)="updateJobCategoryLabel(category.id, $any($event.target).value)"
+              class="bg-transparent border-none outline-none text-sm text-slate-700 w-[140px] placeholder:text-slate-400"
+              placeholder="Nombre...">
+            <button
+              type="button"
+              class="flex-shrink-0 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+              (click)="deleteJobCategory(category.id)"
+              matTooltip="Eliminar">
+              <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">close</mat-icon>
+            </button>
+          </div>
+        }
+
+        @if (jobCategories().length === 0) {
+          <p class="text-sm text-slate-400 italic">Sin clasificaciones. Haz clic en "Agregar".</p>
+        }
+      </div>
+    </div>
+
     <!-- ========== MARKUP DE MATERIALES ========== -->
     <div class="config-section animate-fadeIn" style="animation-delay: 0.225s">
       <div class="section-header">
         <mat-icon class="text-orange-500">trending_up</mat-icon>
         <div class="flex-1">
-          <h2>Categorías de Markup de Materiales</h2>
-          <p>Sistema de markup por categorías para el costo de materiales en facturas</p>
+          <h2>Markup de Materiales</h2>
+          <p>Porcentaje de markup aplicado al costo de materiales en facturas</p>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-sm font-medium" [class.text-blue-600]="markupEnabled()" [class.text-slate-600]="!markupEnabled()">
@@ -179,96 +238,68 @@
       </div>
 
       @if (markupEnabled()) {
-        <div class="markup-config-content">
-          <!-- Info Box -->
-          <div class="info-box-small mb-4">
-            <mat-icon>info</mat-icon>
-            <p>Al convertir un estimado a factura, se podrá seleccionar una categoría para aplicar un porcentaje de markup al costo de los materiales.</p>
-          </div>
-
-          <!-- Lista de Categorías -->
-          <div class="categories-list">
-            @for (category of markupCategories(); track category.id) {
-              <div class="category-item" [class.active]="category.isActive">
-                <div class="category-content">
-                  <!-- Radio button para seleccionar por defecto -->
-                  <button
-                    type="button"
-                    (click)="toggleCategoryActive(category.id)"
-                    [matTooltip]="'Categoría por defecto'"
-                    class="flex-shrink-0 w-5 h-5 rounded-full border-2 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                    [class.border-blue-600]="category.isActive"
-                    [class.bg-blue-600]="category.isActive"
-                    [class.border-slate-300]="!category.isActive">
-                    @if (category.isActive) {
-                      <svg class="w-3 h-3 mx-auto text-white" fill="currentColor" viewBox="0 0 16 16">
-                        <circle cx="8" cy="8" r="3"/>
-                      </svg>
-                    }
-                  </button>
-
-                  <!-- Nombre de la categoría -->
-                  <div class="category-field">
-                    <label>Nombre</label>
-                    <input
-                      type="text"
-                      [value]="category.name"
-                      (input)="updateCategoryName(category.id, $any($event.target).value)"
-                      class="category-input"
-                      placeholder="Ej: Oro, Plata, Bronce">
-                  </div>
-
-                  <!-- Porcentaje -->
-                  <div class="category-field percentage">
-                    <label>Markup (%)</label>
-                    <input
-                      type="number"
-                      [value]="category.percentage"
-                      (input)="updateCategoryPercentage(category.id, +$any($event.target).value)"
-                      min="0"
-                      max="100"
-                      step="0.1"
-                      class="category-input"
-                      placeholder="15">
-                  </div>
-
-                  <!-- Botón eliminar -->
-                  <button
-                    type="button"
-                    class="delete-category-btn"
-                    (click)="deleteMarkupCategory(category.id)"
-                    matTooltip="Eliminar categoría">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </div>
-
+        <div class="flex flex-wrap gap-2 mt-1">
+          @for (category of markupCategories(); track category.id) {
+            <div class="group flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-sm transition-all"
+                 [class]="category.isActive
+                   ? 'bg-orange-50 border-orange-200 hover:border-orange-400'
+                   : 'bg-white border-slate-200 hover:border-slate-300'">
+              <!-- Radio por defecto -->
+              <button
+                type="button"
+                (click)="toggleCategoryActive(category.id)"
+                [matTooltip]="'Categoría por defecto'"
+                class="flex-shrink-0 w-4 h-4 rounded-full border-2 transition-all"
+                [class]="category.isActive
+                  ? 'border-orange-500 bg-orange-500'
+                  : 'border-slate-300 bg-white'">
                 @if (category.isActive) {
-                  <div class="default-badge">
-                    <mat-icon>check_circle</mat-icon>
-                    <span>Por defecto</span>
-                  </div>
+                  <svg class="w-2.5 h-2.5 mx-auto text-white" fill="currentColor" viewBox="0 0 16 16">
+                    <circle cx="8" cy="8" r="4"/>
+                  </svg>
                 }
+              </button>
+              <!-- Nombre -->
+              <input
+                type="text"
+                [value]="category.name"
+                (input)="updateCategoryName(category.id, $any($event.target).value)"
+                class="bg-transparent border-none outline-none text-sm text-slate-700 w-[80px] placeholder:text-slate-400"
+                placeholder="Nombre">
+              <!-- Porcentaje -->
+              <div class="flex items-center gap-0.5 border-l border-slate-200 pl-1.5">
+                <input
+                  type="number"
+                  [value]="category.percentage"
+                  (input)="updateCategoryPercentage(category.id, +$any($event.target).value)"
+                  min="0" max="100" step="0.1"
+                  class="bg-transparent border-none outline-none text-sm text-slate-700 w-[40px] text-right placeholder:text-slate-400"
+                  placeholder="0">
+                <span class="text-slate-400 text-xs">%</span>
               </div>
-            }
+              <!-- Eliminar -->
+              <button
+                type="button"
+                class="flex-shrink-0 text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100"
+                (click)="deleteMarkupCategory(category.id)"
+                matTooltip="Eliminar">
+                <mat-icon class="!text-[16px] !w-[16px] !h-[16px]">close</mat-icon>
+              </button>
+            </div>
+          }
 
-            @if (markupCategories().length === 0) {
-              <div class="empty-state">
-                <mat-icon>category</mat-icon>
-                <p>No hay categorías configuradas</p>
-                <small>Haz clic en "Agregar Categoría" para comenzar</small>
-              </div>
-            }
-          </div>
-
-          <!-- Botón agregar categoría -->
-          <button
-            type="button"
-            class="btn-add-category"
-            (click)="addMarkupCategory()">
-            <mat-icon>add</mat-icon>
-            <span>Agregar Categoría</span>
-          </button>
+          @if (markupCategories().length === 0) {
+            <p class="text-sm text-slate-400 italic">Sin categorías. Haz clic en "Agregar".</p>
+          }
         </div>
+
+        <button
+          type="button"
+          class="mt-2 flex items-center gap-1 text-sm text-orange-600 hover:text-orange-700 font-medium px-3 py-1.5 rounded-lg hover:bg-orange-50 transition-colors"
+          (click)="addMarkupCategory()">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px]">add</mat-icon>
+          Agregar Categoría
+        </button>
       }
     </div>
 

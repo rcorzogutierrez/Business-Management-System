@@ -8,7 +8,6 @@
     title="Estimados y Facturas"
     subtitle="Gestión de propuestas y facturación"
     moduleColor="blue"
-    [stats]="headerStats()"
     [actionButtons]="headerActions()"
     primaryButtonLabel="Nuevo Estimado"
     (primaryAction)="createProposal()"
@@ -315,12 +314,7 @@
                 <!-- Cliente -->
                 @if (visibleColumnIds().includes('ownerName')) {
                   <td>
-                    <div class="client-cell">
-                      <div class="client-avatar">
-                        {{ (proposal.ownerName || 'C').charAt(0).toUpperCase() }}
-                      </div>
-                      <span>{{ proposal.ownerName }}</span>
-                    </div>
+                    <span>{{ proposal.ownerName }}</span>
                   </td>
                 }
 
