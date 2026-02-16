@@ -27,7 +27,7 @@
   } @else {
     <!-- Form Container -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden bg-white">
-      <form [formGroup]="clientForm" (ngSubmit)="save()" class="p-5">
+      <form [formGroup]="form" (ngSubmit)="save()" class="p-5">
 
         <!-- Grid de campos dinámicos -->
         <div class="grid grid-cols-2 gap-4">
@@ -286,7 +286,7 @@
       <button
         type="button"
         (click)="save()"
-        [disabled]="isLoading() || clientForm.invalid"
+        [disabled]="isLoading() || form.invalid"
         class="btn-primary">
         @if (isLoading()) {
           <span class="btn-spinner"></span>

@@ -71,6 +71,7 @@ Para CONFIGURACIÓN:
 - `.loading-spinner`
 - Gradientes: `.bg-gradient-purple`, `.bg-gradient-green`, `.bg-gradient-blue`, `.bg-gradient-amber`
 - **Sistema de Botones** (ver sección dedicada abajo)
+- **Sistema de Diálogos** (ver sección dedicada abajo)
 
 ### 2. **Arquitectura del Proyecto**
 
@@ -96,6 +97,10 @@ GenericGridConfigBaseComponent
 │   └── MaterialConfigComponent
 ├── WorkersConfigComponent (solo grid, sin formularios)
 └── ProposalConfigComponent (config de propuestas)
+
+DynamicFormDialogBase (formularios dinámicos en diálogos)
+├── AddClientDialogComponent
+└── AddMaterialDialogComponent
 ```
 
 **Regla importante:**
@@ -340,6 +345,7 @@ interface ActionButton {
 - [ ] ¿El commit está en español con descripción clara?
 - [ ] ¿Usé `ModuleHeaderComponent` para headers de módulo? (NO crear headers custom)
 - [ ] ¿Usé el color correcto del módulo? (amber/purple/green/blue/teal/indigo)
+- [ ] ¿Es un diálogo? → ¿Usé clases del DIALOG SYSTEM en lugar de CSS custom?
 - [ ] ¿Este cambio requiere actualizar `README.md` o `CLAUDE.md`? → Proponer al usuario
 
 ## 🔧 Comandos Útiles
@@ -509,6 +515,7 @@ src/
 │   │   │   ├── confirm-dialog/             # Diálogo de confirmación
 │   │   │   ├── generic-delete-dialog/      # Eliminación individual
 │   │   │   ├── generic-delete-multiple-dialog/ # Eliminación múltiple
+│   │   │   ├── dynamic-form-dialog-base/   # ⭐ Base para diálogos con formularios dinámicos
 │   │   │   └── inactivity-warning-dialog/  # Advertencia de inactividad
 │   │   ├── modules/
 │   │   │   └── dynamic-form-builder/       # Constructor de formularios dinámicos
@@ -725,6 +732,57 @@ Los formularios aún usan variables `--form-accent-*` para estilos de inputs:
 }
 ```
 
+## 🪟 Sistema de Diálogos (DIALOG SYSTEM)
+
+**Ubicación:** `src/styles.css` - Sección "DIALOG SYSTEM"
+
+**REGLA FUNDAMENTAL:** NO duplicar estilos de diálogos en archivos de componentes. Los patrones comunes están centralizados en `styles.css`.
+
+### Clases Disponibles
+
+| Categoría | Clases | Uso |
+|-----------|--------|-----|
+| **Scrollbar** | `.dialog-scrollbar`, `.dialog-content`, `.tab-content-modern`, `mat-dialog-content`, `.overflow-y-auto`, `.table-container` | Scrollbar delgado automático |
+| **Option Cards** | `.option-card`, `.option-card.danger-option` | Cards de selección en delete dialogs |
+| **Role Cards** | `.role-radio-card`, `.role-icon-admin`, `.role-icon-user`, `.role-icon-viewer` | Selección de roles (admin dialogs) |
+| **Select Cards** | `.permission-card`, `.module-card`, `.module-icon-large` | Cards de permisos/módulos |
+| **Chips** | `.modern-chip`, `.permission-chip`, `.module-chip` | Preview de selecciones |
+| **Inputs** | `.dialog-input`, `.dialog-input-error` | Campos de entrada en diálogos |
+| **Confirmation** | `.confirmation-input-custom` (`.valid`/`.invalid`) | Input de confirmación con keyword |
+| **Tabs** | `.tab-icon`, `.tab-text`, `.tab-check` | Tabs personalizados en diálogos |
+| **Animations** | `.dialog-stagger-item`, `.dialog-warning-icon` | Entrada staggered y pulse de warning |
+
+### Cuándo usar estilos locales vs globales
+
+```
+✅ GLOBAL (styles.css): Scrollbar, option-card, role-card, permission-card, chips, tabs
+❌ LOCAL (component.css): Solo estilos ÚNICOS del componente (ej: user-avatar-large, json-section)
+```
+
+### Ejemplo de uso
+
+```css
+/* En el component.css del diálogo - SOLO lo específico */
+/* delete-logs-dialog.component.css */
+
+/* Override de padding específico */
+.option-card {
+  padding: 20px;
+}
+
+/* Estilos únicos de este diálogo */
+.keyword-badge {
+  animation: keywordPulse 2s infinite;
+}
+
+/* TODO LO DEMÁS viene de styles.css automáticamente */
+```
+
+### Reducción de CSS por diálogo
+
+Antes de la centralización, cada diálogo tenía 150-335 líneas de CSS duplicado.
+Ahora solo contienen estilos específicos (30-147 líneas), con el resto centralizado.
+
 ---
 
-**Última actualización:** 2026-02-12
+**Última actualización:** 2026-02-15
