@@ -1,16 +1,16 @@
-<!-- add-client-dialog.component.html - Tailwind -->
+<!-- add-material-dialog.component.html - Tailwind -->
 
 <div class="flex flex-col h-full max-h-[85vh] min-w-[600px] max-w-[800px] bg-white rounded-xl overflow-hidden animate-fadeIn">
 
   <!-- Header -->
-  <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-br from-purple-600 to-purple-700 text-white shrink-0">
+  <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shrink-0">
     <div class="flex items-center gap-3.5">
       <div class="w-[42px] h-[42px] flex items-center justify-center bg-white/20 rounded-[10px] backdrop-blur-sm">
-        <mat-icon class="text-white !text-[22px] !w-[22px] !h-[22px]">person_add</mat-icon>
+        <mat-icon class="text-white !text-[22px] !w-[22px] !h-[22px]">add_shopping_cart</mat-icon>
       </div>
       <div class="flex flex-col gap-0.5">
-        <h2 class="m-0 text-[1.0625rem] font-bold leading-tight">Nuevo Cliente</h2>
-        <p class="m-0 text-xs font-normal opacity-90">Complete los datos del cliente</p>
+        <h2 class="m-0 text-[1.0625rem] font-bold leading-tight">Nuevo Material</h2>
+        <p class="m-0 text-xs font-normal opacity-90">Complete los datos del material</p>
       </div>
     </div>
     <button type="button" (click)="cancel()" class="close-btn" title="Cerrar (Esc)">
@@ -21,13 +21,13 @@
   <!-- Loading State -->
   @if (isLoading() && fields().length === 0) {
     <div class="flex flex-col items-center justify-center py-16 px-6 gap-4">
-      <div class="w-10 h-10 border-3 border-slate-200 border-t-purple-500 rounded-full animate-spin"></div>
+      <div class="w-10 h-10 border-3 border-slate-200 border-t-emerald-500 rounded-full animate-spin"></div>
       <p class="m-0 text-sm font-medium text-slate-500">Cargando formulario...</p>
     </div>
   } @else {
     <!-- Form Container -->
     <div class="flex-1 overflow-y-auto overflow-x-hidden bg-white">
-      <form [formGroup]="clientForm" (ngSubmit)="save()" class="p-5">
+      <form [formGroup]="materialForm" (ngSubmit)="save()" class="p-5">
 
         <!-- Grid de campos dinámicos -->
         <div class="grid grid-cols-2 gap-4">
@@ -50,8 +50,8 @@
                     <input
                       [type]="field.type === FieldType.EMAIL ? 'email' : field.type === FieldType.URL ? 'url' : 'text'"
                       [formControlName]="field.name"
-                      [placeholder]="field.placeholder || field.label"
-                      class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10 placeholder:text-slate-400"
+                      [placeholder]="field.placeholder || ''"
+                      class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10 placeholder:text-slate-400"
                       [class.pl-9]="field.icon"
                       [class.!border-red-500]="hasError(field.name)"
                       [class.!bg-red-50]="hasError(field.name)"
@@ -80,9 +80,9 @@
                   </label>
                   <textarea
                     [formControlName]="field.name"
-                    [placeholder]="field.placeholder || field.label"
+                    [placeholder]="field.placeholder || ''"
                     rows="3"
-                    class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none resize-y min-h-[70px] transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10 placeholder:text-slate-400"
+                    class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none resize-y min-h-[70px] transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10 placeholder:text-slate-400"
                     [class.!border-red-500]="hasError(field.name)"
                     [class.!bg-red-50]="hasError(field.name)"
                     [attr.aria-label]="field.label"></textarea>
@@ -118,7 +118,7 @@
                       [min]="field.validation.min ?? 0"
                       [max]="field.validation.max ?? null"
                       step="0.01"
-                      class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10 placeholder:text-slate-400"
+                      class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10 placeholder:text-slate-400"
                       [class.pl-6]="field.type === FieldType.CURRENCY"
                       [class.!border-red-500]="hasError(field.name)"
                       [class.!bg-red-50]="hasError(field.name)"
@@ -147,7 +147,7 @@
                     <input
                       type="date"
                       [formControlName]="field.name"
-                      class="w-full py-2 pl-9 pr-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10"
+                      class="w-full py-2 pl-9 pr-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10"
                       [class.!border-red-500]="hasError(field.name)"
                       [class.!bg-red-50]="hasError(field.name)"
                       [attr.aria-label]="field.label">
@@ -176,7 +176,7 @@
                     }
                     <select
                       [formControlName]="field.name"
-                      class="w-full py-2 pr-8 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none cursor-pointer appearance-none transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10"
+                      class="w-full py-2 pr-8 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none cursor-pointer appearance-none transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10"
                       [class.pl-9]="field.icon"
                       [class.!border-red-500]="hasError(field.name)"
                       [class.!bg-red-50]="hasError(field.name)"
@@ -205,7 +205,7 @@
                       type="checkbox"
                       [id]="field.name"
                       [formControlName]="field.name"
-                      class="w-4 h-4 cursor-pointer accent-purple-600 rounded">
+                      class="w-4 h-4 cursor-pointer accent-emerald-500 rounded">
                     <span class="text-[0.8125rem] font-medium text-gray-700">{{ field.label }}</span>
                   </label>
                 </div>
@@ -222,12 +222,12 @@
                   </label>
                   <div class="flex flex-col gap-2 p-3 bg-slate-50 border-[1.5px] border-slate-200 rounded-lg">
                     @for (option of field.options; track option.value) {
-                      <label class="flex items-center gap-2.5 p-2 bg-white rounded-md cursor-pointer transition-all duration-200 hover:bg-purple-50">
+                      <label class="flex items-center gap-2.5 p-2 bg-white rounded-md cursor-pointer transition-all duration-200 hover:bg-slate-50">
                         <input
                           type="checkbox"
                           [id]="field.name + '_' + option.value"
                           [value]="option.value"
-                          class="w-4 h-4 cursor-pointer accent-purple-600 rounded">
+                          class="w-4 h-4 cursor-pointer accent-emerald-500 rounded">
                         <span class="text-[0.8125rem] font-medium text-gray-700">{{ option.label }}</span>
                       </label>
                     }
@@ -258,7 +258,7 @@
                           type="text"
                           [formControlName]="field.name + '_' + option.value"
                           [placeholder]="option.label"
-                          class="py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-md outline-none transition-all duration-200 hover:border-slate-300 focus:border-purple-500 focus:ring-[3px] focus:ring-purple-500/10 placeholder:text-slate-400"
+                          class="py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-md outline-none transition-all duration-200 hover:border-slate-300 focus:border-emerald-500 focus:ring-[3px] focus:ring-emerald-500/10 placeholder:text-slate-400"
                           [attr.aria-label]="option.label">
                       </div>
                     }
@@ -286,14 +286,14 @@
       <button
         type="button"
         (click)="save()"
-        [disabled]="isLoading() || clientForm.invalid"
+        [disabled]="isLoading() || materialForm.invalid"
         class="btn-primary">
         @if (isLoading()) {
           <span class="btn-spinner"></span>
         } @else {
           <mat-icon>check</mat-icon>
         }
-        <span>{{ isLoading() ? 'Guardando...' : 'Guardar Cliente' }}</span>
+        <span>{{ isLoading() ? 'Guardando...' : 'Guardar Material' }}</span>
       </button>
     </div>
   }

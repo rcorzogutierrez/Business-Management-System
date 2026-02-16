@@ -232,7 +232,8 @@ export class ProposalFormComponent implements OnInit {
       validUntil: [this.formatDateForInput(validUntilDate)],
       notes: [''],
       internalNotes: [''],
-      terms: [''], // Temporal: vacío
+      terms: [''],
+      showTermsInPrint: [true],
       subtotal: [0, [Validators.required, Validators.min(0)]],
       taxPercentage: [0, [Validators.min(0), Validators.max(100)]], // Temporal: 0
       discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
@@ -460,6 +461,7 @@ export class ProposalFormComponent implements OnInit {
           notes: proposal.notes || '',
           internalNotes: proposal.internalNotes || '',
           terms: proposal.terms || '',
+          showTermsInPrint: proposal.showTermsInPrint !== false,
           subtotal: proposal.subtotal || 0,
           taxPercentage: proposal.taxPercentage || 0,
           discountPercentage: proposal.discountPercentage || 0
@@ -746,6 +748,7 @@ export class ProposalFormComponent implements OnInit {
         notes: formValue.notes,
         internalNotes: formValue.internalNotes,
         terms: formValue.terms,
+        showTermsInPrint: formValue.showTermsInPrint,
         status
       };
 

@@ -119,6 +119,7 @@ export interface Proposal {
   notes?: string;                  // Notas generales
   internalNotes?: string;          // Notas internas (no se muestran al cliente)
   terms?: string;                  // Términos y condiciones
+  showTermsInPrint?: boolean;      // Mostrar términos en impresión/PDF
 
   // ========== Metadata ==========
   projectId?: string;              // ID del proyecto (si se crea uno)
@@ -173,6 +174,7 @@ export interface CreateProposalData {
   notes?: string;
   internalNotes?: string;
   terms?: string;
+  showTermsInPrint?: boolean;
   assignedTo?: string;
   tags?: string[];
   status?: ProposalStatus;

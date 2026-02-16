@@ -3,7 +3,7 @@
 import { Component, inject, signal, computed, OnInit, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { TranslateModule } from '@ngx-translate/core';
@@ -37,6 +37,7 @@ import { Timestamp } from 'firebase/firestore';
   styleUrls: ['./invoice-edit-dialog.component.css']
 })
 export class InvoiceEditDialogComponent implements OnInit {
+  private dialog = inject(MatDialog);
   private dialogRef = inject(MatDialogRef<InvoiceEditDialogComponent>);
   private proposalsService = inject(ProposalsService);
   private proposalConfigService = inject(ProposalConfigService);
@@ -114,6 +115,10 @@ export class InvoiceEditDialogComponent implements OnInit {
   workStartDate: string = '';
   workEndDate: string = '';
   workTime: number | null = null;
+  customerName: string = '';
+  notes: string = '';
+  terms: string = '';
+  showTermsInPrint: boolean = true;
   selectedMaterials: SelectedMaterial[] = [];
   selectedWorkers: SelectedWorker[] = [];
   selectedMarkupCategoryId: string | null = null;
@@ -224,6 +229,12 @@ export class InvoiceEditDialogComponent implements OnInit {
     // Tiempo de trabajo
     this.workTime = proposal.workTime || null;
 
+    // Cliente final, notas y términos
+    this.customerName = proposal.customerName || '';
+    this.notes = proposal.notes || '';
+    this.terms = proposal.terms || '';
+    this.showTermsInPrint = proposal.showTermsInPrint !== false;
+
     // Materiales
     if (proposal.materialsUsed && proposal.materialsUsed.length > 0) {
       this.selectedMaterials = proposal.materialsUsed.map(m => ({
@@ -253,6 +264,23 @@ export class InvoiceEditDialogComponent implements OnInit {
       this.selectedMarkupCategoryId = defaultCategory?.id || null;
     }
 
+  }
+
+  async openAddMaterialDialog() {
+    const { AddMaterialDialogComponent } = await import('../add-material-dialog/add-material-dialog.component');
+    const dialogRef = this.dialog.open(AddMaterialDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe((newMaterial: Material | undefined) => {
+      if (newMaterial) {
+        this.availableMaterials.set(this.materialsService.activeMaterials());
+        this.addMaterial(newMaterial.id!);
+      }
+    });
   }
 
   /**
@@ -491,7 +519,11 @@ export class InvoiceEditDialogComponent implements OnInit {
       this.isSaving.set(true);
 
       const updateData: any = {
-        language: this.language, // Idioma del documento
+        language: this.language,
+        customerName: this.customerName.trim() || null,
+        notes: this.notes.trim() || null,
+        terms: this.terms.trim() || null,
+        showTermsInPrint: this.showTermsInPrint,
         workers: this.selectedWorkers.map(w => ({
           id: w.workerId,
           name: w.workerName

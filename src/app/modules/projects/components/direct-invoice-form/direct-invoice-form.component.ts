@@ -143,6 +143,7 @@ export class DirectInvoiceFormComponent implements OnInit {
 
   notes = '';
   terms = '';
+  showTermsInPrint = true;
 
   subtotal = 0;
   taxPercentage = 0;
@@ -217,6 +218,7 @@ export class DirectInvoiceFormComponent implements OnInit {
     if (!this.editMode) {
       this.workType = this.proposalConfigService.getDefaultWorkType() as 'residential' | 'commercial';
       this.taxPercentage = this.proposalConfigService.getDefaultTaxPercentage();
+      this.terms = this.proposalConfigService.getDefaultTerms();
     }
 
     // Load markup config
@@ -276,11 +278,26 @@ export class DirectInvoiceFormComponent implements OnInit {
     this.ownerPhone = proposal.ownerPhone || '';
     this.clientSearchTerm.set(this.ownerName);
 
-    // Cargar company desde el cliente original
+    // Cargar company desde el cliente original e inferir useSameAddress
     if (this.ownerId) {
       const client = this.clients().find(c => c.id === this.ownerId);
       if (client) {
         this.ownerCompany = this.getClientCompany(client);
+
+        // Inferir si la dirección del trabajo es la misma que la del cliente
+        const clientAddress = this.getClientAddress(client);
+        const clientCity = this.getClientCity(client);
+        const clientState = this.getClientState(client);
+        const clientZip = this.getClientZipCode(client);
+        const propAddress = proposal.address || '';
+        const propCity = proposal.city || '';
+        const propState = proposal.state || '';
+        const propZip = proposal.zipCode || '';
+
+        if (clientAddress && propAddress && clientAddress === propAddress
+          && clientCity === propCity && clientState === propState && clientZip === propZip) {
+          this.useSameAddress.set(true);
+        }
       }
     }
 
@@ -294,6 +311,7 @@ export class DirectInvoiceFormComponent implements OnInit {
 
     this.notes = proposal.notes || '';
     this.terms = proposal.terms || '';
+    this.showTermsInPrint = proposal.showTermsInPrint !== false;
 
     this.subtotal = proposal.subtotal || 0;
     this.taxPercentage = proposal.taxPercentage || 0;
@@ -444,6 +462,23 @@ export class DirectInvoiceFormComponent implements OnInit {
     dialogRef.afterClosed().subscribe((newClient: Client | undefined) => {
       if (newClient) {
         this.selectClient(newClient);
+      }
+    });
+  }
+
+  async openAddMaterialDialog() {
+    const { AddMaterialDialogComponent } = await import('../add-material-dialog/add-material-dialog.component');
+    const dialogRef = this.dialog.open(AddMaterialDialogComponent, {
+      width: '600px',
+      maxWidth: '95vw',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe((newMaterial: Material | undefined) => {
+      if (newMaterial) {
+        this.availableMaterials.set(this.materialsService.activeMaterials());
+        this.addMaterial(newMaterial.id!);
       }
     });
   }
@@ -786,6 +821,7 @@ export class DirectInvoiceFormComponent implements OnInit {
       if (this.customerName) proposalData.customerName = this.customerName;
       if (this.notes) proposalData.notes = this.notes;
       if (this.terms) proposalData.terms = this.terms;
+      proposalData.showTermsInPrint = this.showTermsInPrint;
       if (this.workTime) proposalData.workTime = this.workTime;
       if (this.workStartDate) {
         proposalData.workStartDate = Timestamp.fromDate(this.parseDateFromInput(this.workStartDate));

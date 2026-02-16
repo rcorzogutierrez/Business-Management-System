@@ -28,7 +28,7 @@
         <h3 class="section-title">{{ 'projects.invoice.invoiceInformation' | translate }}</h3>
         <span class="required-badge">{{ 'common.required' | translate }}</span>
       </div>
-      <div class="form-grid cols-2">
+      <div class="form-grid cols-3">
         <div class="form-group">
           <label class="form-label">
             {{ 'projects.documentLanguage' | translate }} <span class="required">*</span>
@@ -51,6 +51,16 @@
             required
             class="form-input"
             [placeholder]="'projects.invoice.selectDate' | translate">
+        </div>
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.directInvoice.customerName' | translate }}
+          </label>
+          <input
+            type="text"
+            [(ngModel)]="customerName"
+            class="form-input"
+            [placeholder]="'projects.directInvoice.customerNamePlaceholder' | translate">
         </div>
       </div>
     </div>
@@ -174,6 +184,10 @@
             </div>
           }
         </div>
+        <button type="button" class="btn-icon green" (click)="openAddMaterialDialog()"
+                title="Crear nuevo material">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
 
       <!-- Lista de materiales seleccionados -->
@@ -308,6 +322,45 @@
             <p>{{ 'projects.invoice.noWorkersAdded' | translate }}</p>
           </div>
         }
+      </div>
+    </div>
+
+    <!-- Notas y Términos -->
+    <div class="section">
+      <div class="section-header">
+        <mat-icon class="text-slate-500">notes</mat-icon>
+        <h3 class="section-title">{{ 'projects.proposal.notes.title' | translate }}</h3>
+      </div>
+      <div class="form-grid cols-2">
+        <div class="form-group">
+          <label class="form-label">
+            {{ 'projects.proposal.notes.clientNotes' | translate }}
+          </label>
+          <textarea
+            [(ngModel)]="notes"
+            rows="3"
+            class="form-input"
+            style="resize: vertical; min-height: 60px;"
+            [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label flex items-center justify-between">
+            <span>{{ 'projects.proposal.terms.title' | translate }}</span>
+            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-normal text-slate-500">
+              <input
+                type="checkbox"
+                [(ngModel)]="showTermsInPrint"
+                class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+              Mostrar en impresión
+            </label>
+          </label>
+          <textarea
+            [(ngModel)]="terms"
+            rows="3"
+            class="form-input"
+            style="resize: vertical; min-height: 60px;"
+            [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>
+        </div>
       </div>
     </div>
 

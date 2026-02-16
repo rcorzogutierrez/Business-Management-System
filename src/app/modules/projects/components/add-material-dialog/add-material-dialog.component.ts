@@ -1,4 +1,4 @@
-// src/app/modules/projects/components/add-client-dialog/add-client-dialog.component.ts
+// src/app/modules/projects/components/add-material-dialog/add-material-dialog.component.ts
 
 import { Component, inject, signal, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -7,13 +7,13 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
-import { ClientsService } from '../../../clients/services/clients.service';
-import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
-import { CreateClientData } from '../../../clients/models';
-import { FieldConfig, FieldType } from '../../../clients/models/field-config.interface';
+import { MaterialsService } from '../../../materials/services/materials.service';
+import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
+import { AuthService } from '../../../../core/services/auth.service';
+import { Material, FieldConfig, FieldType } from '../../../materials/models';
 
 @Component({
-  selector: 'app-add-client-dialog',
+  selector: 'app-add-material-dialog',
   standalone: true,
   imports: [
     CommonModule,
@@ -22,26 +22,24 @@ import { FieldConfig, FieldType } from '../../../clients/models/field-config.int
     MatIconModule,
     MatSnackBarModule
   ],
-  templateUrl: './add-client-dialog.component.html',
-  styleUrls: ['./add-client-dialog.component.css'],
+  templateUrl: './add-material-dialog.component.html',
+  styleUrls: ['./add-material-dialog.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AddClientDialogComponent implements OnInit {
+export class AddMaterialDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private clientsService = inject(ClientsService);
-  private configService = inject(ClientConfigServiceRefactored);
-  private dialogRef = inject(MatDialogRef<AddClientDialogComponent>);
+  private materialsService = inject(MaterialsService);
+  private configService = inject(MaterialsConfigService);
+  private authService = inject(AuthService);
+  private dialogRef = inject(MatDialogRef<AddMaterialDialogComponent>);
   private snackBar = inject(MatSnackBar);
   private cdr = inject(ChangeDetectorRef);
 
   isLoading = signal<boolean>(false);
   fields = signal<FieldConfig[]>([]);
-  clientForm!: FormGroup;
+  materialForm!: FormGroup;
 
-  // Expose FieldType to template
   FieldType = FieldType;
-
-  constructor() {}
 
   async ngOnInit() {
     await this.initForm();
@@ -51,25 +49,17 @@ export class AddClientDialogComponent implements OnInit {
     try {
       this.isLoading.set(true);
 
-      // Cargar configuración de campos
       await this.configService.initialize();
 
-      // Obtener campos en uso (respeta layout personalizado si existe)
-      const fieldsInUse = this.configService.getFieldsInUse();
+      const activeFields = this.configService.getActiveFields();
 
-      fieldsInUse.forEach((f, i) => {
-        
-      });
-
-      if (fieldsInUse.length === 0) {
+      if (activeFields.length === 0) {
         this.snackBar.open('No hay campos configurados. Contacta al administrador.', 'Cerrar', { duration: 5000 });
         this.dialogRef.close();
         return;
       }
 
-      this.fields.set(fieldsInUse);
-
-      // Construir formulario dinámico
+      this.fields.set(activeFields);
       this.buildForm();
       this.cdr.markForCheck();
 
@@ -88,7 +78,6 @@ export class AddClientDialogComponent implements OnInit {
     const fields = this.fields();
 
     fields.forEach(field => {
-      // Para campos tipo DICTIONARY, crear un control por cada opción
       if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
         field.options.forEach(option => {
           const controlName = `${field.name}_${option.value}`;
@@ -96,14 +85,13 @@ export class AddClientDialogComponent implements OnInit {
           formControls[controlName] = ['', validators];
         });
       } else if (field.type !== FieldType.DICTIONARY) {
-        // Para otros tipos de campos
         const initialValue = this.getDefaultValueByType(field.type);
         const validators = this.createValidators(field);
         formControls[field.name] = [initialValue, validators];
       }
     });
 
-    this.clientForm = this.fb.group(formControls);
+    this.materialForm = this.fb.group(formControls);
   }
 
   private getDefaultValueByType(type: FieldType): any {
@@ -127,31 +115,24 @@ export class AddClientDialogComponent implements OnInit {
     if (validation.required) {
       validators.push(Validators.required);
     }
-
     if (validation.minLength) {
       validators.push(Validators.minLength(validation.minLength));
     }
-
     if (validation.maxLength) {
       validators.push(Validators.maxLength(validation.maxLength));
     }
-
     if (validation.pattern) {
       validators.push(Validators.pattern(validation.pattern));
     }
-
     if (validation.email || field.type === FieldType.EMAIL) {
       validators.push(Validators.email);
     }
-
     if (validation.min !== undefined) {
       validators.push(Validators.min(validation.min));
     }
-
     if (validation.max !== undefined) {
       validators.push(Validators.max(validation.max));
     }
-
     if (validation.url || field.type === FieldType.URL) {
       validators.push(this.urlValidator());
     }
@@ -161,40 +142,32 @@ export class AddClientDialogComponent implements OnInit {
 
   private urlValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
-      if (!control.value) {
-        return null;
-      }
-
+      if (!control.value) return null;
       const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/;
-      const valid = urlPattern.test(control.value);
-
-      return valid ? null : { url: { value: control.value } };
+      return urlPattern.test(control.value) ? null : { url: { value: control.value } };
     };
   }
 
   async save() {
-    if (this.clientForm.invalid) {
-      this.clientForm.markAllAsTouched();
+    if (this.materialForm.invalid) {
+      this.materialForm.markAllAsTouched();
       this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
       return;
     }
 
     try {
       this.isLoading.set(true);
-      const formValue = this.clientForm.value;
+      const formValue = this.materialForm.value;
 
-      // Separar campos por defecto y personalizados
       const defaultFields: any = {};
       const customFields: any = {};
 
       this.fields().forEach(field => {
         if (field.type === FieldType.DICTIONARY && field.options && field.options.length > 0) {
           const dictionaryValue: any = {};
-
           field.options.forEach(option => {
             const controlName = `${field.name}_${option.value}`;
-            const value = formValue[controlName];
-            dictionaryValue[option.value] = value || '';
+            dictionaryValue[option.value] = formValue[controlName] || '';
           });
 
           if (field.isDefault) {
@@ -204,7 +177,6 @@ export class AddClientDialogComponent implements OnInit {
           }
         } else {
           const value = formValue[field.name];
-
           if (field.isDefault) {
             defaultFields[field.name] = value;
           } else {
@@ -213,17 +185,25 @@ export class AddClientDialogComponent implements OnInit {
         }
       });
 
-      const clientData: CreateClientData = {
+      const materialData: Partial<Material> = {
         ...defaultFields,
         customFields
       };
 
-      const newClient = await this.clientsService.createClient(clientData);
-      this.snackBar.open('Cliente creado exitosamente', 'Cerrar', { duration: 2000 });
-      this.dialogRef.close(newClient);
+      const uid = this.authService.authorizedUser()?.uid || '';
+      const result = await this.materialsService.createMaterial(materialData, uid);
+
+      if (result.success) {
+        // Obtener el material recién creado del signal actualizado
+        const newMaterial = this.materialsService.materials().find(m => m.id === result.data?.id);
+        this.snackBar.open('Material creado exitosamente', 'Cerrar', { duration: 2000 });
+        this.dialogRef.close(newMaterial || null);
+      } else {
+        this.snackBar.open(result.message || 'Error al crear el material', 'Cerrar', { duration: 3000 });
+      }
     } catch (error) {
-      console.error('Error creando cliente:', error);
-      this.snackBar.open('Error al crear el cliente', 'Cerrar', { duration: 3000 });
+      console.error('Error creando material:', error);
+      this.snackBar.open('Error al crear el material', 'Cerrar', { duration: 3000 });
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();
@@ -235,51 +215,26 @@ export class AddClientDialogComponent implements OnInit {
   }
 
   getErrorMessage(fieldName: string): string {
-    const control = this.clientForm.get(fieldName);
-    if (!control || !control.errors || !control.touched) {
-      return '';
-    }
+    const control = this.materialForm.get(fieldName);
+    if (!control || !control.errors || !control.touched) return '';
 
     const field = this.fields().find(f => f.name === fieldName);
     const errors = control.errors;
 
-    if (errors['required']) {
-      return `${field?.label || fieldName} es requerido`;
-    }
-
-    if (errors['email']) {
-      return 'Formato de correo electrónico inválido';
-    }
-
-    if (errors['minlength']) {
-      return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
-    }
-
-    if (errors['maxlength']) {
-      return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
-    }
-
-    if (errors['min']) {
-      return `El valor mínimo es ${errors['min'].min}`;
-    }
-
-    if (errors['max']) {
-      return `El valor máximo es ${errors['max'].max}`;
-    }
-
-    if (errors['pattern']) {
-      return 'Formato inválido';
-    }
-
-    if (errors['url']) {
-      return 'URL inválida';
-    }
+    if (errors['required']) return `${field?.label || fieldName} es requerido`;
+    if (errors['email']) return 'Formato de correo electrónico inválido';
+    if (errors['minlength']) return `Mínimo ${errors['minlength'].requiredLength} caracteres`;
+    if (errors['maxlength']) return `Máximo ${errors['maxlength'].requiredLength} caracteres`;
+    if (errors['min']) return `El valor mínimo es ${errors['min'].min}`;
+    if (errors['max']) return `El valor máximo es ${errors['max'].max}`;
+    if (errors['pattern']) return 'Formato inválido';
+    if (errors['url']) return 'URL inválida';
 
     return 'Campo inválido';
   }
 
   hasError(fieldName: string): boolean {
-    const control = this.clientForm.get(fieldName);
+    const control = this.materialForm.get(fieldName);
     return !!(control && control.invalid && control.touched);
   }
 

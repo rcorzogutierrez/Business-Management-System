@@ -317,7 +317,7 @@
         }
 
         <!-- Términos y Condiciones -->
-        @if (proposal()!.terms) {
+        @if (proposal()!.terms && proposal()!.showTermsInPrint !== false) {
           <div class="terms-box">
             <h3>{{ 'projects.proposal.terms.title' | translate }}</h3>
             <p>{{ proposal()!.terms }}</p>
@@ -410,15 +410,15 @@
         </div>
       }
 
-      <!-- ========== NOTAS Y TÉRMINOS (para facturas directas o cuando hay datos) ========== -->
-      @if (proposal()!.isDirectInvoice) {
+      <!-- ========== NOTAS Y TÉRMINOS (para facturas directas y convertidas) ========== -->
+      @if (proposal()!.isDirectInvoice || proposal()!.status === 'converted_to_invoice') {
         @if (proposal()!.notes) {
           <div class="notes-box">
             <h3>{{ 'projects.proposal.notes.title' | translate }}</h3>
             <p>{{ proposal()!.notes }}</p>
           </div>
         }
-        @if (proposal()!.terms) {
+        @if (proposal()!.terms && proposal()!.showTermsInPrint !== false) {
           <div class="terms-box">
             <h3>{{ 'projects.proposal.terms.title' | translate }}</h3>
             <p>{{ proposal()!.terms }}</p>

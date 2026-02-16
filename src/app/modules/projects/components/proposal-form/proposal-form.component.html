@@ -599,9 +599,18 @@
 
         <!-- Términos y Condiciones -->
         <div class="form-group">
-          <label class="form-label">
-            <mat-icon>gavel</mat-icon>
-            {{ 'projects.proposal.terms.title' | translate }}
+          <label class="form-label flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <mat-icon>gavel</mat-icon>
+              {{ 'projects.proposal.terms.title' | translate }}
+            </span>
+            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-normal text-slate-500">
+              <input
+                type="checkbox"
+                formControlName="showTermsInPrint"
+                class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+              Mostrar en impresión
+            </label>
           </label>
           <textarea formControlName="terms" rows="5" class="form-textarea"
                     [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>

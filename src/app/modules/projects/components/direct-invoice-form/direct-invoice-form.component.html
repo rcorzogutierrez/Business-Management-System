@@ -347,9 +347,18 @@
                     [placeholder]="'projects.proposal.notes.clientNotesPlaceholder' | translate"></textarea>
         </div>
         <div class="form-group">
-          <label class="form-label">
-            <mat-icon>gavel</mat-icon>
-            {{ 'projects.proposal.terms.title' | translate }}
+          <label class="form-label flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <mat-icon>gavel</mat-icon>
+              {{ 'projects.proposal.terms.title' | translate }}
+            </span>
+            <label class="flex items-center gap-1.5 cursor-pointer text-xs font-normal text-slate-500">
+              <input
+                type="checkbox"
+                [(ngModel)]="showTermsInPrint"
+                class="w-3.5 h-3.5 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer">
+              Mostrar en impresión
+            </label>
           </label>
           <textarea [(ngModel)]="terms" rows="3" class="form-textarea"
                     [placeholder]="'projects.proposal.terms.placeholder' | translate"></textarea>
@@ -421,6 +430,10 @@
             </div>
           }
         </div>
+        <button type="button" class="btn-icon green" (click)="openAddMaterialDialog()"
+                title="Crear nuevo material">
+          <mat-icon>add</mat-icon>
+        </button>
       </div>
 
       <!-- Selected materials list -->

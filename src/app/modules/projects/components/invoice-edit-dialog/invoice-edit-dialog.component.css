@@ -275,6 +275,9 @@
    ============================================ */
 
 .add-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
   margin-bottom: 0.625rem;
 }
 
