@@ -1,335 +1,146 @@
-/* add-user-dialog.component.css - OPTIMIZADO (de 1200+ líneas → 280 líneas) */
+/* add-user-dialog.component.css */
+/* Estilos centralizados en styles.css (DIALOG SYSTEM):
+   - .dialog-input (input fields)
+   - .dialog-input-error
+   - .role-radio-card, .role-icon-admin/user/viewer
+   - .permission-card, .module-card, .module-icon-large
+   - .modern-chip, .permission-chip, .module-chip
+   - .tab-icon, .tab-text, .tab-check
+   - .tab-content-modern scrollbar
+   - .dialog-stagger-item
+   - reduced-motion
+*/
 
-/* ============================================
-   VARIABLES LOCALES
-   ============================================ */
-   :host {
-    --primary-blue: #3b82f6;
-    --primary-blue-dark: #2563eb;
-    --success-green: #10b981;
-    --purple-accent: #8b5cf6;
-    --error-red: #ef4444;
-    
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  }
-  
-  /* ============================================
-     TABS PERSONALIZADOS
-     Estilos de tabs movidos a styles.css global
-     ============================================ */
-  
-  .tab-icon {
-    font-size: 24px;
-    width: 24px;
-    height: 24px;
-    color: #64748b;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
+/* Variables locales */
+:host {
+  --primary-blue: #3b82f6;
+  --primary-blue-dark: #2563eb;
+  --success-green: #10b981;
+  --purple-accent: #8b5cf6;
+  --error-red: #ef4444;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+/* --- INPUT FIELDS (usa alias .input-field → .dialog-input) --- */
+.input-field {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-field::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.input-field:hover:not(:focus) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.input-field:focus {
+  border-color: var(--primary-blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-group:focus-within .label-icon {
+  color: var(--primary-blue);
+  transform: scale(1.1);
+  transition: all 0.2s ease;
+}
+
+.input-group:focus-within .input-label {
+  color: var(--primary-blue);
+}
+
+/* Error states */
+.input-field.ng-invalid.ng-touched {
+  border-color: var(--error-red);
+  background: #fef2f2;
+}
+
+.input-group:has(.input-field.ng-invalid.ng-touched) .input-label {
+  color: var(--error-red);
+}
+
+.input-group:has(.input-field.ng-invalid.ng-touched) .label-icon {
+  color: var(--error-red);
+}
+
+.input-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--error-red);
+  font-weight: 500;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.input-error::before {
+  content: '⚠';
+  font-size: 14px;
+}
+
+.input-field:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* --- STAGGERED ANIMATIONS --- */
+.permission-card,
+.module-card {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.permission-card:nth-child(1) { animation-delay: 0.05s; }
+.permission-card:nth-child(2) { animation-delay: 0.1s; }
+.permission-card:nth-child(3) { animation-delay: 0.15s; }
+.permission-card:nth-child(4) { animation-delay: 0.2s; }
+
+.module-card:nth-child(1) { animation-delay: 0.05s; }
+.module-card:nth-child(2) { animation-delay: 0.1s; }
+.module-card:nth-child(3) { animation-delay: 0.15s; }
+.module-card:nth-child(4) { animation-delay: 0.2s; }
+.module-card:nth-child(5) { animation-delay: 0.25s; }
+.module-card:nth-child(6) { animation-delay: 0.3s; }
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
   .tab-text {
-    font-size: 13px;
-    font-weight: 500;
-    color: #475569;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .tab-check {
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--success-green);
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: 11px;
   }
 
-  /* Tab active styles movidos a styles.css global */
-  
-  /* ============================================
-     INPUT FIELDS PERSONALIZADOS
-     ============================================ */
-  .input-field {
-    width: 100%;
-    height: 48px;
-    padding: 0 16px;
-    font-size: 15px;
-    font-weight: 500;
-    color: #1e293b;
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    outline: none;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  .tab-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
-  
-  .input-field::placeholder {
-    color: #94a3b8;
-    font-weight: 400;
-  }
-  
-  .input-field:hover:not(:focus) {
-    border-color: #cbd5e1;
-    background: #f8fafc;
-  }
-  
-  .input-field:focus {
-    border-color: var(--primary-blue);
-    background: white;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
-  
-  .input-group:focus-within .label-icon {
-    color: var(--primary-blue);
-    transform: scale(1.1);
-    transition: all 0.2s ease;
-  }
-  
-  .input-group:focus-within .input-label {
-    color: var(--primary-blue);
-  }
-  
-  /* Estados de error */
-  .input-field.ng-invalid.ng-touched {
-    border-color: var(--error-red);
-    background: #fef2f2;
-  }
-  
-  .input-group:has(.input-field.ng-invalid.ng-touched) .input-label {
-    color: var(--error-red);
-  }
-  
-  .input-group:has(.input-field.ng-invalid.ng-touched) .label-icon {
-    color: var(--error-red);
-  }
-  
-  .input-error {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--error-red);
-    font-weight: 500;
-    margin-top: 4px;
-    animation: slideDown 0.2s ease-out;
-  }
-  
-  .input-error::before {
-    content: '⚠';
-    font-size: 14px;
-  }
+}
 
-  /* Reutiliza slideDown de styles.css */
-
-  /* Estado disabled */
-  .input-field:disabled {
-    background: #f1f5f9;
-    border-color: #e2e8f0;
-    color: #94a3b8;
-    cursor: not-allowed;
-  }
-  
-  /* ============================================
-     ROLE CARDS - ESPECÍFICO
-     ============================================ */
-  .role-radio-card {
-    background: #f8fafc;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 18px 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    cursor: pointer;
-  }
-  
-  .role-radio-card:hover {
-    border-color: var(--primary-blue);
-    background: #eff6ff;
-    transform: translateX(4px);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-  }
-
-  /* Radio checked state movido a styles.css global */
-
-  .role-icon-admin { 
-    color: var(--error-red);
-    animation: iconPulse 2s ease-in-out infinite;
-  }
-  
-  .role-icon-user { 
-    color: var(--primary-blue); 
-  }
-  
-  .role-icon-viewer {
-    color: var(--purple-accent);
-  }
-
-  /* Reutiliza iconPulse de styles.css */
-
-  /* ============================================
-     PERMISSION & MODULE CARDS
-     ============================================ */
+/* --- ACCESIBILIDAD --- */
+@media (prefers-reduced-motion: reduce) {
   .permission-card,
-  .module-card {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  .module-card,
+  .modern-chip,
+  .module-icon-large {
+    animation: none !important;
   }
-  
+
   .permission-card:hover,
   .module-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transform: none !important;
   }
-  
-  .permission-card {
-    padding: 16px;
-  }
-  
-  .permission-card:hover {
-    border-color: var(--primary-blue);
-    background: #f8fafc;
-  }
-  
-  .permission-card.selected {
-    border-color: var(--primary-blue);
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
-  }
-  
-  .module-card {
-    padding: 20px;
-    min-height: 160px;
-  }
-  
-  .module-card:hover {
-    border-color: var(--purple-accent);
-    background: #f8fafc;
-  }
-  
-  .module-card.selected {
-    border-color: var(--purple-accent);
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-    box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25);
-  }
-  
-  .module-icon-large {
-    font-size: 32px;
-    width: 32px;
-    height: 32px;
-    color: var(--purple-accent);
-    transition: all 0.3s ease;
-  }
-  
-  .module-card.selected .module-icon-large {
-    color: #7c3aed;
-    animation: iconBounce 0.5s ease-out;
-  }
-
-  /* Reutiliza iconBounce de styles.css */
-
-  /* ============================================
-     CHIPS PREVIEW
-     ============================================ */
-  .modern-chip {
-    background: white;
-    border: 1px solid #e2e8f0;
-    font-size: 13px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-  }
-  
-  .modern-chip:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .permission-chip {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-    color: #1e40af;
-    border-color: #93c5fd;
-  }
-  
-  .module-chip {
-    background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-    color: #6b21a8;
-    border-color: #c4b5fd;
-  }
-  
-  /* ============================================
-     SCROLLBAR PERSONALIZADO
-     ============================================ */
-  .tab-content-modern::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .tab-content-modern::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  .tab-content-modern::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  
-  .tab-content-modern::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  
-  /* ============================================
-     ANIMACIONES DE ENTRADA
-     ============================================ */
-  .permission-card,
-  .module-card {
-    animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
-  }
-  
-  .permission-card:nth-child(1) { animation-delay: 0.05s; }
-  .permission-card:nth-child(2) { animation-delay: 0.1s; }
-  .permission-card:nth-child(3) { animation-delay: 0.15s; }
-  .permission-card:nth-child(4) { animation-delay: 0.2s; }
-  
-  .module-card:nth-child(1) { animation-delay: 0.05s; }
-  .module-card:nth-child(2) { animation-delay: 0.1s; }
-  .module-card:nth-child(3) { animation-delay: 0.15s; }
-  .module-card:nth-child(4) { animation-delay: 0.2s; }
-  .module-card:nth-child(5) { animation-delay: 0.25s; }
-  .module-card:nth-child(6) { animation-delay: 0.3s; }
-  
-  /* ============================================
-     RESPONSIVE
-     ============================================ */
-  @media (max-width: 768px) {
-    /* Tab responsive styles en styles.css global */
-
-    .tab-text {
-      font-size: 11px;
-    }
-
-    .tab-icon {
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
-    }
-  }
-  
-  /* ============================================
-     ACCESIBILIDAD
-     ============================================ */
-  @media (prefers-reduced-motion: reduce) {
-    .permission-card,
-    .module-card,
-    .modern-chip,
-    .module-icon-large {
-      animation: none !important;
-    }
-  
-    .permission-card:hover,
-    .module-card:hover {
-      transform: none !important;
-    }
-  }
+}

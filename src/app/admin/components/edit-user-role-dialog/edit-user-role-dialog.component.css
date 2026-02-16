@@ -1,19 +1,15 @@
-/* edit-user-role-dialog.component.css - REFACTORIZADO Y OPTIMIZADO */
-
-/* ============================================
-   ESTILOS ESPECÍFICOS DEL DIALOG
-   Las clases globales se usan desde styles.css:
-   - Variables CSS (:root)
-   - .input-field-modern
-   - .module-card-base
-   - .permission-card-base
-   - .custom-scrollbar
+/* edit-user-role-dialog.component.css */
+/* Estilos centralizados en styles.css (DIALOG SYSTEM):
+   - .role-radio-card, .role-icon-admin/user/viewer
+   - .permission-card, .module-card, .module-icon-large
    - .modern-chip, .permission-chip, .module-chip
-   ============================================ */
+   - .tab-icon, .tab-text, .tab-check
+   - .tab-content-modern scrollbar
+   - .dialog-stagger-item
+   - reduced-motion
+*/
 
-/* ============================================
-   USER AVATAR
-   ============================================ */
+/* --- USER AVATAR (específico de este diálogo) --- */
 .user-avatar-large {
   width: 96px;
   height: 96px;
@@ -29,52 +25,13 @@
   animation: fadeInScale 0.4s ease-out;
 }
 
-/* Reutiliza fadeInScale de styles.css */
-
-/* ============================================
-   TABS PERSONALIZADOS
-   Estilos de panel movidos a styles.css global
-   ============================================ */
-
-.tab-icon {
-  font-size: 24px;
-  width: 24px;
-  height: 24px;
-  color: var(--slate-500);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-text {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--slate-600);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.tab-check {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: var(--success-green);
-  background: white;
-  border-radius: 50%;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Tab active styles movidos a styles.css global */
-
-/* ============================================
-   INPUT FIELDS (Alias para compatibilidad)
-   ============================================ */
+/* --- INPUT FIELDS (alias local) --- */
 .input-field {
   @apply w-full px-4 py-3 border-2 border-slate-200 rounded-xl text-sm font-medium;
   @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-100 outline-none transition-all;
   @apply placeholder:text-slate-400;
   background: white;
-  color: var(--slate-800);
+  color: #1e293b;
 }
 
 .input-field:hover:not(:focus):not(:disabled) {
@@ -88,17 +45,17 @@
 
 .input-field:disabled {
   @apply bg-slate-100 border-slate-200 cursor-not-allowed;
-  color: var(--slate-400);
+  color: #94a3b8;
 }
 
 .input-group:focus-within .label-icon {
-  color: var(--primary-blue);
+  color: #3b82f6;
   transform: scale(1.1);
   transition: all 0.2s ease;
 }
 
 .input-group:focus-within .input-label {
-  color: var(--primary-blue);
+  color: #3b82f6;
 }
 
 .input-error {
@@ -106,7 +63,7 @@
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: var(--error-red);
+  color: #ef4444;
   font-weight: 500;
   margin-top: 4px;
   animation: slideDown 0.2s ease-out;
@@ -117,133 +74,7 @@
   font-size: 14px;
 }
 
-/* Reutiliza slideDown de styles.css */
-
-/* ============================================
-   ROLE CARDS
-   ============================================ */
-.role-radio-card {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 18px 20px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-}
-
-.role-radio-card:hover {
-  border-color: var(--primary-blue);
-  background: #eff6ff;
-  transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-}
-
-/* Radio checked state movido a styles.css global */
-
-.role-icon-admin {
-  color: var(--error-red);
-  animation: iconPulse 2s ease-in-out infinite;
-}
-
-.role-icon-user {
-  color: var(--primary-blue);
-}
-
-.role-icon-viewer {
-  color: var(--purple-accent);
-}
-
-/* Reutiliza iconPulse de styles.css */
-
-/* ============================================
-   PERMISSION & MODULE CARDS
-   ============================================ */
-.permission-card,
-.module-card {
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.permission-card:hover,
-.module-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-}
-
-.permission-card {
-  padding: 16px;
-}
-
-.permission-card:hover {
-  border-color: var(--primary-blue);
-  background: #f8fafc;
-}
-
-.permission-card.selected {
-  border-color: var(--primary-blue);
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
-}
-
-.module-card {
-  padding: 20px;
-  min-height: 160px;
-}
-
-.module-card:hover {
-  border-color: var(--purple-accent);
-  background: #f8fafc;
-}
-
-.module-card.selected {
-  border-color: var(--purple-accent);
-  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
-  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25);
-}
-
-.module-icon-large {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
-  color: var(--purple-accent);
-  transition: all 0.3s ease;
-}
-
-.module-card.selected .module-icon-large {
-  color: var(--purple-accent-dark);
-  animation: iconBounce 0.5s ease-out;
-}
-
-/* Reutiliza iconBounce de styles.css */
-
-/* ============================================
-   SCROLLBAR PERSONALIZADO (aplicado a contenido de tabs)
-   ============================================ */
-.tab-content-modern::-webkit-scrollbar {
-  width: 6px;
-}
-
-.tab-content-modern::-webkit-scrollbar-track {
-  background: var(--slate-100);
-  border-radius: 3px;
-}
-
-.tab-content-modern::-webkit-scrollbar-thumb {
-  background: var(--slate-300);
-  border-radius: 3px;
-  transition: background 0.2s ease;
-}
-
-.tab-content-modern::-webkit-scrollbar-thumb:hover {
-  background: var(--slate-400);
-}
-
-/* ============================================
-   ANIMACIONES DE ENTRADA
-   ============================================ */
+/* --- STAGGERED ANIMATIONS --- */
 .permission-card,
 .module-card {
   animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
@@ -261,14 +92,8 @@
 .module-card:nth-child(5) { animation-delay: 0.25s; }
 .module-card:nth-child(6) { animation-delay: 0.3s; }
 
-/* Reutiliza fadeInUp de styles.css */
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* --- RESPONSIVE --- */
 @media (max-width: 768px) {
-  /* Tab responsive styles en styles.css global */
-
   .tab-text {
     font-size: 11px;
   }
@@ -286,9 +111,7 @@
   }
 }
 
-/* ============================================
-   ACCESIBILIDAD
-   ============================================ */
+/* --- ACCESIBILIDAD --- */
 @media (prefers-reduced-motion: reduce) {
   .permission-card,
   .module-card,

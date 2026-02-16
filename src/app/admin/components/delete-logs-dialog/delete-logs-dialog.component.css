@@ -1,140 +1,35 @@
-/* delete-logs-dialog.component.css - OPTIMIZADO (de 600+ líneas → 150 líneas) */
+/* delete-logs-dialog.component.css */
+/* Estilos centralizados en styles.css (DIALOG SYSTEM):
+   - .option-card, .option-card.danger-option
+   - .confirmation-input-custom (.valid/.invalid)
+   - .dialog-content scrollbar
+   - reduced-motion
+*/
 
-/* ============================================
-   ESTILOS ÚNICOS DEL DELETE LOGS DIALOG
-   TODO LO DEMÁS USA TAILWIND O CLASES GLOBALES
-   ============================================ */
+/* Override padding para este diálogo */
+.option-card {
+  padding: 20px;
+}
 
-/* ============================================
-   ANIMACIÓN WARNING ICON
-   ============================================ */
-   .warning-icon {
-    animation: pulse 2s infinite;
-  }
+/* Icono de opción danger */
+.option-icon.danger {
+  color: #dc2626;
+  animation: dangerPulse 2s infinite;
+}
 
-  /* Reutiliza pulse de styles.css */
+/* Keyword badge */
+.keyword-badge {
+  animation: keywordPulse 2s infinite;
+}
 
-  /* ============================================
-     OPTION CARDS - ESPECÍFICO
-     ============================================ */
-  .option-card {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px;
-    transition: all 0.3s ease;
-    cursor: pointer;
-  }
-  
-  .option-card:hover {
-    border-color: #8b5cf6;
-    background: #faf5ff;
-    transform: translateX(4px);
-  }
-  
-  .option-card.danger-option {
-    border-color: #fecaca;
-    background: #fef2f2;
-  }
-  
-  .option-card.danger-option:hover {
-    border-color: #dc2626;
-    background: #fee2e2;
-  }
-  
-  /* Radio button selected styles movidos a styles.css global */
-  
-  .option-icon.danger {
-    color: #dc2626;
-    animation: dangerPulse 2s infinite;
-  }
+/* Icon transitions */
+.input-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  /* Reutiliza dangerPulse de styles.css */
-
-  /* ============================================
-     INPUT DE CONFIRMACIÓN - REUTILIZADO
-     ============================================ */
-  .confirmation-input-custom::placeholder {
-    color: #cbd5e1;
-    text-transform: none;
-    letter-spacing: 0;
-    font-weight: 500;
+/* Responsive */
+@media (max-width: 768px) {
+  .option-content {
+    margin-left: 0;
   }
-  
-  .confirmation-input-custom:focus {
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  }
-  
-  .confirmation-input-custom.valid {
-    border-color: #10b981;
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
-    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
-  }
-  
-  .input-container:has(.confirmation-input-custom.valid) .input-icon {
-    color: #10b981;
-    animation: checkBounce 0.5s ease;
-  }
-
-  /* Reutiliza checkBounce de styles.css */
-
-  .confirmation-input-custom.invalid {
-    border-color: #ef4444;
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
-    animation: shake 0.5s ease;
-  }
-  
-  .input-container:has(.confirmation-input-custom.invalid) .input-icon {
-    color: #ef4444;
-  }
-
-  /* Reutiliza shake de styles.css */
-
-  /* ============================================
-     KEYWORD BADGE ANIMATION
-     ============================================ */
-  .keyword-badge {
-    animation: keywordPulse 2s infinite;
-  }
-
-  /* Reutiliza keywordPulse de styles.css */
-
-  /* ============================================
-     SCROLLBAR PERSONALIZADO
-     ============================================ */
-  .dialog-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .dialog-content::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  .dialog-content::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  
-  .dialog-content::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  
-  /* ============================================
-     TRANSICIONES
-     ============================================ */
-  .input-icon,
-  .confirmation-input-custom {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  /* ============================================
-     RESPONSIVE
-     ============================================ */
-  @media (max-width: 768px) {
-    .option-content {
-      margin-left: 0;
-    }
-  }
+}

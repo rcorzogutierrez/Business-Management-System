@@ -1844,6 +1844,386 @@ mat-icon {
   animation: fadeIn 0.5s ease;
 }
 
+/* ================================================================
+   DIALOG SYSTEM (Estandarizado)
+   ================================================================
+   Clases reutilizables para TODOS los diálogos del proyecto.
+   Evita duplicación de CSS entre componentes de diálogo.
+
+   Scrollbar:     .dialog-scrollbar
+   Option Cards:  .option-card, .option-card.danger-option
+   Role Cards:    .role-radio-card, .role-icon-admin/user/viewer
+   Select Cards:  .permission-card, .module-card, .module-icon-large
+   Chips:         .modern-chip, .permission-chip, .module-chip
+   Inputs:        .dialog-input, .dialog-input-error
+   Confirmation:  .confirmation-input-custom (.valid/.invalid)
+   Tabs:          .dialog-tab-icon, .dialog-tab-text, .dialog-tab-check
+   Animations:    .dialog-stagger-item
+   ================================================================ */
+
+/* --- SCROLLBAR PERSONALIZADO (reemplaza duplicación en 8+ archivos) --- */
+.dialog-scrollbar::-webkit-scrollbar,
+.dialog-content::-webkit-scrollbar,
+.tab-content-modern::-webkit-scrollbar,
+mat-dialog-content::-webkit-scrollbar,
+.overflow-y-auto::-webkit-scrollbar,
+.table-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-scrollbar::-webkit-scrollbar-track,
+.dialog-content::-webkit-scrollbar-track,
+.tab-content-modern::-webkit-scrollbar-track,
+mat-dialog-content::-webkit-scrollbar-track,
+.overflow-y-auto::-webkit-scrollbar-track,
+.table-container::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.dialog-scrollbar::-webkit-scrollbar-thumb,
+.dialog-content::-webkit-scrollbar-thumb,
+.tab-content-modern::-webkit-scrollbar-thumb,
+mat-dialog-content::-webkit-scrollbar-thumb,
+.overflow-y-auto::-webkit-scrollbar-thumb,
+.table-container::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.dialog-scrollbar::-webkit-scrollbar-thumb:hover,
+.dialog-content::-webkit-scrollbar-thumb:hover,
+.tab-content-modern::-webkit-scrollbar-thumb:hover,
+mat-dialog-content::-webkit-scrollbar-thumb:hover,
+.overflow-y-auto::-webkit-scrollbar-thumb:hover,
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* --- OPTION CARDS (delete dialogs, selection dialogs) --- */
+.option-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.option-card:hover:not([disabled]) {
+  border-color: #8b5cf6;
+  background: #faf5ff;
+  transform: translateX(4px);
+}
+
+.option-card.danger-option {
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+.option-card.danger-option:hover:not([disabled]) {
+  border-color: #dc2626;
+  background: #fee2e2;
+}
+
+.option-card mat-icon {
+  transition: all 0.3s ease;
+}
+
+.option-card:hover:not([disabled]) mat-icon {
+  transform: scale(1.1);
+}
+
+.option-card:focus-visible {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* --- ROLE RADIO CARDS (add-user, edit-user-role) --- */
+.role-radio-card {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.role-radio-card:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+}
+
+.role-icon-admin {
+  color: #ef4444;
+  animation: iconPulse 2s ease-in-out infinite;
+}
+
+.role-icon-user {
+  color: #3b82f6;
+}
+
+.role-icon-viewer {
+  color: #8b5cf6;
+}
+
+/* --- PERMISSION & MODULE CARDS (add-user, edit-user-role) --- */
+.permission-card,
+.module-card {
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.permission-card:hover,
+.module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.permission-card {
+  padding: 16px;
+}
+
+.permission-card:hover {
+  border-color: #3b82f6;
+  background: #f8fafc;
+}
+
+.permission-card.selected {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 8px 16px rgba(59, 130, 246, 0.25);
+}
+
+.module-card {
+  padding: 20px;
+  min-height: 160px;
+}
+
+.module-card:hover {
+  border-color: #8b5cf6;
+  background: #f8fafc;
+}
+
+.module-card.selected {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  box-shadow: 0 8px 16px rgba(139, 92, 246, 0.25);
+}
+
+.module-icon-large {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #8b5cf6;
+  transition: all 0.3s ease;
+}
+
+.module-card.selected .module-icon-large {
+  color: #7c3aed;
+  animation: iconBounce 0.5s ease-out;
+}
+
+/* --- MODERN CHIPS (preview de selecciones) --- */
+.modern-chip {
+  background: white;
+  border: 1px solid #e2e8f0;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.modern-chip:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.permission-chip {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  color: #1e40af;
+  border-color: #93c5fd;
+}
+
+.module-chip {
+  background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+  color: #6b21a8;
+  border-color: #c4b5fd;
+}
+
+/* --- DIALOG INPUT FIELDS --- */
+.dialog-input {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1e293b;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  outline: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+.dialog-input:hover:not(:focus):not(:disabled) {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.dialog-input:focus {
+  border-color: #3b82f6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dialog-input:disabled {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.dialog-input.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  background: #fef2f2;
+}
+
+.dialog-input-error {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 500;
+  margin-top: 4px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.dialog-input-error::before {
+  content: '⚠';
+  font-size: 14px;
+}
+
+/* --- CONFIRMATION INPUT (delete dialogs con keyword) --- */
+.confirmation-input-custom {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.confirmation-input-custom::placeholder {
+  color: #cbd5e1;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.confirmation-input-custom:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+}
+
+.confirmation-input-custom.valid {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+}
+
+.input-container:has(.confirmation-input-custom.valid) .input-icon {
+  color: #10b981;
+  animation: checkBounce 0.5s ease;
+}
+
+.confirmation-input-custom.invalid {
+  border-color: #ef4444;
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+  animation: shake 0.5s ease;
+}
+
+.input-container:has(.confirmation-input-custom.invalid) .input-icon {
+  color: #ef4444;
+}
+
+/* --- DIALOG TAB STYLES (add-user, edit-user-role) --- */
+.dialog-tab-icon,
+.tab-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  color: #64748b;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-tab-text,
+.tab-text {
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dialog-tab-check,
+.tab-check {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #10b981;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* --- STAGGERED ANIMATIONS (cards en diálogos) --- */
+.dialog-stagger-item {
+  animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.dialog-stagger-item:nth-child(1) { animation-delay: 0.05s; }
+.dialog-stagger-item:nth-child(2) { animation-delay: 0.1s; }
+.dialog-stagger-item:nth-child(3) { animation-delay: 0.15s; }
+.dialog-stagger-item:nth-child(4) { animation-delay: 0.2s; }
+.dialog-stagger-item:nth-child(5) { animation-delay: 0.25s; }
+.dialog-stagger-item:nth-child(6) { animation-delay: 0.3s; }
+
+/* --- WARNING ICON (delete dialogs) --- */
+.dialog-warning-icon {
+  animation: pulse 2s infinite;
+}
+
+/* --- REDUCED MOTION (accesibilidad para todos los diálogos) --- */
+@media (prefers-reduced-motion: reduce) {
+  .option-card,
+  .role-radio-card,
+  .permission-card,
+  .module-card,
+  .modern-chip,
+  .module-icon-large,
+  .dialog-stagger-item,
+  .dialog-warning-icon,
+  .confirmation-input-custom {
+    animation: none !important;
+  }
+
+  .option-card:hover,
+  .role-radio-card:hover,
+  .permission-card:hover,
+  .module-card:hover {
+    transform: none !important;
+  }
+}
+
 /* ========== RESPONSIVE PARA DIALOGS ========== */
 @media (max-width: 640px) {
   .mat-mdc-dialog-container {

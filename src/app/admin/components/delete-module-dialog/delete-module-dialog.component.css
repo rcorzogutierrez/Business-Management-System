@@ -1,182 +1,73 @@
-/* src/app/admin/components/delete-module-dialog/delete-module-dialog.component.css */
+/* delete-module-dialog.component.css */
+/* Estilos centralizados en styles.css (DIALOG SYSTEM):
+   - .option-card, .option-card.danger-option
+   - mat-dialog-content scrollbar
+   - .dialog-stagger-item (animaciones)
+   - reduced-motion
+   - button:focus-visible
+*/
 
-/* ============================================
-   ANIMACIÓN DEL ICONO DE ADVERTENCIA
-   ============================================ */
-   .warning-icon {
-    animation: pulse 2s infinite;
+/* Solo override de padding para este diálogo */
+.option-card {
+  padding: 16px;
+}
+
+/* Animaciones de entrada staggered */
+.flex.flex-col.gap-5 > div {
+  animation: slideInUp 0.3s ease-out backwards;
+}
+
+.flex.flex-col.gap-5 > div:nth-child(1) { animation-delay: 0.05s; }
+.flex.flex-col.gap-5 > div:nth-child(2) { animation-delay: 0.1s; }
+.flex.flex-col.gap-5 > div:nth-child(3) { animation-delay: 0.15s; }
+
+/* Badges de estado */
+.bg-red-100,
+.bg-amber-100,
+.bg-green-100 {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Botones raised */
+.mat-mdc-raised-button {
+  transition: all 0.3s ease;
+}
+
+.mat-mdc-raised-button:not([disabled]):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mat-mdc-raised-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .max-w-\[600px\] {
+    max-width: 95vw;
   }
 
-  /* Reutiliza pulse de styles.css */
+  .px-6 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 
-  /* ============================================
-     OPTION CARDS - ESPECÍFICO
-     ============================================ */
   .option-card {
-    background: white;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 16px;
-    transition: all 0.3s ease;
-    cursor: pointer;
+    padding: 12px;
   }
-  
-  .option-card:hover:not([disabled]) {
-    border-color: #8b5cf6;
-    background: #faf5ff;
-    transform: translateX(4px);
+
+  .ml-9 {
+    margin-left: 0;
+    margin-top: 0.5rem;
   }
-  
-  .option-card.danger-option {
-    border-color: #fecaca;
-    background: #fef2f2;
+
+  mat-dialog-actions {
+    flex-direction: column;
   }
-  
-  .option-card.danger-option:hover:not([disabled]) {
-    border-color: #dc2626;
-    background: #fee2e2;
+
+  mat-dialog-actions button {
+    width: 100%;
   }
-  
-  /* Estados de radio buttons movidos a styles.css global */
-  
-  /* ============================================
-     ICONOS DENTRO DE LAS OPCIONES
-     ============================================ */
-  .option-card mat-icon {
-    transition: all 0.3s ease;
-  }
-  
-  .option-card:hover:not([disabled]) mat-icon {
-    transform: scale(1.1);
-  }
-  
-  /* ============================================
-     BOTONES DE ACCIÓN
-     ============================================ */
-  .mat-mdc-raised-button {
-    transition: all 0.3s ease;
-  }
-  
-  .mat-mdc-raised-button:not([disabled]):hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
-  }
-  
-  .mat-mdc-raised-button:disabled {
-    cursor: not-allowed;
-    opacity: 0.6;
-  }
-  
-  /* ============================================
-     BADGES DE ESTADO
-     ============================================ */
-  .bg-red-100 {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .bg-amber-100 {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .bg-green-100 {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  
-  /* ============================================
-     SCROLLBAR PERSONALIZADO (SI ES NECESARIO)
-     ============================================ */
-  mat-dialog-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  mat-dialog-content::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-  }
-  
-  mat-dialog-content::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-  }
-  
-  mat-dialog-content::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-  }
-  
-  /* ============================================
-     ANIMACIONES DE ENTRADA
-     ============================================ */
-  .flex.flex-col.gap-5 > div {
-    animation: slideInUp 0.3s ease-out backwards;
-  }
-  
-  .flex.flex-col.gap-5 > div:nth-child(1) { 
-    animation-delay: 0.05s; 
-  }
-  
-  .flex.flex-col.gap-5 > div:nth-child(2) { 
-    animation-delay: 0.1s; 
-  }
-  
-  .flex.flex-col.gap-5 > div:nth-child(3) { 
-    animation-delay: 0.15s; 
-  }
-  
-  
-  /* ============================================
-     RESPONSIVE
-     ============================================ */
-  @media (max-width: 640px) {
-    .max-w-\[600px\] {
-      max-width: 95vw;
-    }
-  
-    .px-6 {
-      padding-left: 1rem;
-      padding-right: 1rem;
-    }
-  
-    .option-card {
-      padding: 12px;
-    }
-  
-    .ml-9 {
-      margin-left: 0;
-      margin-top: 0.5rem;
-    }
-  
-    mat-dialog-actions {
-      flex-direction: column;
-    }
-  
-    mat-dialog-actions button {
-      width: 100%;
-    }
-  }
-  
-  /* ============================================
-     ACCESIBILIDAD
-     ============================================ */
-  @media (prefers-reduced-motion: reduce) {
-    .warning-icon,
-    .option-card,
-    .mat-mdc-raised-button,
-    .flex.flex-col.gap-5 > div {
-      animation: none !important;
-      transition: none !important;
-    }
-  }
-  
-  /* ============================================
-     FOCUS VISIBLE (ACCESIBILIDAD)
-     ============================================ */
-  .option-card:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
-  
-  button:focus-visible {
-    outline: 2px solid #3b82f6;
-    outline-offset: 2px;
-  }
+}
