@@ -1,64 +1,70 @@
-<!-- catalog-items-manager.component.html - DISEÑO COMPACTO BLUE -->
+<!-- catalog-items-manager.component.html - Tailwind + Blue theme -->
 
-<div class="dialog-container">
+<div class="flex flex-col w-full max-h-[90vh] bg-white rounded-2xl overflow-hidden animate-fadeIn">
 
   <!-- ========== HEADER ========== -->
-  <div class="dialog-header">
+  <div class="flex items-center justify-between px-5 py-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white shrink-0">
     <div class="flex items-center gap-3">
-      <div class="header-icon-box">
-        <mat-icon>settings</mat-icon>
+      <div class="w-[42px] h-[42px] flex items-center justify-center bg-white/20 rounded-[10px] backdrop-blur-sm">
+        <mat-icon class="text-white !text-[22px] !w-[22px] !h-[22px]">settings</mat-icon>
       </div>
-      <div>
-        <h2>Administrar Catálogo de Items</h2>
-        <p>Gestiona los items reutilizables para tus estimados</p>
+      <div class="flex flex-col gap-0.5">
+        <h2 class="m-0 text-[1.0625rem] font-bold leading-tight">Administrar Catálogo de Items</h2>
+        <p class="m-0 text-xs font-normal opacity-90">Gestiona los items reutilizables para tus estimados</p>
       </div>
     </div>
-    <button type="button" class="close-btn" (click)="close()">
+    <button type="button" class="close-btn" (click)="close()" title="Cerrar (Esc)">
       <mat-icon>close</mat-icon>
     </button>
   </div>
 
   <!-- ========== CONTENT ========== -->
-  <div class="dialog-content">
+  <div class="flex-1 overflow-y-auto p-4 bg-slate-50 flex flex-col gap-4">
 
     <!-- Formulario Crear/Editar -->
-    <div class="form-section">
-      <div class="section-header">
-        <mat-icon>{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
+    <div class="bg-white border border-slate-200 rounded-xl p-4">
+      <div class="flex items-center gap-2 text-sm font-semibold text-slate-800 pb-3 mb-3 border-b border-slate-100">
+        <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-blue-500">{{ isEditMode() ? 'edit' : 'add_circle' }}</mat-icon>
         <span>{{ isEditMode() ? 'Editar Item' : 'Agregar Nuevo Item' }}</span>
       </div>
 
       <form [formGroup]="itemForm" (ngSubmit)="saveItem()" class="space-y-3">
         <!-- Nombre -->
-        <div class="form-group">
-          <label class="form-label required">
-            <mat-icon>label</mat-icon>
+        <div class="flex flex-col gap-1">
+          <label class="flex items-center gap-1 text-[0.6875rem] font-medium text-slate-600">
+            <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-slate-400">label</mat-icon>
             Nombre del Item
+            <span class="text-red-500 font-bold">*</span>
           </label>
           <input type="text"
                  formControlName="name"
                  placeholder="Ej: Instalación de piscina"
-                 class="form-input"
-                 [class.error]="itemForm.get('name')?.invalid && itemForm.get('name')?.touched">
+                 class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none transition-all duration-200 hover:border-slate-300 focus:border-blue-500 focus:ring-[3px] focus:ring-blue-500/10 placeholder:text-slate-400"
+                 [class.!border-red-500]="itemForm.get('name')?.invalid && itemForm.get('name')?.touched"
+                 [class.!bg-red-50]="itemForm.get('name')?.invalid && itemForm.get('name')?.touched">
           @if (itemForm.get('name')?.invalid && itemForm.get('name')?.touched) {
-            <p class="form-error">El nombre es requerido (mínimo 3 caracteres)</p>
+            <p class="flex items-center gap-1.5 m-0 py-1.5 px-2 text-[0.6875rem] font-medium text-red-600 bg-red-50 border-l-2 border-red-500 rounded">
+              <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-red-500">error_outline</mat-icon>
+              El nombre es requerido (mínimo 3 caracteres)
+            </p>
           }
         </div>
 
         <!-- Descripción -->
-        <div class="form-group">
-          <label class="form-label">
-            <mat-icon>notes</mat-icon>
-            Descripción <span class="optional">(Opcional)</span>
+        <div class="flex flex-col gap-1">
+          <label class="flex items-center gap-1 text-[0.6875rem] font-medium text-slate-600">
+            <mat-icon class="!text-[14px] !w-[14px] !h-[14px] text-slate-400">notes</mat-icon>
+            Descripción
+            <span class="font-normal text-slate-400">(Opcional)</span>
           </label>
           <textarea formControlName="description"
                     rows="2"
                     placeholder="Descripción detallada del item (opcional)..."
-                    class="form-textarea"></textarea>
+                    class="w-full py-2 px-3 text-[0.8125rem] text-slate-800 bg-white border-[1.5px] border-slate-200 rounded-lg outline-none resize-y min-h-[60px] font-[inherit] transition-all duration-200 hover:border-slate-300 focus:border-blue-500 focus:ring-[3px] focus:ring-blue-500/10 placeholder:text-slate-400"></textarea>
         </div>
 
         <!-- Botones -->
-        <div class="form-actions">
+        <div class="flex gap-2 pt-3 border-t border-slate-100">
           @if (isEditMode()) {
             <button type="button" class="btn-cancel" (click)="resetForm()">
               <mat-icon>cancel</mat-icon>
@@ -74,50 +80,53 @@
     </div>
 
     <!-- Lista de Items -->
-    <div class="list-section">
-      <div class="list-header">
-        <div class="list-title">
-          <mat-icon>inventory</mat-icon>
+    <div class="bg-white border border-slate-200 rounded-xl p-4 flex-1 flex flex-col min-h-0">
+      <div class="flex items-center justify-between gap-4 pb-3 mb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2 text-sm font-semibold text-slate-800">
+          <mat-icon class="!text-[18px] !w-[18px] !h-[18px] text-blue-500">inventory</mat-icon>
           <span>Items del Catálogo ({{ filteredItems.length }})</span>
         </div>
 
         <!-- Búsqueda -->
-        <div class="search-box">
-          <mat-icon>search</mat-icon>
+        <div class="flex items-center gap-1.5 py-1.5 px-2.5 border border-slate-200 rounded-lg bg-white min-w-[180px] focus-within:border-blue-500 focus-within:shadow-[0_0_0_2px_rgba(59,130,246,0.1)] transition-all duration-200">
+          <mat-icon class="!text-[16px] !w-[16px] !h-[16px] text-slate-400">search</mat-icon>
           <input type="text"
                  [value]="searchTerm()"
                  (input)="onSearchChange($event)"
-                 placeholder="Buscar items...">
+                 placeholder="Buscar items..."
+                 class="flex-1 border-none outline-none text-xs text-slate-800 bg-transparent placeholder:text-slate-400">
         </div>
       </div>
 
       <!-- Items Grid -->
       @if (isLoading()) {
-        <div class="loading-state">
-          <div class="spinner"></div>
-          <p>Cargando items...</p>
+        <div class="flex flex-col items-center justify-center py-12">
+          <div class="w-8 h-8 border-3 border-slate-200 border-t-blue-500 rounded-full animate-spin"></div>
+          <p class="mt-3 text-[0.8125rem] text-slate-500">Cargando items...</p>
         </div>
       } @else if (filteredItems.length === 0) {
-        <div class="empty-state">
-          <mat-icon>inventory_2</mat-icon>
-          <p class="title">No hay items en el catálogo</p>
-          <p class="hint">Agrega items usando el formulario de arriba</p>
+        <div class="flex flex-col items-center justify-center py-12 text-center">
+          <mat-icon class="!text-[48px] !w-[48px] !h-[48px] text-slate-300 mb-3">inventory_2</mat-icon>
+          <p class="m-0 text-sm font-semibold text-slate-500">No hay items en el catálogo</p>
+          <p class="m-0 mt-1 text-xs text-slate-400">Agrega items usando el formulario de arriba</p>
         </div>
       } @else {
-        <div class="items-grid">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-3 overflow-y-auto flex-1 p-1">
           @for (item of filteredItems; track item.id) {
-            <div class="item-card">
-              <div class="item-content">
-                <h4>{{ item.name }}</h4>
+            <div class="flex items-start justify-between gap-2 p-3 bg-white border border-slate-200 rounded-[10px] transition-all duration-200 hover:border-blue-300 hover:shadow-[0_2px_8px_rgba(59,130,246,0.15)]">
+              <div class="flex-1 min-w-0">
+                <h4 class="m-0 text-[0.8125rem] font-semibold text-slate-800 overflow-hidden text-ellipsis whitespace-nowrap">{{ item.name }}</h4>
                 @if (item.description) {
-                  <p>{{ item.description }}</p>
+                  <p class="m-0 mt-1 text-[0.6875rem] text-slate-500 line-clamp-2 leading-snug">{{ item.description }}</p>
                 }
               </div>
-              <div class="item-actions">
-                <button type="button" class="action-btn edit" (click)="editItem(item)" title="Editar">
+              <div class="flex gap-1 shrink-0">
+                <button type="button" class="btn-icon-sm" (click)="editItem(item)" title="Editar"
+                        style="background: #eff6ff; color: #3b82f6;">
                   <mat-icon>edit</mat-icon>
                 </button>
-                <button type="button" class="action-btn delete" (click)="deleteItem(item)" title="Eliminar">
+                <button type="button" class="btn-icon-sm" (click)="deleteItem(item)" title="Eliminar"
+                        style="background: #fef2f2; color: #ef4444;">
                   <mat-icon>delete</mat-icon>
                 </button>
               </div>
@@ -130,8 +139,8 @@
   </div>
 
   <!-- ========== FOOTER ========== -->
-  <div class="dialog-footer">
-    <button type="button" class="btn-close" (click)="close()">
+  <div class="flex justify-end px-4 py-3 bg-white border-t border-slate-200 shrink-0">
+    <button type="button" class="btn-cancel" (click)="close()">
       <mat-icon>close</mat-icon>
       <span>Cerrar</span>
     </button>

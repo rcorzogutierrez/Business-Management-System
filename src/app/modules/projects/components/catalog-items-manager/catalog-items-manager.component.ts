@@ -4,13 +4,8 @@ import { Component, inject, signal, OnInit, ChangeDetectionStrategy } from '@ang
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 import { CatalogItemsService } from '../../services/catalog-items.service';
 import { CatalogItem, CreateCatalogItemData } from '../../models';
@@ -22,16 +17,11 @@ import { CatalogItem, CreateCatalogItemData } from '../../models';
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatProgressSpinnerModule
+    MatSnackBarModule
   ],
   templateUrl: './catalog-items-manager.component.html',
-  styleUrl: './catalog-items-manager.component.css',
+  styleUrls: ['./catalog-items-manager.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CatalogItemsManagerComponent implements OnInit {
