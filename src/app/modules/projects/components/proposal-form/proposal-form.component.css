@@ -98,6 +98,14 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
+.section-header > mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
 
 .section-header h2 {
   font-size: 0.9375rem;
