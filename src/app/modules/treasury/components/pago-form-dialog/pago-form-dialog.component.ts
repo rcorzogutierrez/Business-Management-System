@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { Timestamp } from 'firebase/firestore';
 import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 
@@ -1233,7 +1233,7 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
   private treasuryService = inject(TreasuryService);
   private workersService = inject(WorkersService);
   private proposalsService = inject(ProposalsService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private storage = getStorage();
 
   private mediaStream: MediaStream | null = null;
@@ -1582,12 +1582,12 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      this.snackBar.open('El archivo debe ser una imagen', 'OK', { duration: 3000 });
+      this.notify.warning('El archivo debe ser una imagen');
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      this.snackBar.open('La imagen no debe superar los 5MB', 'OK', { duration: 3000 });
+      this.notify.warning('La imagen no debe superar los 5MB');
       return;
     }
 
@@ -1777,7 +1777,7 @@ export class PagoFormDialogComponent implements OnInit, OnDestroy {
       this.dialogRef.close({ saved: true });
     } catch (error) {
       console.error('Error saving pago:', error);
-      this.snackBar.open('Error al guardar el pago', 'OK', { duration: 3000 });
+      this.notify.crud.saveError('pago');
     } finally {
       this.isSaving.set(false);
     }

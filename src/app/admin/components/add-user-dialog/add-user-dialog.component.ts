@@ -14,7 +14,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { AdminService, CreateUserRequest } from '../../services/admin.service';
 import { getRoleIcon, getPermissionIcon, getModuleIcon } from '../../../shared/utils';
 
@@ -44,7 +44,7 @@ import { getRoleIcon, getPermissionIcon, getModuleIcon } from '../../../shared/u
 export class AddUserDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private adminService = inject(AdminService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialogRef = inject(MatDialogRef<AddUserDialogComponent>);
 
   userForm!: FormGroup;
@@ -114,10 +114,7 @@ export class AddUserDialogComponent implements OnInit {
 
       // Mostrar mensaje de error específico
       const errorMessage = this.getTabValidationError();
-      this.snackBar.open(errorMessage, 'Entendido', {
-        duration: 4000,
-        panelClass: ['warning-snackbar']
-      });
+      this.notify.warning(errorMessage);
     }
   }
 
@@ -320,24 +317,15 @@ isTabValid(tabIndex: number): boolean {
         const result = await this.adminService.createUser(createUserData);
 
         if (result.success) {
-          this.snackBar.open(result.message, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['success-snackbar']
-          });
+          this.notify.success(result.message);
           
           this.dialogRef.close({ success: true, user: createUserData });
         } else {
-          this.snackBar.open(result.message, 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.notify.error(result.message);
         }
       } catch (error: any) {
         console.error('Error en creación de usuario:', error);
-        this.snackBar.open('Error inesperado al crear el usuario', 'Cerrar', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.error('Error inesperado al crear el usuario');
       } finally {
         this.isLoading = false;
       }

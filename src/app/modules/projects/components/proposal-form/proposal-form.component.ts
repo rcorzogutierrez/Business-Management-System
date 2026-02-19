@@ -11,7 +11,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -49,7 +49,6 @@ import { CurrencyFormatterPipe } from '../../../../shared/pipes/currency-formatt
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatDividerModule,
     MatTooltipModule,
     MatDialogModule,
@@ -72,7 +71,7 @@ export class ProposalFormComponent implements OnInit {
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
 
   // Signals
@@ -511,7 +510,7 @@ export class ProposalFormComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error cargando proposal:', error);
-      this.snackBar.open('Error al cargar el estimado', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar el estimado');
     } finally {
       this.isLoading.set(false);
     }
@@ -656,10 +655,7 @@ export class ProposalFormComponent implements OnInit {
 
       // Validaciones mínimas para borrador: solo cliente
       if (!formValue.ownerId || !formValue.ownerName) {
-        this.snackBar.open('Debes seleccionar al menos un cliente', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.warning('Debes seleccionar al menos un cliente');
         return;
       }
 
@@ -676,19 +672,13 @@ export class ProposalFormComponent implements OnInit {
         // Validar que el subtotal sea mayor a 0
         const subtotal = formValue.subtotal || 0;
         if (subtotal <= 0) {
-          this.snackBar.open('El subtotal debe ser mayor a 0', 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.notify.warning('El subtotal debe ser mayor a 0');
           return;
         }
 
         // Validar que tenga al menos un item
         if (this.selectedCatalogItems().length === 0) {
-          this.snackBar.open('Debes agregar al menos un item incluido', 'Cerrar', {
-            duration: 5000,
-            panelClass: ['error-snackbar']
-          });
+          this.notify.warning('Debes agregar al menos un item incluido');
           return;
         }
       }
@@ -773,16 +763,9 @@ export class ProposalFormComponent implements OnInit {
 
       if (this.isEditMode() && this.proposalId()) {
         await this.proposalsService.updateProposal(this.proposalId()!, proposalData);
-        const snackBarRef = this.snackBar.open(
-          asDraft ? 'Borrador guardado exitosamente' : 'Estimado actualizado exitosamente',
-          'Ver Lista',
-          { duration: 5000 }
+        this.notify.success(
+          asDraft ? 'Borrador guardado exitosamente' : 'Estimado actualizado exitosamente'
         );
-
-        // Si hace clic en "Ver Lista", navegar a la lista
-        snackBarRef.onAction().subscribe(() => {
-          this.router.navigate(['/modules/projects']);
-        });
       } else {
         // Crear nuevo estimado
         const newProposal = await this.proposalsService.createProposal(proposalData);
@@ -790,24 +773,16 @@ export class ProposalFormComponent implements OnInit {
         // Navegar a la lista
         this.router.navigate(['/modules/projects']);
 
-        // Mostrar snackbar con opción de ver el estimado creado
-        const snackBarRef = this.snackBar.open(
-          asDraft ? 'Borrador guardado exitosamente' : `Estimado ${newProposal.proposalNumber} creado exitosamente`,
-          'Ver Estimado',
-          { duration: 5000 }
+        this.notify.success(
+          asDraft ? 'Borrador guardado exitosamente' : `Estimado ${newProposal.proposalNumber} creado exitosamente`
         );
-
-        // Si hace clic en "Ver Estimado", navegar al detalle
-        snackBarRef.onAction().subscribe(() => {
-          this.router.navigate(['/modules/projects', newProposal.id]);
-        });
         return;
       }
 
       this.router.navigate(['/modules/projects']);
     } catch (error) {
       console.error('Error guardando proposal:', error);
-      this.snackBar.open('Error al guardar el estimado', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al guardar el estimado');
     } finally {
       this.isLoading.set(false);
     }
@@ -859,10 +834,7 @@ export class ProposalFormComponent implements OnInit {
     // Mostrar mensaje con campos faltantes
     if (missingFields.length > 0) {
       const message = `Faltan los siguientes campos: ${missingFields.join(', ')}`;
-      this.snackBar.open(message, 'Cerrar', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.warning(message);
 
       // Scroll al primer campo inválido
       this.scrollToFirstInvalidField();

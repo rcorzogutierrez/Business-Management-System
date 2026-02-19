@@ -12,7 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { BusinessInfoService } from '../../services/business-info.service';
@@ -53,7 +53,6 @@ import { ModuleHeaderComponent, StatChip } from '../../../shared/components/modu
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatDividerModule,
     ModuleHeaderComponent
   ],
@@ -70,7 +69,7 @@ export class BusinessInfoComponent implements OnInit {
   private businessService = inject(BusinessInfoService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
   // ============================================
@@ -213,9 +212,7 @@ export class BusinessInfoComponent implements OnInit {
       }
     } catch (error) {
       console.error('Error cargando información de empresa:', error);
-      this.snackBar.open('Error al cargar información de empresa', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.crud.loadError('información de empresa');
     } finally {
       this.loading.set(false);
       this.cdr.markForCheck();
@@ -466,17 +463,13 @@ export class BusinessInfoComponent implements OnInit {
 
     // Validar tipo
     if (!file.type.startsWith('image/')) {
-      this.snackBar.open('El archivo debe ser una imagen', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.warning('El archivo debe ser una imagen');
       return;
     }
 
     // Validar tamaño (máximo 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      this.snackBar.open('El archivo no debe superar los 5MB', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.warning('El archivo no debe superar los 5MB');
       return;
     }
 
@@ -522,9 +515,7 @@ export class BusinessInfoComponent implements OnInit {
       return null;
     } catch (error) {
       console.error('Error subiendo logo:', error);
-      this.snackBar.open('Error al subir el logo', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.error('Error al subir el logo');
       return null;
     }
   }
@@ -574,9 +565,7 @@ export class BusinessInfoComponent implements OnInit {
   async onSubmit() {
     if (this.businessForm.invalid) {
       this.businessForm.markAllAsTouched();
-      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -589,9 +578,7 @@ export class BusinessInfoComponent implements OnInit {
 
       // Si uploadLogo retorna null y había un archivo seleccionado, hubo un error
       if (!logoUrl && this.selectedLogoFile()) {
-        this.snackBar.open('Error al subir el logo', 'Cerrar', {
-          duration: 3000
-        });
+        this.notify.error('Error al subir el logo');
         this.saving.set(false);
         this.cdr.markForCheck();
         return;
@@ -608,9 +595,7 @@ export class BusinessInfoComponent implements OnInit {
       const result = await this.businessService.saveBusinessInfo(formData);
 
       if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 3000
-        });
+        this.notify.success(result.message);
 
         // Actualizar datos locales
         if (result.data) {
@@ -621,15 +606,11 @@ export class BusinessInfoComponent implements OnInit {
         this.editMode.set(false);
         this.businessForm.markAsPristine();
       } else {
-        this.snackBar.open(result.message, 'Cerrar', {
-          duration: 5000
-        });
+        this.notify.error(result.message);
       }
     } catch (error) {
       console.error('Error guardando información de empresa:', error);
-      this.snackBar.open('Error al guardar la información', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.crud.saveError('la información');
     } finally {
       this.saving.set(false);
       this.uploadProgress.set(0);

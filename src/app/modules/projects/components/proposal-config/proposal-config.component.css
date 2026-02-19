@@ -322,17 +322,7 @@
 }
 
 /* BOTONES → centralizados en styles.css (BUTTON SYSTEM) */
-
-/* ========== SNACKBAR ========== */
-.success-snackbar {
-  background-color: #10b981 !important;
-  color: white !important;
-}
-
-.error-snackbar {
-  background-color: #ef4444 !important;
-  color: white !important;
-}
+/* SNACKBAR → centralizados en styles.css (MATERIAL SNACKBAR) */
 
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {

@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -34,7 +34,6 @@ import { ModuleHeaderComponent, ActionButton, StatChip } from '../../../shared/c
     MatTabsModule,
     MatCheckboxModule,
     MatChipsModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule,
     MatCardModule,
     MatBadgeModule,
@@ -51,7 +50,7 @@ export class ManageRolesComponent implements OnInit {
   private fb = inject(FormBuilder);
   private rolesService = inject(RolesService);
   private adminService = inject(AdminService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
@@ -185,7 +184,7 @@ export class ManageRolesComponent implements OnInit {
       this.cdr.markForCheck(); // ✅ Forzar detección de cambios después de cargar datos
     } catch (error) {
       console.error('Error cargando datos:', error);
-      this.snackBar.open('Error cargando datos', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('datos');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
@@ -271,7 +270,7 @@ export class ManageRolesComponent implements OnInit {
    */
   async saveRole() {
     if (this.roleForm.invalid) {
-      this.snackBar.open('Por favor completa todos los campos correctamente', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -283,17 +282,17 @@ export class ManageRolesComponent implements OnInit {
 
       if (this.viewMode === 'add') {
         await this.rolesService.createRole(formValue);
-        this.snackBar.open('Rol creado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.created('Rol');
       } else if (this.viewMode === 'edit' && this.selectedRole) {
         await this.rolesService.updateRole(this.selectedRole.id, formValue);
-        this.snackBar.open('Rol actualizado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.updated('Rol');
       }
 
       await this.loadData();
       this.backToList();
     } catch (error: any) {
       console.error('Error guardando rol:', error);
-      this.snackBar.open(error.message || 'Error guardando rol', 'Cerrar', { duration: 4000 });
+      this.notify.error(error.message || 'Error guardando rol');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck(); // ✅ Forzar detección de cambios
@@ -305,12 +304,12 @@ export class ManageRolesComponent implements OnInit {
    */
   async deleteRole(role: Role) {
     if (role.isSystemRole) {
-      this.snackBar.open('No se pueden eliminar los roles del sistema', 'Cerrar', { duration: 3000 });
+      this.notify.warning('No se pueden eliminar los roles del sistema');
       return;
     }
 
     if (role.userCount && role.userCount > 0) {
-      this.snackBar.open('No se puede eliminar un rol que tiene usuarios asignados', 'Cerrar', { duration: 4000 });
+      this.notify.warning('No se puede eliminar un rol que tiene usuarios asignados');
       return;
     }
 
@@ -335,11 +334,11 @@ export class ManageRolesComponent implements OnInit {
 
         try {
           await this.rolesService.deleteRole(role.id);
-          this.snackBar.open('Rol eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleted('Rol');
           await this.loadData();
         } catch (error: any) {
           console.error('Error eliminando rol:', error);
-          this.snackBar.open(error.message || 'Error eliminando rol', 'Cerrar', { duration: 4000 });
+          this.notify.error(error.message || 'Error eliminando rol');
         } finally {
           this.isLoading = false;
           this.cdr.markForCheck();

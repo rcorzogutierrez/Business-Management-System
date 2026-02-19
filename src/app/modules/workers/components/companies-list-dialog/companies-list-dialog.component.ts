@@ -5,7 +5,7 @@ import { MatDialogRef, MatDialogModule, MatDialog } from '@angular/material/dial
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { Router } from '@angular/router';
@@ -27,7 +27,6 @@ import { CompanyFormDialogComponent, CompanyFormDialogData, CompanyFormDialogRes
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatMenuModule,
     MatDividerModule
   ],
@@ -566,7 +565,7 @@ export class CompaniesListDialogComponent implements OnInit {
   private companiesService = inject(CompaniesService);
   private workersService = inject(WorkersService);
   private authService = inject(AuthService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private router = inject(Router);
 
   isLoading = signal(true);
@@ -658,9 +657,9 @@ export class CompaniesListDialogComponent implements OnInit {
     );
 
     if (result.success) {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      this.notify.success(result.message);
     } else {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+      this.notify.error(result.message);
     }
   }
 
@@ -686,9 +685,9 @@ export class CompaniesListDialogComponent implements OnInit {
       if (confirmed) {
         const result = await this.companiesService.deleteCompany(company.id);
         if (result.success) {
-          this.snackBar.open('Empresa eliminada exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleted('Empresa');
         } else {
-          this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(result.message);
         }
       }
     });

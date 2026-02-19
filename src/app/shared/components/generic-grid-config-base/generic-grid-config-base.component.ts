@@ -3,7 +3,7 @@
 import { Component, OnInit, computed, signal, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { GridConfiguration } from '../../modules/dynamic-form-builder/models/module-config.interface';
 
@@ -31,7 +31,7 @@ import { GridConfiguration } from '../../modules/dynamic-form-builder/models/mod
 })
 export abstract class GenericGridConfigBaseComponent implements OnInit {
   // Services (inyectados por el componente hijo)
-  protected snackBar = inject(MatSnackBar);
+  protected notify = inject(NotificationService);
   protected router = inject(Router);
   protected cdr = inject(ChangeDetectorRef);
 
@@ -124,7 +124,7 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       this.cdr.detectChanges();
     } catch (error) {
       console.error('Error cargando configuración:', error);
-      this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
+      this.notify.system.configLoadError();
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -169,18 +169,10 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       this.itemsPerPageSignal.set(updatedValue);
       this.cdr.detectChanges();
 
-      this.snackBar.open('✅ Configuración actualizada correctamente', '', {
-        duration: 2000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.system.configUpdated();
     } catch (error) {
       console.error('Error actualizando configuración del grid:', error);
-      this.snackBar.open('❌ Error al actualizar la configuración', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.system.configError();
     }
   }
 
@@ -217,23 +209,15 @@ export abstract class GenericGridConfigBaseComponent implements OnInit {
       }
 
       const message = shouldEnable
-        ? '✅ Todas las funcionalidades han sido activadas'
-        : '✅ Todas las funcionalidades han sido desactivadas';
+        ? 'Todas las funcionalidades han sido activadas'
+        : 'Todas las funcionalidades han sido desactivadas';
 
-      this.snackBar.open(message, '', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.success(message);
 
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error al cambiar funcionalidades:', error);
-      this.snackBar.open('❌ Error al cambiar las funcionalidades', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.error('Error al cambiar las funcionalidades');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();

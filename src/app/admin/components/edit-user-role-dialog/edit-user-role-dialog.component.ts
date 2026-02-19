@@ -12,7 +12,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { User, AdminService, RoleOption, PermissionOption, ModuleOption } from '../../services/admin.service';
@@ -39,7 +39,6 @@ export interface EditUserRoleDialogData {
     MatTabsModule,
     MatDividerModule,
     MatChipsModule,
-    MatSnackBarModule,
     MatTooltipModule
   ],
   templateUrl: './edit-user-role-dialog.component.html',
@@ -50,7 +49,7 @@ export class EditUserRoleDialogComponent implements OnInit {
   private fb = inject(FormBuilder);
   private adminService = inject(AdminService);
   private authService = inject(AuthService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private nestedDialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
 
@@ -223,9 +222,7 @@ export class EditUserRoleDialogComponent implements OnInit {
 
     // No permitir quitar el último permiso
     if (index > -1 && permissions.length <= 1) {
-      this.snackBar.open('El usuario debe tener al menos un permiso', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.validation.selectAtLeastOne('permiso');
       return;
     }
 
@@ -397,14 +394,12 @@ export class EditUserRoleDialogComponent implements OnInit {
 
   async onSave() {
     if (this.userForm.invalid) {
-      this.snackBar.open('Por favor completa todos los campos correctamente', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.validation.invalidForm();
       return;
     }
 
     if (!this.hasChanges()) {
-      this.snackBar.open('No hay cambios para guardar', 'Cerrar', { duration: 2000 });
+      this.notify.info('No hay cambios para guardar');
       return;
     }
 
@@ -426,13 +421,11 @@ export class EditUserRoleDialogComponent implements OnInit {
         isActive: formValue.isActive
       });
 
-      this.snackBar.open('Usuario actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.crud.updated('Usuario');
       this.dialogRef.close(true);
     } catch (error: any) {
       console.error('Error actualizando usuario:', error);
-      this.snackBar.open(error.message || 'Error actualizando usuario', 'Cerrar', {
-        duration: 4000
-      });
+      this.notify.error(error.message || 'Error actualizando usuario');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();

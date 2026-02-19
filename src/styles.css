@@ -193,6 +193,10 @@
   .error-snackbar {
     --mdc-snackbar-container-color: #dc2626 !important;
   }
+
+  .info-snackbar {
+    --mdc-snackbar-container-color: #3b82f6 !important;
+  }
 }
 
 /* 5. COMPONENTES CUSTOM CON TAILWIND */
@@ -2296,16 +2300,6 @@ mat-dialog-content::-webkit-scrollbar-thumb:hover,
 
 .option-card.mat-mdc-radio-button.mat-mdc-radio-disabled:hover {
   transform: none !important;
-}
-
-/* Snackbar error styling */
-.error-snackbar {
-  background-color: #ef4444 !important;
-  color: white !important;
-}
-
-.error-snackbar .mat-mdc-snack-bar-label {
-  color: white !important;
 }
 
 /* Log Details Dialog - usa padding de Tailwind en el HTML */

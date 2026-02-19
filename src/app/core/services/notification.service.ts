@@ -9,120 +9,103 @@ export interface NotificationMessage {
   message: string;
 }
 
-/**
- * Servicio centralizado de notificaciones
- *
- * Características:
- * - Snackbars consistentes en toda la aplicación
- * - Tipos predefinidos (success, error, warning, info)
- * - Configuración centralizada de duración y posición
- * - Clases CSS personalizables
- *
- * @example
- * ```typescript
- * constructor(private notificationService: NotificationService) {}
- *
- * // Mostrar mensaje de éxito
- * this.notificationService.success('¡Datos guardados correctamente!');
- *
- * // Mostrar mensaje de error
- * this.notificationService.error('Error al guardar los datos');
- *
- * // Mostrar mensaje de advertencia
- * this.notificationService.warning('Los cambios no se han guardado');
- *
- * // Mostrar mensaje informativo
- * this.notificationService.info('Nueva actualización disponible');
- * ```
- */
 @Injectable({
   providedIn: 'root'
 })
 export class NotificationService {
   private snackBar = inject(MatSnackBar);
 
-  /**
-   * Configuración por defecto para todos los snackbars
-   */
   private readonly defaultConfig: Partial<MatSnackBarConfig> = {
     horizontalPosition: 'end',
     verticalPosition: 'top',
   };
 
-  /**
-   * Muestra un mensaje de éxito
-   * Color verde, duración 5 segundos
-   *
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (default: 5000)
-   */
-  success(message: string, duration: number = 5000): void {
+  private readonly DURATIONS: Record<NotificationType, number> = {
+    success: 4000,
+    error: 8000,
+    warning: 6000,
+    info: 5000,
+  };
+
+  // --- Métodos base ---
+
+  success(message: string, duration?: number): void {
     this.show(message, {
       ...this.defaultConfig,
-      duration,
+      duration: duration ?? this.DURATIONS.success,
       panelClass: ['success-snackbar'],
     });
   }
 
-  /**
-   * Muestra un mensaje de error
-   * Color rojo, duración 8 segundos (más tiempo para leer el error)
-   *
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (default: 8000)
-   */
-  error(message: string, duration: number = 8000): void {
+  error(message: string, duration?: number): void {
     this.show(message, {
       ...this.defaultConfig,
-      duration,
+      duration: duration ?? this.DURATIONS.error,
       panelClass: ['error-snackbar'],
     });
   }
 
-  /**
-   * Muestra un mensaje de advertencia
-   * Color naranja/amarillo, duración 6 segundos
-   *
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (default: 6000)
-   */
-  warning(message: string, duration: number = 6000): void {
+  warning(message: string, duration?: number): void {
     this.show(message, {
       ...this.defaultConfig,
-      duration,
+      duration: duration ?? this.DURATIONS.warning,
       panelClass: ['warning-snackbar'],
     });
   }
 
-  /**
-   * Muestra un mensaje informativo
-   * Color azul, duración 5 segundos
-   *
-   * @param message Mensaje a mostrar
-   * @param duration Duración en milisegundos (default: 5000)
-   */
-  info(message: string, duration: number = 5000): void {
+  info(message: string, duration?: number): void {
     this.show(message, {
       ...this.defaultConfig,
-      duration,
+      duration: duration ?? this.DURATIONS.info,
       panelClass: ['info-snackbar'],
     });
   }
 
-  /**
-   * Muestra un snackbar genérico con configuración personalizada
-   *
-   * @param message Mensaje a mostrar
-   * @param config Configuración del snackbar
-   * @param action Texto del botón de acción (default: 'Cerrar')
-   */
+  // --- Métodos CRUD predefinidos ---
+
+  readonly crud = {
+    created: (entity: string) => this.success(`${entity} creado exitosamente`),
+    updated: (entity: string) => this.success(`${entity} actualizado exitosamente`),
+    deleted: (entity: string) => this.success(`${entity} eliminado exitosamente`),
+    deletedMultiple: (count: number, entity: string) =>
+      this.success(`${count} ${entity}(s) eliminado(s) exitosamente`),
+    statusChanged: (entity: string, status: string) =>
+      this.success(`${entity} ${status} exitosamente`),
+    saveError: (entity: string) => this.error(`Error al guardar ${entity}`),
+    deleteError: (entity: string) => this.error(`Error al eliminar ${entity}`),
+    loadError: (entity: string) => this.error(`Error al cargar ${entity}`),
+    statusError: (entity: string) => this.error(`Error al cambiar el estado de ${entity}`),
+  };
+
+  // --- Métodos de validación ---
+
+  readonly validation = {
+    required: (field: string) => this.warning(`${field} es requerido`),
+    selectAtLeastOne: (entity: string) =>
+      this.warning(`Selecciona al menos un ${entity}`),
+    invalidForm: () =>
+      this.warning('Por favor completa todos los campos correctamente'),
+    configUnavailable: () => this.warning('Configuración no disponible'),
+    duplicate: (entity: string) => this.warning(`Este ${entity} ya está agregado`),
+  };
+
+  // --- Métodos de sistema ---
+
+  readonly system = {
+    refreshed: () => this.success('Datos actualizados', 2000),
+    refreshError: () => this.error('Error al actualizar los datos'),
+    exported: (format: string) => this.success(`Exportación ${format} completada`),
+    exportError: (format: string) => this.error(`Error en la exportación ${format}`),
+    unauthorized: () => this.error('Usuario no autenticado'),
+    configUpdated: () => this.success('Configuración actualizada correctamente'),
+    configError: () => this.error('Error al actualizar la configuración'),
+    configLoadError: () => this.error('Error al cargar la configuración'),
+  };
+
   show(message: string, config?: MatSnackBarConfig, action: string = 'Cerrar'): void {
     this.snackBar.open(message, action, config);
   }
 
-  /**
-   * Cierra todos los snackbars activos
-   */
   dismiss(): void {
     this.snackBar.dismiss();
   }

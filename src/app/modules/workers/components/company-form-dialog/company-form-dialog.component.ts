@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { CompaniesService } from '../../companies/services/companies.service';
 import { Company } from '../../companies/models';
@@ -424,7 +424,7 @@ export class CompanyFormDialogComponent implements OnInit {
   private dialogRef = inject(MatDialogRef<CompanyFormDialogComponent>);
   private companiesService = inject(CompaniesService);
   private authService = inject(AuthService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
 
   data = inject<CompanyFormDialogData>(MAT_DIALOG_DATA, { optional: true });
 
@@ -478,7 +478,7 @@ export class CompanyFormDialogComponent implements OnInit {
         result = await this.companiesService.createCompany(this.companyForm.value, currentUserUid);
 
         if (result.success) {
-          this.snackBar.open('Empresa creada exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.created('Empresa');
           this.dialogRef.close({ companyId: result.data?.id } as CompanyFormDialogResult);
         }
       } else {
@@ -489,17 +489,17 @@ export class CompanyFormDialogComponent implements OnInit {
         );
 
         if (result.success) {
-          this.snackBar.open('Empresa actualizada exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.updated('Empresa');
           this.dialogRef.close({ updated: true } as CompanyFormDialogResult);
         }
       }
 
       if (!result.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.error(result.message);
       }
     } catch (error) {
       console.error('Error guardando empresa:', error);
-      this.snackBar.open('Error al guardar la empresa', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('la empresa');
     } finally {
       this.isSaving.set(false);
     }

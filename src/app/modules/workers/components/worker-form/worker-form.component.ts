@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
@@ -36,7 +36,6 @@ type FormMode = 'create' | 'edit' | 'view';
     MatSelectModule,
     MatRadioModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatTooltipModule,
     MatDialogModule,
     ModuleHeaderComponent
@@ -51,7 +50,7 @@ export class WorkerFormComponent implements OnInit {
   private router = inject(Router);
   private workersService = inject(WorkersService);
   private companiesService = inject(CompaniesService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
@@ -139,7 +138,7 @@ export class WorkerFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error inicializando formulario:', error);
-      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el formulario');
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();
@@ -153,7 +152,7 @@ export class WorkerFormComponent implements OnInit {
       const worker = this.workersService.workers().find(w => w.id === workerId);
 
       if (!worker) {
-        this.snackBar.open('Trabajador no encontrado', 'Cerrar', { duration: 3000 });
+        this.notify.error('Trabajador no encontrado');
         this.router.navigate(['/modules/workers']);
         return;
       }
@@ -163,7 +162,7 @@ export class WorkerFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error cargando trabajador:', error);
-      this.snackBar.open('Error al cargar el trabajador', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el trabajador');
       this.router.navigate(['/modules/workers']);
     }
   }
@@ -254,14 +253,14 @@ export class WorkerFormComponent implements OnInit {
   async onSubmit() {
     if (this.workerForm.invalid) {
       this.workerForm.markAllAsTouched();
-      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
     // Validar que si es contractor, tenga empresa seleccionada
     const formValue = this.workerForm.value;
     if (formValue.workerType === 'contractor' && !formValue.companyId) {
-      this.snackBar.open('Por favor, selecciona una empresa para el trabajador subcontratado', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Por favor, selecciona una empresa para el trabajador subcontratado');
       return;
     }
 
@@ -294,10 +293,10 @@ export class WorkerFormComponent implements OnInit {
         const result = await this.workersService.createWorker(workerData, currentUserUid);
 
         if (result.success) {
-          this.snackBar.open('Trabajador creado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.created('Trabajador');
           this.router.navigate(['/modules/workers']);
         } else {
-          this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(result.message);
         }
 
       } else if (this.mode() === 'edit') {
@@ -307,16 +306,16 @@ export class WorkerFormComponent implements OnInit {
         const result = await this.workersService.updateWorker(worker.id, workerData, currentUserUid);
 
         if (result.success) {
-          this.snackBar.open('Trabajador actualizado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.updated('Trabajador');
           this.router.navigate(['/modules/workers']);
         } else {
-          this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(result.message);
         }
       }
 
     } catch (error) {
       console.error('Error guardando trabajador:', error);
-      this.snackBar.open('Error al guardar el trabajador', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('el trabajador');
     } finally {
       this.isSaving.set(false);
       this.cdr.markForCheck();

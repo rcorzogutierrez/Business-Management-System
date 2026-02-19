@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatMenuModule } from '@angular/material/menu';
@@ -38,7 +38,6 @@ import { CurrencyFormatterPipe } from '../../../../shared/pipes/currency-formatt
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatDividerModule,
     MatChipsModule,
     MatMenuModule,
@@ -58,7 +57,7 @@ export class ProposalViewComponent implements OnInit {
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
 
   // Signals
@@ -107,12 +106,12 @@ export class ProposalViewComponent implements OnInit {
           this.languageService.setLanguage(proposal.language);
         }
       } else {
-        this.snackBar.open('Estimado no encontrado', 'Cerrar', { duration: 3000 });
+        this.notify.error('Estimado no encontrado');
         this.router.navigate(['/modules/projects']);
       }
     } catch (error) {
       console.error('Error cargando proposal:', error);
-      this.snackBar.open('Error al cargar el estimado', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar el estimado');
     } finally {
       this.isLoading.set(false);
     }
@@ -148,10 +147,10 @@ export class ProposalViewComponent implements OnInit {
     try {
       await this.proposalsService.updateProposalStatus(proposal.id, newStatus);
       await this.loadProposal(proposal.id);
-      this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.success('Estado actualizado exitosamente');
     } catch (error) {
       console.error('Error actualizando estado:', error);
-      this.snackBar.open('Error al actualizar el estado', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al actualizar el estado');
     }
   }
 
@@ -168,9 +167,7 @@ export class ProposalViewComponent implements OnInit {
 
     // Validar que el proposal esté aprobado
     if (proposal.status !== 'approved') {
-      this.snackBar.open('Solo se pueden convertir a factura los estimados aprobados', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.warning('Solo se pueden convertir a factura los estimados aprobados');
       return;
     }
 
@@ -192,17 +189,17 @@ export class ProposalViewComponent implements OnInit {
     // Validar que la factura tenga datos completos
     const validation = this.validateInvoiceComplete(proposal);
     if (!validation.isValid) {
-      this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+      this.notify.warning(validation.message);
       return;
     }
 
     try {
       await this.proposalsService.updateProposalStatus(proposal.id, 'paid');
       await this.loadProposal(proposal.id);
-      this.snackBar.open('Factura marcada como pagada exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.success('Factura marcada como pagada exitosamente');
     } catch (error) {
       console.error('Error marcando factura como pagada:', error);
-      this.snackBar.open('Error al marcar como pagada', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al marcar como pagada');
     }
   }
 
@@ -277,11 +274,11 @@ export class ProposalViewComponent implements OnInit {
       if (confirmed) {
         try {
           await this.proposalsService.deleteProposal(proposal.id);
-          this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.success('Estimado eliminado exitosamente');
           this.router.navigate(['/modules/projects']);
         } catch (error) {
           console.error('Error eliminando proposal:', error);
-          this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+          this.notify.error('Error al eliminar el estimado');
         }
       }
     });
@@ -474,7 +471,7 @@ export class ProposalViewComponent implements OnInit {
       });
     } catch (error) {
       console.error('❌ Error abriendo diálogo de factura:', error);
-      this.snackBar.open('Error al abrir el editor de factura', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al abrir el editor de factura');
     }
   }
 }
