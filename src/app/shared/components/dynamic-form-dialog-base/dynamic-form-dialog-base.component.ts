@@ -2,7 +2,7 @@
 
 import { inject, signal, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ValidatorFn, AbstractControl } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { FieldConfig, FieldType } from '../../modules/dynamic-form-builder/models/field-config.interface';
 
@@ -19,7 +19,7 @@ import { FieldConfig, FieldType } from '../../modules/dynamic-form-builder/model
  */
 export abstract class DynamicFormDialogBase {
   protected fb = inject(FormBuilder);
-  protected snackBar = inject(MatSnackBar);
+  protected notify = inject(NotificationService);
   protected cdr = inject(ChangeDetectorRef);
 
   isLoading = signal<boolean>(false);

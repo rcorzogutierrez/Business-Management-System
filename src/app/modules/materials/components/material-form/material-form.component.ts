@@ -13,7 +13,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 
@@ -49,7 +49,6 @@ type FormMode = 'create' | 'edit' | 'view';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatTooltipModule
   ],
   templateUrl: './material-form.component.html',
@@ -62,7 +61,7 @@ export class MaterialFormComponent implements OnInit {
   private router = inject(Router);
   private materialsService = inject(MaterialsService);
   private configService = inject(MaterialsConfigService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
   private authService = inject(AuthService);
@@ -101,29 +100,12 @@ export class MaterialFormComponent implements OnInit {
         const isAdmin = currentUser?.role === 'admin';
 
         if (isAdmin) {
-          // Admin: mostrar botón para ir a configuración
-          this.snackBar.open(
-            '⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.',
-            'Ir a Configuración',
-            {
-              duration: 8000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top'
-            }
-          ).onAction().subscribe(() => {
-            this.router.navigate(['/modules/materials/config']);
-          });
+          // Admin: mostrar mensaje y redirigir a configuración
+          this.notify.warning('No hay campos configurados. Por favor, configura los campos del formulario primero.', 8000);
+          this.router.navigate(['/modules/materials/config']);
         } else {
           // Usuario normal: solo mostrar mensaje
-          this.snackBar.open(
-            '⚠️ No hay campos configurados. Contacta al administrador para configurar este módulo.',
-            'Cerrar',
-            {
-              duration: 8000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top'
-            }
-          );
+          this.notify.warning('No hay campos configurados. Contacta al administrador para configurar este módulo.', 8000);
         }
 
         this.router.navigate(['/modules/materials']);
@@ -154,7 +136,7 @@ export class MaterialFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error inicializando formulario:', error);
-      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el formulario');
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();
@@ -168,7 +150,7 @@ export class MaterialFormComponent implements OnInit {
       const material = this.materialsService.materials().find(m => m.id === materialId);
 
       if (!material) {
-        this.snackBar.open('Material no encontrado', 'Cerrar', { duration: 3000 });
+        this.notify.error('Material no encontrado');
         this.router.navigate(['/modules/materials']);
         return;
       }
@@ -178,7 +160,7 @@ export class MaterialFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error cargando material:', error);
-      this.snackBar.open('Error al cargar el material', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el material');
       this.router.navigate(['/materials']);
     }
   }
@@ -226,7 +208,7 @@ export class MaterialFormComponent implements OnInit {
   async onSubmit() {
     if (this.materialForm.invalid) {
       this.materialForm.markAllAsTouched();
-      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -273,10 +255,10 @@ export class MaterialFormComponent implements OnInit {
         const result = await this.materialsService.createMaterial(materialData, currentUserUid);
 
         if (result.success) {
-          this.snackBar.open('Material creado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.created('Material');
           this.router.navigate(['/modules/materials']);
         } else {
-          this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(result.message);
         }
 
       } else if (this.mode() === 'edit') {
@@ -295,16 +277,16 @@ export class MaterialFormComponent implements OnInit {
         const result = await this.materialsService.updateMaterial(material.id, updateData, currentUserUid);
 
         if (result.success) {
-          this.snackBar.open('Material actualizado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.updated('Material');
           this.router.navigate(['/modules/materials']);
         } else {
-          this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(result.message);
         }
       }
 
     } catch (error) {
       console.error('Error guardando material:', error);
-      this.snackBar.open('Error al guardar el material', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('el material');
     } finally {
       this.isSaving.set(false);
       this.cdr.markForCheck();

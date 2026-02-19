@@ -11,7 +11,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { SystemConfigService } from '../../services/system-config.service';
 import { AuthService } from '../../../core/services/auth.service';
@@ -46,7 +46,7 @@ export class SystemConfigComponent implements OnInit {
   private configService = inject(SystemConfigService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
 
   // ============================================
@@ -182,7 +182,7 @@ export class SystemConfigComponent implements OnInit {
       this.bodyBackgroundValue.set(config.layout?.bodyBackgroundValue || 'linear-gradient(to bottom right, #f8fafc, #f1f5f9, #e2e8f0)');
     } catch (error) {
       console.error('Error cargando configuración:', error);
-      this.snackBar.open('Error al cargar la configuración', 'Cerrar', { duration: 3000 });
+      this.notify.system.configLoadError();
     } finally {
       this.isLoading.set(false);
     }
@@ -250,7 +250,7 @@ export class SystemConfigComponent implements OnInit {
     const currentUserUid = this.currentUser()?.uid;
     
     if (!file || !currentUserUid) {
-      this.snackBar.open('Selecciona un archivo válido', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Selecciona un archivo válido');
       return;
     }
 
@@ -260,13 +260,13 @@ export class SystemConfigComponent implements OnInit {
       const result = await this.configService.uploadLogo(file, currentUserUid);
       
       if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.success(result.message);
         this.selectedLogoFile.set(null);
       } else {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.error(result.message);
       }
     } catch (error: any) {
-      this.snackBar.open('Error al subir el logo', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al subir el logo');
     } finally {
       this.isUploadingLogo.set(false);
     }
@@ -304,12 +304,12 @@ export class SystemConfigComponent implements OnInit {
           if (result.success) {
             this.logoPreviewUrl.set('');
             this.selectedLogoFile.set(null);
-            this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+            this.notify.success(result.message);
           } else {
-            this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+            this.notify.error(result.message);
           }
         } catch (error) {
-          this.snackBar.open('Error al eliminar el logo', 'Cerrar', { duration: 3000 });
+          this.notify.error('Error al eliminar el logo');
         } finally {
           this.isUploadingLogo.set(false);
         }
@@ -323,7 +323,7 @@ export class SystemConfigComponent implements OnInit {
   async saveConfiguration() {
     if (this.configForm.invalid) {
       this.configForm.markAllAsTouched();
-      this.snackBar.open('Completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -351,15 +351,15 @@ export class SystemConfigComponent implements OnInit {
       }, currentUserUid);
 
       if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.system.configUpdated();
         // ✅ Recargar configuración para reflejar cambios en el formulario
         await this.loadConfiguration();
       } else {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.error(result.message);
       }
 
     } catch (error: any) {
-      this.snackBar.open('Error al guardar la configuración', 'Cerrar', { duration: 3000 });
+      this.notify.system.configError();
     } finally {
       this.isSaving.set(false);
     }

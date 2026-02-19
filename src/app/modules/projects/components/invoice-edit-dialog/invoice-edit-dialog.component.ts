@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { Proposal, SelectedMaterial, SelectedWorker } from '../../models';
@@ -30,8 +30,7 @@ import { Timestamp } from 'firebase/firestore';
     FormsModule,
     TranslateModule,
     MatDialogModule,
-    MatIconModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   templateUrl: './invoice-edit-dialog.component.html',
   styleUrls: ['./invoice-edit-dialog.component.css']
@@ -45,7 +44,7 @@ export class InvoiceEditDialogComponent implements OnInit {
   private materialsConfigService = inject(MaterialsConfigService);
   private workersService = inject(WorkersService);
   private languageService = inject(LanguageService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private elementRef = inject(ElementRef);
   public data = inject<{ proposal: Proposal }>(MAT_DIALOG_DATA);
 
@@ -191,9 +190,7 @@ export class InvoiceEditDialogComponent implements OnInit {
 
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
-      this.snackBar.open('Error al cargar materiales y trabajadores', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.error('Error al cargar materiales y trabajadores');
       throw error;
     }
   }
@@ -304,7 +301,7 @@ export class InvoiceEditDialogComponent implements OnInit {
     // Verificar si ya está agregado
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
     if (exists) {
-      this.snackBar.open('Este material ya está agregado', 'Cerrar', { duration: 2000 });
+      this.notify.warning('Este material ya está agregado');
       return;
     }
 
@@ -423,7 +420,7 @@ export class InvoiceEditDialogComponent implements OnInit {
     // Verificar si ya está agregado
     const exists = this.selectedWorkers.find(w => w.workerId === workerId);
     if (exists) {
-      this.snackBar.open('Este trabajador ya está agregado', 'Cerrar', { duration: 2000 });
+      this.notify.warning('Este trabajador ya está agregado');
       return;
     }
 
@@ -447,18 +444,18 @@ export class InvoiceEditDialogComponent implements OnInit {
   validate(): boolean {
     // Validar fecha de factura (requerida)
     if (!this.invoiceDate) {
-      this.snackBar.open('Debes ingresar la fecha de emisión de la factura', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de emisión de la factura');
       return false;
     }
 
     // Validar fechas de trabajo (requeridas)
     if (!this.workStartDate) {
-      this.snackBar.open('Debes ingresar la fecha de inicio del trabajo', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de inicio del trabajo');
       return false;
     }
 
     if (!this.workEndDate) {
-      this.snackBar.open('Debes ingresar la fecha de finalización del trabajo', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de finalización del trabajo');
       return false;
     }
 
@@ -466,40 +463,36 @@ export class InvoiceEditDialogComponent implements OnInit {
     const startDate = new Date(this.workStartDate);
     const endDate = new Date(this.workEndDate);
     if (startDate > endDate) {
-      this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
+      this.notify.warning('La fecha de inicio no puede ser mayor a la fecha de finalización');
       return false;
     }
 
     // Validar horas trabajadas (requeridas)
     if (this.workTime === null || this.workTime === undefined || this.workTime <= 0) {
-      this.snackBar.open('Debes ingresar las horas trabajadas (mayor a 0)', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar las horas trabajadas (mayor a 0)');
       return false;
     }
 
     if (this.selectedMaterials.length === 0) {
-      this.snackBar.open('Debes agregar al menos un material', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes agregar al menos un material');
       return false;
     }
 
     if (this.selectedWorkers.length === 0) {
-      this.snackBar.open('Debes agregar al menos un trabajador', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes agregar al menos un trabajador');
       return false;
     }
 
     // Validar que todos los materiales tengan cantidad y precio válidos
     for (const material of this.selectedMaterials) {
       if (!material.amount || material.amount <= 0) {
-        this.snackBar.open(`El material "${material.materialName}" debe tener una cantidad mayor a 0`, 'Cerrar', {
-          duration: 3000
-        });
+        this.notify.warning(`El material "${material.materialName}" debe tener una cantidad mayor a 0`);
         return false;
       }
 
       // Permitir precio 0 (gratis), pero no null/undefined/negativo
       if (material.price === null || material.price === undefined || material.price < 0) {
-        this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido (mínimo 0)`, 'Cerrar', {
-          duration: 3000
-        });
+        this.notify.warning(`El material "${material.materialName}" debe tener un precio válido (mínimo 0)`);
         return false;
       }
     }
@@ -562,14 +555,12 @@ export class InvoiceEditDialogComponent implements OnInit {
 
       await this.proposalsService.updateProposal(this.data.proposal.id, updateData);
 
-      this.snackBar.open('Factura creada exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.success('Factura creada exitosamente');
 
       this.dialogRef.close(true);
     } catch (error) {
       console.error('❌ Error guardando datos de factura:', error);
-      this.snackBar.open('Error al guardar los datos', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.error('Error al guardar los datos');
     } finally {
       this.isSaving.set(false);
     }

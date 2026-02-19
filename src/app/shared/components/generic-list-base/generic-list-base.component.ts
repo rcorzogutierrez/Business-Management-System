@@ -2,7 +2,7 @@
 
 import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { Router } from '@angular/router';
 
 import { ModuleConfigBaseService } from '../../modules/dynamic-form-builder/services/module-config-base.service';
@@ -30,7 +30,7 @@ import { formatFieldValue, getFieldValue } from '../../modules/dynamic-form-buil
 })
 export abstract class GenericListBaseComponent<T extends { id: string | number }> implements OnInit {
   // Services (deben ser inyectados por el componente hijo)
-  protected snackBar = inject(MatSnackBar);
+  protected notify = inject(NotificationService);
   protected router = inject(Router);
 
   // Propiedades abstractas que cada módulo debe implementar
@@ -431,7 +431,7 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   exportToCSV(filteredData: T[], fileName: string): void {
     try {
       if (filteredData.length === 0) {
-        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        this.notify.warning('No hay datos para exportar');
         return;
       }
 
@@ -470,10 +470,10 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
       link.click();
       document.body.removeChild(link);
 
-      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.system.exported('CSV');
     } catch (error) {
       console.error('Error exportando a CSV:', error);
-      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+      this.notify.system.exportError('CSV');
     }
   }
 
@@ -483,7 +483,7 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
   exportToJSON(filteredData: T[], fileName: string): void {
     try {
       if (filteredData.length === 0) {
-        this.snackBar.open('No hay datos para exportar', 'Cerrar', { duration: 3000 });
+        this.notify.warning('No hay datos para exportar');
         return;
       }
 
@@ -502,10 +502,10 @@ export abstract class GenericListBaseComponent<T extends { id: string | number }
       link.click();
       document.body.removeChild(link);
 
-      this.snackBar.open('Datos exportados exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.system.exported('JSON');
     } catch (error) {
       console.error('Error exportando a JSON:', error);
-      this.snackBar.open('Error al exportar datos', 'Cerrar', { duration: 3000 });
+      this.notify.system.exportError('JSON');
     }
   }
 

@@ -11,7 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatChipsModule } from '@angular/material/chips';
@@ -46,7 +46,6 @@ import { ModuleHeaderComponent, StatChip, ActionButton } from '../../../../share
     MatIconModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatMenuModule,
     MatBadgeModule,
     MatChipsModule,
@@ -68,7 +67,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
   private proposalConfigService = inject(ProposalConfigService);
   private authService = inject(AuthService);
   private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private destroy$ = new Subject<void>();
@@ -460,7 +459,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error cargando datos:', error);
-      this.snackBar.open('Error al cargar los datos', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar los datos');
     }
   }
 
@@ -471,10 +470,10 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
     try {
       await this.proposalsService.reload();
       this.cdr.markForCheck();
-      this.snackBar.open('Lista actualizada', 'Cerrar', { duration: 2000 });
+      this.notify.success('Lista actualizada');
     } catch (error) {
       console.error('❌ Error refrescando datos:', error);
-      this.snackBar.open('Error al actualizar la lista', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al actualizar la lista');
     }
   }
 
@@ -603,11 +602,11 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
           // Forzar recarga para asegurar actualización de estadísticas
           await this.proposalsService.refresh();
 
-          this.snackBar.open('Estimado eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.success('Estimado eliminado exitosamente');
           this.cdr.markForCheck();
         } catch (error) {
           console.error('Error eliminando proposal:', error);
-          this.snackBar.open('Error al eliminar el estimado', 'Cerrar', { duration: 3000 });
+          this.notify.error('Error al eliminar el estimado');
         }
       }
     });
@@ -622,7 +621,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       if (proposal.status === 'draft' && (newStatus === 'not_sent' || newStatus === 'sent')) {
         const validation = this.validateProposalComplete(proposal);
         if (!validation.isValid) {
-          this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+          this.notify.warning(validation.message);
           return;
         }
       }
@@ -631,7 +630,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       if (proposal.status === 'converted_to_invoice' && newStatus === 'paid') {
         const validation = this.validateInvoiceComplete(proposal);
         if (!validation.isValid) {
-          this.snackBar.open(validation.message, 'Cerrar', { duration: 5000 });
+          this.notify.warning(validation.message);
           return;
         }
       }
@@ -641,11 +640,11 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       // Forzar recarga de proposals para asegurar actualización de estadísticas
       await this.proposalsService.refresh();
 
-      this.snackBar.open('Estado actualizado exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.success('Estado actualizado exitosamente');
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cambiando estado del proposal:', error);
-      this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cambiar el estado');
     }
   }
 
@@ -758,7 +757,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
       if (confirmed) {
         try {
           await this.proposalsService.convertToInvoice(proposal.id);
-          this.snackBar.open(`Estimado convertido a factura exitosamente`, 'Cerrar', { duration: 3000 });
+          this.notify.success('Estimado convertido a factura exitosamente');
 
           // Navegar a la vista del estimado con query param para abrir diálogo automáticamente
           this.router.navigate(['/modules/projects', proposal.id], {
@@ -768,7 +767,7 @@ export class ProposalsListComponent implements OnInit, OnDestroy {
           this.cdr.markForCheck();
         } catch (error) {
           console.error('Error convirtiendo a factura:', error);
-          this.snackBar.open('Error al convertir a factura', 'Cerrar', { duration: 3000 });
+          this.notify.error('Error al convertir a factura');
         }
       }
     });

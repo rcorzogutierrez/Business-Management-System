@@ -4,7 +4,6 @@ import { Component, AfterViewInit, inject, signal, computed, effect, ViewChild, 
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -38,7 +37,6 @@ import { GenericListBaseComponent } from '../../../../shared/components/generic-
     CommonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatMenuModule,
     MatDividerModule,
     MatDialogModule,
@@ -377,7 +375,7 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   async deleteClient(client: Client): Promise<void> {
     const config = this.genericConfig();
     if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      this.notify.validation.configUnavailable();
       return;
     }
 
@@ -395,11 +393,11 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
     if (result?.confirmed) {
       try {
         await this.clientsService.deleteClient(client.id);
-        this.snackBar.open('Cliente eliminado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.deleted('Cliente');
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error eliminando cliente:', error);
-        this.snackBar.open('Error al eliminar el cliente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.deleteError('el cliente');
       }
     }
   }
@@ -416,7 +414,7 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
 
     const config = this.genericConfig();
     if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      this.notify.validation.configUnavailable();
       return;
     }
 
@@ -438,11 +436,11 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
       try {
         await Promise.all(Array.from(selectedIds).map(id => this.clientsService.deleteClient(id as string)));
         this.selectedClients.set(new Set());
-        this.snackBar.open(`${clients.length} cliente(s) eliminado(s) exitosamente`, 'Cerrar', { duration: 3000 });
+        this.notify.crud.deletedMultiple(clients.length, 'cliente');
         this.cdr.markForCheck();
       } catch (error) {
         console.error('Error eliminando clientes:', error);
-        this.snackBar.open('Error al eliminar los clientes', 'Cerrar', { duration: 3000 });
+        this.notify.crud.deleteError('los clientes');
       }
     }
   }
@@ -454,10 +452,10 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
     try {
       await this.clientsService.toggleClientStatus(client.id, !client.isActive);
       const status = !client.isActive ? 'activado' : 'desactivado';
-      this.snackBar.open(`Cliente ${status} exitosamente`, 'Cerrar', { duration: 3000 });
+      this.notify.crud.statusChanged('Cliente', status);
     } catch (error) {
       console.error('Error cambiando estado del cliente:', error);
-      this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
+      this.notify.crud.statusError('el cliente');
     }
   }
 
@@ -467,10 +465,10 @@ export class ClientsListComponent extends GenericListBaseComponent<Client> imple
   async refreshData(): Promise<void> {
     try {
       await this.clientsService.refresh();
-      this.snackBar.open('Lista actualizada', 'Cerrar', { duration: 2000 });
+      this.notify.system.refreshed();
     } catch (error) {
       console.error('Error refrescando lista:', error);
-      this.snackBar.open('Error al actualizar', 'Cerrar', { duration: 3000 });
+      this.notify.system.refreshError();
     }
   }
 

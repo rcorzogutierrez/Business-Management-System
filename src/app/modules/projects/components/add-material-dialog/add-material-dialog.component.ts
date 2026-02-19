@@ -5,8 +5,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
 import { MaterialsService } from '../../../materials/services/materials.service';
 import { MaterialsConfigService } from '../../../materials/services/materials-config.service';
 import { AuthService } from '../../../../core/services/auth.service';
@@ -20,8 +18,7 @@ import { DynamicFormDialogBase } from '../../../../shared/components/dynamic-for
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatIconModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   templateUrl: './add-material-dialog.component.html',
   styleUrls: ['./add-material-dialog.component.css'],
@@ -45,7 +42,7 @@ export class AddMaterialDialogComponent extends DynamicFormDialogBase implements
       const activeFields = this.configService.getActiveFields();
 
       if (activeFields.length === 0) {
-        this.snackBar.open('No hay campos configurados. Contacta al administrador.', 'Cerrar', { duration: 5000 });
+        this.notify.warning('No hay campos configurados. Contacta al administrador.');
         this.dialogRef.close();
         return;
       }
@@ -56,7 +53,7 @@ export class AddMaterialDialogComponent extends DynamicFormDialogBase implements
 
     } catch (error) {
       console.error('Error inicializando formulario:', error);
-      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar el formulario');
       this.dialogRef.close();
     } finally {
       this.isLoading.set(false);
@@ -67,7 +64,7 @@ export class AddMaterialDialogComponent extends DynamicFormDialogBase implements
   async save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -85,14 +82,14 @@ export class AddMaterialDialogComponent extends DynamicFormDialogBase implements
 
       if (result.success) {
         const newMaterial = this.materialsService.materials().find(m => m.id === result.data?.id);
-        this.snackBar.open('Material creado exitosamente', 'Cerrar', { duration: 2000 });
+        this.notify.crud.created('material');
         this.dialogRef.close(newMaterial || null);
       } else {
-        this.snackBar.open(result.message || 'Error al crear el material', 'Cerrar', { duration: 3000 });
+        this.notify.error(result.message || 'Error al crear el material');
       }
     } catch (error) {
       console.error('Error creando material:', error);
-      this.snackBar.open('Error al crear el material', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('material');
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();

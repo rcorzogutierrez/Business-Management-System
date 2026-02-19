@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { Router } from '@angular/router';
 
 import { ModulesService } from '../../services/modules.service';
@@ -42,7 +42,7 @@ export class ManageModulesComponent implements OnInit {
   private modulesService = inject(ModulesService);
   private authService = inject(AuthService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private router = inject(Router);
   private cdr = inject(ChangeDetectorRef);
 
@@ -127,7 +127,7 @@ export class ManageModulesComponent implements OnInit {
       await this.modulesService.initialize();
     } catch (error) {
       console.error('Error cargando módulos:', error);
-      this.snackBar.open('Error al cargar módulos', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('módulos');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck(); // ✅ Forzar detección de cambios para ocultar loading
@@ -158,7 +158,7 @@ export class ManageModulesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.success(result.message);
       }
     });
   }
@@ -178,7 +178,7 @@ export class ManageModulesComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.success(result.message);
       }
     });
   }
@@ -206,12 +206,8 @@ export class ManageModulesComponent implements OnInit {
    */
   private async performModuleDeletion(module: SystemModule, hardDelete: boolean) {
     this.isLoading = true;
-    
-    const loadingSnack = this.snackBar.open(
-      `Eliminando módulo "${module.label}"...`,
-      '',
-      { duration: 0 }
-    );
+
+    this.notify.info(`Eliminando módulo "${module.label}"...`);
 
     try {
       const result = await this.modulesService.deleteModule(
@@ -220,16 +216,13 @@ export class ManageModulesComponent implements OnInit {
         hardDelete
       );
 
-      loadingSnack.dismiss();
-
       if (result.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.success(result.message);
       } else {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 5000 });
+        this.notify.error(result.message);
       }
     } catch (error: any) {
-      loadingSnack.dismiss();
-      this.snackBar.open('Error al eliminar el módulo', 'Cerrar', { duration: 3000 });
+      this.notify.crud.deleteError('el módulo');
     } finally {
       this.isLoading = false;
     }
@@ -249,16 +242,12 @@ export class ManageModulesComponent implements OnInit {
       );
 
       if (result.success) {
-        this.snackBar.open(
-          `Módulo ${!module.isActive ? 'activado' : 'desactivado'}`,
-          'Cerrar',
-          { duration: 3000 }
-        );
+        this.notify.crud.statusChanged('Módulo', !module.isActive ? 'activado' : 'desactivado');
       } else {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+        this.notify.error(result.message);
       }
     } catch (error) {
-      this.snackBar.open('Error al cambiar el estado', 'Cerrar', { duration: 3000 });
+      this.notify.crud.statusError('el módulo');
     } finally {
       this.isLoading = false;
     }
@@ -277,17 +266,9 @@ export class ManageModulesComponent implements OnInit {
           this.currentUser()?.uid || ''
         );
 
-        this.snackBar.open(
-          'Módulos por defecto inicializados exitosamente',
-          'Cerrar',
-          { duration: 4000 }
-        );
+        this.notify.success('Módulos por defecto inicializados exitosamente');
       } catch (error) {
-        this.snackBar.open(
-          'Error al inicializar módulos',
-          'Cerrar',
-          { duration: 3000 }
-        );
+        this.notify.error('Error al inicializar módulos');
       } finally {
         this.isLoading = false;
         this.cdr.markForCheck();

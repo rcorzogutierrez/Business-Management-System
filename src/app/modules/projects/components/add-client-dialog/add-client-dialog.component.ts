@@ -5,8 +5,6 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-
 import { ClientsService } from '../../../clients/services/clients.service';
 import { ClientConfigServiceRefactored } from '../../../clients/services/client-config-refactored.service';
 import { CreateClientData } from '../../../clients/models';
@@ -19,8 +17,7 @@ import { DynamicFormDialogBase } from '../../../../shared/components/dynamic-for
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatIconModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   templateUrl: './add-client-dialog.component.html',
   styleUrls: ['./add-client-dialog.component.css'],
@@ -43,7 +40,7 @@ export class AddClientDialogComponent extends DynamicFormDialogBase implements O
       const fieldsInUse = this.configService.getFieldsInUse();
 
       if (fieldsInUse.length === 0) {
-        this.snackBar.open('No hay campos configurados. Contacta al administrador.', 'Cerrar', { duration: 5000 });
+        this.notify.warning('No hay campos configurados. Contacta al administrador.');
         this.dialogRef.close();
         return;
       }
@@ -54,7 +51,7 @@ export class AddClientDialogComponent extends DynamicFormDialogBase implements O
 
     } catch (error) {
       console.error('Error inicializando formulario:', error);
-      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar el formulario');
       this.dialogRef.close();
     } finally {
       this.isLoading.set(false);
@@ -65,7 +62,7 @@ export class AddClientDialogComponent extends DynamicFormDialogBase implements O
   async save() {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -79,11 +76,11 @@ export class AddClientDialogComponent extends DynamicFormDialogBase implements O
       } as CreateClientData;
 
       const newClient = await this.clientsService.createClient(clientData);
-      this.snackBar.open('Cliente creado exitosamente', 'Cerrar', { duration: 2000 });
+      this.notify.crud.created('cliente');
       this.dialogRef.close(newClient);
     } catch (error) {
       console.error('Error creando cliente:', error);
-      this.snackBar.open('Error al crear el cliente', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('cliente');
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();

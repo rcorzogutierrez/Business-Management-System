@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { TranslateModule } from '@ngx-translate/core';
@@ -42,7 +42,6 @@ import { AddClientDialogComponent } from '../add-client-dialog/add-client-dialog
     FormsModule,
     TranslateModule,
     MatIconModule,
-    MatSnackBarModule,
     MatDialogModule,
     MatAutocompleteModule
   ],
@@ -65,7 +64,7 @@ export class DirectInvoiceFormComponent implements OnInit {
   private languageService = inject(LanguageService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private dialog = inject(MatDialog);
   private elementRef = inject(ElementRef);
 
@@ -246,7 +245,7 @@ export class DirectInvoiceFormComponent implements OnInit {
       this.isLoading.set(true);
       const proposal = await this.proposalsService.getProposalById(id);
       if (!proposal) {
-        this.snackBar.open('Factura no encontrada', 'Cerrar', { duration: 3000 });
+        this.notify.error('Factura no encontrada');
         this.router.navigate(['/modules/projects']);
         return;
       }
@@ -254,7 +253,7 @@ export class DirectInvoiceFormComponent implements OnInit {
       this.fillFormFromProposal(proposal);
     } catch (error) {
       console.error('Error cargando factura:', error);
-      this.snackBar.open('Error al cargar la factura', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cargar la factura');
       this.router.navigate(['/modules/projects']);
     } finally {
       this.isLoading.set(false);
@@ -532,7 +531,7 @@ export class DirectInvoiceFormComponent implements OnInit {
 
     const exists = this.selectedMaterials.find(m => m.materialId === materialId);
     if (exists) {
-      this.snackBar.open('Este material ya está agregado', 'Cerrar', { duration: 2000 });
+      this.notify.warning('Este material ya está agregado');
       return;
     }
 
@@ -605,7 +604,7 @@ export class DirectInvoiceFormComponent implements OnInit {
     const workerName = this.getWorkerName(worker);
     const exists = this.selectedWorkers.find(w => w.workerId === workerId);
     if (exists) {
-      this.snackBar.open('Este trabajador ya está agregado', 'Cerrar', { duration: 2000 });
+      this.notify.warning('Este trabajador ya está agregado');
       return;
     }
 
@@ -679,19 +678,19 @@ export class DirectInvoiceFormComponent implements OnInit {
    */
   validateDraft(): boolean {
     if (!this.invoiceDate) {
-      this.snackBar.open('Debes ingresar la fecha de emisión', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de emisión');
       return false;
     }
     if (!this.ownerId || !this.ownerName) {
-      this.snackBar.open('Debes seleccionar un cliente', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes seleccionar un cliente');
       return false;
     }
     if (!this.address) {
-      this.snackBar.open('Debes ingresar la dirección del trabajo', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la dirección del trabajo');
       return false;
     }
     if (!this.city) {
-      this.snackBar.open('Debes ingresar la ciudad', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la ciudad');
       return false;
     }
     return true;
@@ -705,15 +704,15 @@ export class DirectInvoiceFormComponent implements OnInit {
 
     // Fechas de trabajo obligatorias
     if (!this.workStartDate) {
-      this.snackBar.open('Debes ingresar la fecha de inicio del trabajo', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de inicio del trabajo');
       return false;
     }
     if (!this.workEndDate) {
-      this.snackBar.open('Debes ingresar la fecha de fin del trabajo', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar la fecha de fin del trabajo');
       return false;
     }
     if (!this.workTime || this.workTime <= 0) {
-      this.snackBar.open('Debes ingresar las horas trabajadas', 'Cerrar', { duration: 3000 });
+      this.notify.warning('Debes ingresar las horas trabajadas');
       return false;
     }
 
@@ -721,18 +720,18 @@ export class DirectInvoiceFormComponent implements OnInit {
     const startDate = new Date(this.workStartDate);
     const endDate = new Date(this.workEndDate);
     if (startDate > endDate) {
-      this.snackBar.open('La fecha de inicio no puede ser mayor a la fecha de finalización', 'Cerrar', { duration: 3000 });
+      this.notify.warning('La fecha de inicio no puede ser mayor a la fecha de finalización');
       return false;
     }
 
     // Validar materiales
     for (const material of this.selectedMaterials) {
       if (!material.amount || material.amount <= 0) {
-        this.snackBar.open(`El material "${material.materialName}" debe tener una cantidad mayor a 0`, 'Cerrar', { duration: 3000 });
+        this.notify.warning(`El material "${material.materialName}" debe tener una cantidad mayor a 0`);
         return false;
       }
       if (material.price === null || material.price === undefined || material.price < 0) {
-        this.snackBar.open(`El material "${material.materialName}" debe tener un precio válido`, 'Cerrar', { duration: 3000 });
+        this.notify.warning(`El material "${material.materialName}" debe tener un precio válido`);
         return false;
       }
     }
@@ -844,31 +843,22 @@ export class DirectInvoiceFormComponent implements OnInit {
       if (this.editMode && this.proposalId) {
         await this.proposalsService.updateProposal(this.proposalId, proposalData as UpdateProposalData);
         this.router.navigate(['/modules/projects', this.proposalId]);
-        this.snackBar.open(
-          isDraft ? 'Borrador guardado exitosamente' : 'Factura actualizada exitosamente',
-          'Cerrar',
-          { duration: 3000 }
+        this.notify.success(
+          isDraft ? 'Borrador guardado exitosamente' : 'Factura actualizada exitosamente'
         );
       } else {
         const newProposal = await this.proposalsService.createProposal(proposalData as CreateProposalData);
         this.router.navigate(['/modules/projects']);
-        const snackBarRef = this.snackBar.open(
+        this.notify.success(
           isDraft
             ? `Borrador ${newProposal.proposalNumber} guardado`
-            : `Factura ${newProposal.proposalNumber} creada exitosamente`,
-          isDraft ? 'Cerrar' : 'Ver Factura',
-          { duration: 5000 }
+            : `Factura ${newProposal.proposalNumber} creada exitosamente`
         );
-        if (!isDraft) {
-          snackBarRef.onAction().subscribe(() => {
-            this.router.navigate(['/modules/projects', newProposal.id]);
-          });
-        }
       }
 
     } catch (error) {
       console.error('Error creando factura directa:', error);
-      this.snackBar.open('Error al crear la factura', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al crear la factura');
     } finally {
       this.isLoading.set(false);
     }

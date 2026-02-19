@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { Router } from '@angular/router';
 
 import { ModuleHeaderComponent, ActionButton } from '../../../shared/components/module-header/module-header.component';
@@ -62,7 +62,7 @@ export class ManageUsersComponent implements OnInit {
   private router = inject(Router);
   private adminService = inject(AdminService);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
   currentUser = this.authService.authorizedUser;
@@ -135,7 +135,7 @@ export class ManageUsersComponent implements OnInit {
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cargando datos:', error);
-      this.snackBar.open('Error cargando datos', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('datos');
     }
   }
 
@@ -186,9 +186,7 @@ export class ManageUsersComponent implements OnInit {
 
     if (nextBatch.length > this.displayedUsers.length) {
       this.displayedUsers = nextBatch;
-      this.snackBar.open(`Mostrando ${this.displayedUsers.length} de ${this.filteredUsers.length} usuarios`, '', {
-        duration: 2000
-      });
+      this.notify.info(`Mostrando ${this.displayedUsers.length} de ${this.filteredUsers.length} usuarios`);
     }
   }
 
@@ -198,9 +196,9 @@ export class ManageUsersComponent implements OnInit {
 
     try {
       await this.loadData();
-      this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+      this.notify.system.refreshed();
     } catch (error) {
-      this.snackBar.open('Error al actualizar', 'Cerrar', { duration: 2000 });
+      this.notify.system.refreshError();
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -278,7 +276,7 @@ export class ManageUsersComponent implements OnInit {
 
   async deleteSelectedUsers() {
     if (this.selectedUsers.size === 0) {
-      this.snackBar.open('No hay usuarios seleccionados', 'Cerrar', { duration: 3000 });
+      this.notify.validation.selectAtLeastOne('usuario');
       return;
     }
 
@@ -306,22 +304,20 @@ export class ManageUsersComponent implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    const loadingSnackBar = this.snackBar.open(`Eliminando ${uids.length} usuario(s)...`, '', { duration: 0 });
+    this.notify.info(`Eliminando ${uids.length} usuario(s)...`);
 
     try {
       const result = await this.adminService.deleteMultipleUsers(uids);
-      loadingSnackBar.dismiss();
 
       if (result.success) {
-        this.snackBar.open(`✅ ${result.message}`, 'Cerrar', { duration: 6000, panelClass: ['success-snackbar'] });
+        this.notify.success(result.message);
         this.clearSelection();
         await this.refreshData();
       } else {
-        this.snackBar.open(`❌ ${result.message}`, 'Cerrar', { duration: 8000, panelClass: ['error-snackbar'] });
+        this.notify.error(result.message);
       }
     } catch (error: any) {
-      loadingSnackBar.dismiss();
-      this.snackBar.open(`❌ Error: ${error.message}`, 'Cerrar', { duration: 6000, panelClass: ['error-snackbar'] });
+      this.notify.error(`Error: ${error.message}`);
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -365,7 +361,7 @@ export class ManageUsersComponent implements OnInit {
   }
 
   viewUserDetails(user: User) {
-    this.snackBar.open(`Detalles de ${user.displayName || user.email}`, 'Cerrar', { duration: 3000 });
+    this.notify.info(`Detalles de ${user.displayName || user.email}`);
   }
 
   editUser(user: User) {
@@ -379,7 +375,7 @@ export class ManageUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000, panelClass: ['success-snackbar'] });
+        this.notify.success(result.message);
         await this.refreshData();
       }
     });
@@ -387,14 +383,22 @@ export class ManageUsersComponent implements OnInit {
 
   async resetUserPassword(user: User) {
     const result = await this.adminService.resetUserPassword(user.email);
-    this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+    if (result.success) {
+      this.notify.success(result.message);
+    } else {
+      this.notify.error(result.message);
+    }
   }
 
   async toggleUserStatus(user: User) {
     if (!user.uid) return;
 
     const result = await this.adminService.toggleUserStatus(user.uid);
-    this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+    if (result.success) {
+      this.notify.success(result.message);
+    } else {
+      this.notify.error(result.message);
+    }
 
     if (result.success) {
       await this.refreshData();
@@ -412,7 +416,7 @@ export class ManageUsersComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000, panelClass: ['success-snackbar'] });
+        this.notify.success(result.message);
         await this.refreshData();
       } else if (result?.navigateToModules) {
         this.router.navigate(['/admin/modules']);
@@ -422,19 +426,19 @@ export class ManageUsersComponent implements OnInit {
 
   async deleteUser(user: User) {
     if (!user.uid) {
-      this.snackBar.open('Error: Usuario sin UID válido', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error: Usuario sin UID válido');
       return;
     }
 
     if (this.currentUser()?.email === user.email) {
-      this.snackBar.open('❌ No puedes eliminar tu propia cuenta', 'Cerrar', { duration: 4000, panelClass: ['error-snackbar'] });
+      this.notify.error('No puedes eliminar tu propia cuenta');
       return;
     }
 
     if (user.role === 'admin') {
       const adminCount = this.users.filter(u => u.role === 'admin').length;
       if (adminCount === 1) {
-        this.snackBar.open('❌ No puedes eliminar el último administrador', 'Cerrar', { duration: 4000, panelClass: ['error-snackbar'] });
+        this.notify.error('No puedes eliminar el último administrador');
         return;
       }
     }
@@ -460,21 +464,19 @@ export class ManageUsersComponent implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    const loadingSnackBar = this.snackBar.open(`Eliminando usuario ${user.displayName}...`, '', { duration: 0 });
+    this.notify.info(`Eliminando usuario ${user.displayName}...`);
 
     try {
       const result = await this.adminService.deleteUser(user.uid!);
-      loadingSnackBar.dismiss();
 
       if (result.success) {
-        this.snackBar.open(`✅ ${result.message}`, 'Cerrar', { duration: 5000, panelClass: ['success-snackbar'] });
+        this.notify.success(result.message);
         await this.refreshData();
       } else {
-        this.snackBar.open(`❌ ${result.message}`, 'Cerrar', { duration: 5000, panelClass: ['error-snackbar'] });
+        this.notify.error(result.message);
       }
     } catch (error: any) {
-      loadingSnackBar.dismiss();
-      this.snackBar.open(`❌ Error: ${error.message}`, 'Cerrar', { duration: 5000, panelClass: ['error-snackbar'] });
+      this.notify.error(`Error: ${error.message}`);
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -498,10 +500,10 @@ export class ManageUsersComponent implements OnInit {
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
 
-        this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+        this.notify.system.exported('JSON');
       }
     } catch (error) {
-      this.snackBar.open('Error al exportar', 'Cerrar', { duration: 3000 });
+      this.notify.system.exportError('JSON');
     }
   }
 }

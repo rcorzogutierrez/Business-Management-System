@@ -360,7 +360,7 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
   async toggleActive(material: Material): Promise<void> {
     const currentUser = this.authService.authorizedUser();
     if (!currentUser?.uid) {
-      this.snackBar.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
+      this.notify.system.unauthorized();
       return;
     }
 
@@ -368,9 +368,9 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
     const result = await this.materialsService.toggleActive(material.id, newStatus, currentUser.uid);
 
     if (result.success) {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 3000 });
+      this.notify.success(result.message);
     } else {
-      this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+      this.notify.error(result.message);
     }
   }
 
@@ -380,7 +380,7 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
   async deleteMaterial(material: Material): Promise<void> {
     const config = this.genericConfig();
     if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      this.notify.validation.configUnavailable();
       return;
     }
 
@@ -396,9 +396,9 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
       if (result?.confirmed) {
         const deleteResult = await this.materialsService.deleteMaterial(material.id);
         if (deleteResult.success) {
-          this.snackBar.open('Material eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleted('Material');
         } else {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(deleteResult.message);
         }
       }
     });
@@ -411,13 +411,13 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
     const selectedArray = Array.from(this.selectedIds()) as string[];
 
     if (selectedArray.length === 0) {
-      this.snackBar.open('Selecciona al menos un material', 'Cerrar', { duration: 3000 });
+      this.notify.validation.selectAtLeastOne('material');
       return;
     }
 
     const config = this.genericConfig();
     if (!config) {
-      this.snackBar.open('Configuración no disponible', 'Cerrar', { duration: 3000 });
+      this.notify.validation.configUnavailable();
       return;
     }
 
@@ -437,10 +437,10 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
         const deleteResult = await this.materialsService.deleteMultipleMaterials(selectedArray);
 
         if (deleteResult.success) {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 3000 });
+          this.notify.success(deleteResult.message);
           this.selectedIds.set(new Set());
         } else {
-          this.snackBar.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(deleteResult.message);
         }
       }
     });
@@ -453,7 +453,7 @@ export class MaterialsListComponent extends GenericListBaseComponent<Material> i
     this.isLoading.set(true);
     await this.materialsService.initialize();
     this.isLoading.set(false);
-    this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+    this.notify.system.refreshed();
   }
 
   /**

@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { CatalogItemsService } from '../../services/catalog-items.service';
 import { CatalogItem, CreateCatalogItemData } from '../../models';
@@ -19,8 +19,7 @@ import { Material } from '../../../materials/models';
     CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
-    MatIconModule,
-    MatSnackBarModule
+    MatIconModule
   ],
   templateUrl: './catalog-items-manager.component.html',
   styleUrls: ['./catalog-items-manager.component.css'],
@@ -32,7 +31,7 @@ export class CatalogItemsManagerComponent implements OnInit {
   private fb = inject(FormBuilder);
   private catalogItemsService = inject(CatalogItemsService);
   private materialsService = inject(MaterialsService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
 
   // Signals
   catalogItems = this.catalogItemsService.catalogItems;
@@ -121,7 +120,7 @@ export class CatalogItemsManagerComponent implements OnInit {
    */
   async saveItem() {
     if (this.itemForm.invalid) {
-      this.snackBar.open('Por favor completa el nombre del item', 'Cerrar', { duration: 3000 });
+      this.notify.validation.required('nombre del item');
       return;
     }
 
@@ -142,17 +141,17 @@ export class CatalogItemsManagerComponent implements OnInit {
       if (this.isEditMode() && this.editingItemId()) {
         // Actualizar item existente
         await this.catalogItemsService.updateItem(this.editingItemId()!, itemData);
-        this.snackBar.open('Item actualizado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.updated('item');
       } else {
         // Crear nuevo item
         await this.catalogItemsService.createItem(itemData);
-        this.snackBar.open('Item creado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.created('Item');
       }
 
       this.resetForm();
     } catch (error) {
       console.error('Error guardando item:', error);
-      this.snackBar.open('Error al guardar el item', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('el item');
     }
   }
 
@@ -197,7 +196,7 @@ export class CatalogItemsManagerComponent implements OnInit {
       if (confirmed) {
         try {
           await this.catalogItemsService.deleteItem(item.id);
-          this.snackBar.open('Item eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleted('Item');
 
           // Si estábamos editando este item, resetear form
           if (this.editingItemId() === item.id) {
@@ -205,7 +204,7 @@ export class CatalogItemsManagerComponent implements OnInit {
           }
         } catch (error) {
           console.error('Error eliminando item:', error);
-          this.snackBar.open('Error al eliminar el item', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleteError('el item');
         }
       }
     });
@@ -274,10 +273,10 @@ export class CatalogItemsManagerComponent implements OnInit {
       }
 
       await this.catalogItemsService.createItem(itemData);
-      this.snackBar.open(`"${name}" agregado al catálogo`, 'Cerrar', { duration: 2000 });
+      this.notify.success(`"${name}" agregado al catálogo`);
     } catch (error) {
       console.error('Error importando material:', error);
-      this.snackBar.open('Error al importar el material', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al importar el material');
     }
   }
 

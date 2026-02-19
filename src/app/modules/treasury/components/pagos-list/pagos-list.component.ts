@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { Pago, PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS, PaymentMethod } from '../../models';
@@ -22,8 +22,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     DatePipe,
     MatIconModule,
     MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatDialogModule
   ],
   template: `
     <div class="p-4 md:p-6 max-w-7xl mx-auto">
@@ -238,7 +237,7 @@ export class PagosListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
 
   isLoading = this.treasuryService.isLoading;
   pagos = this.treasuryService.activePagos;
@@ -341,11 +340,7 @@ export class PagosListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.saved) {
         this.treasuryService.forceReload();
-        this.snackBar.open(
-          pago ? 'Pago actualizado correctamente' : 'Pago registrado correctamente',
-          'OK',
-          { duration: 3000 }
-        );
+        pago ? this.notify.crud.updated('pago') : this.notify.crud.created('pago');
       }
     });
   }
@@ -371,9 +366,9 @@ export class PagosListComponent implements OnInit {
       if (confirmed) {
         try {
           await this.treasuryService.deletePago(pago.id);
-          this.snackBar.open('Pago eliminado correctamente', 'OK', { duration: 3000 });
+          this.notify.crud.deleted('pago');
         } catch (error) {
-          this.snackBar.open('Error al eliminar el pago', 'OK', { duration: 3000 });
+          this.notify.crud.deleteError('pago');
         }
       }
     });

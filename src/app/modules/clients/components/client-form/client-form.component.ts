@@ -15,7 +15,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
@@ -60,7 +60,6 @@ type FormMode = 'create' | 'edit' | 'view';
     MatDatepickerModule,
     MatNativeDateModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatTooltipModule,
     MatChipsModule
   ],
@@ -74,7 +73,7 @@ export class ClientFormComponent implements OnInit {
   private router = inject(Router);
   private clientsService = inject(ClientsService);
   private configService = inject(ClientConfigServiceRefactored);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
   private dialog = inject(MatDialog);
   private authService = inject(AuthService);
@@ -132,29 +131,12 @@ export class ClientFormComponent implements OnInit {
         const isAdmin = currentUser?.role === 'admin';
 
         if (isAdmin) {
-          // Admin: mostrar botón para ir a configuración
-          this.snackBar.open(
-            '⚠️ No hay campos configurados. Por favor, configura los campos del formulario primero.',
-            'Ir a Configuración',
-            {
-              duration: 8000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top'
-            }
-          ).onAction().subscribe(() => {
-            this.router.navigate(['/modules/clients/config']);
-          });
+          // Admin: mostrar mensaje para ir a configuración
+          this.notify.warning('No hay campos configurados. Por favor, configura los campos del formulario primero.');
+          this.router.navigate(['/modules/clients/config']);
         } else {
           // Usuario normal: solo mostrar mensaje
-          this.snackBar.open(
-            '⚠️ No hay campos configurados. Contacta al administrador para configurar este módulo.',
-            'Cerrar',
-            {
-              duration: 8000,
-              horizontalPosition: 'center',
-              verticalPosition: 'top'
-            }
-          );
+          this.notify.warning('No hay campos configurados. Contacta al administrador para configurar este módulo.');
         }
 
         this.router.navigate(['/modules/clients']);
@@ -185,7 +167,7 @@ export class ClientFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error inicializando formulario:', error);
-      this.snackBar.open('Error al cargar el formulario', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el formulario');
     } finally {
       this.isLoading.set(false);
       this.cdr.markForCheck();
@@ -200,7 +182,7 @@ export class ClientFormComponent implements OnInit {
       const client = await this.clientsService.getClientById(clientId);
 
       if (!client) {
-        this.snackBar.open('Cliente no encontrado', 'Cerrar', { duration: 3000 });
+        this.notify.error('Cliente no encontrado');
         this.router.navigate(['/modules/clients']);
         return;
       }
@@ -210,7 +192,7 @@ export class ClientFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error cargando cliente:', error);
-      this.snackBar.open('Error al cargar el cliente', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('el cliente');
       this.router.navigate(['/modules/clients']);
     }
   }
@@ -318,7 +300,7 @@ export class ClientFormComponent implements OnInit {
   async onSubmit() {
     if (this.clientForm.invalid) {
       this.clientForm.markAllAsTouched();
-      this.snackBar.open('Por favor, completa todos los campos requeridos', 'Cerrar', { duration: 3000 });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -377,7 +359,7 @@ export class ClientFormComponent implements OnInit {
         };
 
         await this.clientsService.createClient(clientData);
-        this.snackBar.open('Cliente creado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.created('Cliente');
 
       } else if (this.mode() === 'edit') {
         // Actualizar cliente existente
@@ -393,7 +375,7 @@ export class ClientFormComponent implements OnInit {
         };
 
         await this.clientsService.updateClient(client.id, updateData);
-        this.snackBar.open('Cliente actualizado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.updated('Cliente');
       }
 
       // Volver a la lista
@@ -401,7 +383,7 @@ export class ClientFormComponent implements OnInit {
 
     } catch (error) {
       console.error('Error guardando cliente:', error);
-      this.snackBar.open('Error al guardar el cliente', 'Cerrar', { duration: 3000 });
+      this.notify.crud.saveError('el cliente');
     } finally {
       this.isSaving.set(false);
       this.cdr.markForCheck();
@@ -606,17 +588,17 @@ export class ClientFormComponent implements OnInit {
 
       if (!testField) {
 
-        this.snackBar.open('Campo "test" no encontrado en la configuración', 'Cerrar', { duration: 3000 });
+        this.notify.error('Campo "test" no encontrado en la configuración');
         return;
       }
 
       await this.configService.updateField(testField.id, { isActive: false });
 
-      this.snackBar.open('✅ Campo "test" desactivado. Recarga la página.', 'Cerrar', { duration: 5000 });
+      this.notify.success('Campo "test" desactivado. Recarga la página.');
 
     } catch (error) {
       console.error('❌ Error desactivando campo:', error);
-      this.snackBar.open('Error al desactivar el campo', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al desactivar el campo');
     }
   }
 

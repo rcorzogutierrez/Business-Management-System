@@ -3,7 +3,7 @@ import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject }
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../core/services/notification.service';
 import { Router } from '@angular/router';
 
 import { AuthService } from '../core/services/auth.service';
@@ -25,7 +25,7 @@ export class AdminPanelComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private adminService = inject(AdminService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
 
   currentUser = this.authService.authorizedUser;
@@ -65,9 +65,7 @@ export class AdminPanelComponent implements OnInit {
       this.cdr.markForCheck();
     } catch (error) {
       console.error('Error cargando datos:', error);
-      this.snackBar.open('Error cargando datos del panel', 'Cerrar', {
-        duration: 3000
-      });
+      this.notify.crud.loadError('datos del panel');
     }
   }
 
@@ -80,9 +78,9 @@ export class AdminPanelComponent implements OnInit {
 
     try {
       await this.loadData();
-      this.snackBar.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+      this.notify.system.refreshed();
     } catch (error) {
-      this.snackBar.open('Error al actualizar', 'Cerrar', { duration: 2000 });
+      this.notify.system.refreshError();
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();

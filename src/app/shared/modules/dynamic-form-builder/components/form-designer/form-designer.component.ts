@@ -9,7 +9,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { FieldConfig, FieldType, FormLayoutConfig, FieldPosition, FormButtonsConfig } from '../../models';
 import { ModuleConfigBaseService } from '../../services';
@@ -47,7 +47,7 @@ import { FieldConfigDialogComponent } from '../field-config-dialog/field-config-
 })
 export class FormDesignerComponent {
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
 
   // ✅ MODERNIZADO: Signal inputs en lugar de @Input()
   // Servicio de configuración inyectado dinámicamente
@@ -521,7 +521,7 @@ export class FormDesignerComponent {
    */
   async deleteField(field: FieldConfig) {
     if (field.isSystem) {
-      this.snackBar.open('No se pueden eliminar campos del sistema', 'Cerrar', { duration: 3000 });
+      this.notify.warning('No se pueden eliminar campos del sistema');
       return;
     }
 
@@ -543,13 +543,13 @@ export class FormDesignerComponent {
       // Remover de availableFields si está ahí
       this.availableFields.update(fields => fields.filter(f => f.id !== field.id));
 
-      this.snackBar.open('Campo eliminado exitosamente', 'Cerrar', { duration: 3000 });
+      this.notify.crud.deleted('Campo');
 
       // Emitir evento para recargar
       this.fieldAdded.emit();
     } catch (error) {
       console.error('Error eliminando campo:', error);
-      this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
+      this.notify.crud.deleteError('el campo');
     }
   }
 

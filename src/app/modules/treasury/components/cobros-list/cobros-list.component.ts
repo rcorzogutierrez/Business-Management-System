@@ -5,7 +5,7 @@ import { Router, ActivatedRoute } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 
 import { TreasuryService } from '../../services/treasury.service';
 import { Cobro, PAYMENT_METHOD_LABELS, PAYMENT_METHOD_ICONS, PaymentMethod } from '../../models';
@@ -22,8 +22,7 @@ import { ConfirmDialogComponent } from '../../../../shared/components/confirm-di
     DatePipe,
     MatIconModule,
     MatMenuModule,
-    MatDialogModule,
-    MatSnackBarModule
+    MatDialogModule
   ],
   template: `
     <div class="p-4 md:p-6 max-w-7xl mx-auto">
@@ -238,7 +237,7 @@ export class CobrosListComponent implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private dialog = inject(MatDialog);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
 
   isLoading = this.treasuryService.isLoading;
   cobros = this.treasuryService.activeCobros;
@@ -341,11 +340,7 @@ export class CobrosListComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result?.saved) {
         this.treasuryService.forceReload();
-        this.snackBar.open(
-          cobro ? 'Cobro actualizado correctamente' : 'Cobro registrado correctamente',
-          'OK',
-          { duration: 3000 }
-        );
+        cobro ? this.notify.crud.updated('cobro') : this.notify.crud.created('cobro');
       }
     });
   }
@@ -371,9 +366,9 @@ export class CobrosListComponent implements OnInit {
       if (confirmed) {
         try {
           await this.treasuryService.deleteCobro(cobro.id);
-          this.snackBar.open('Cobro eliminado correctamente', 'OK', { duration: 3000 });
+          this.notify.crud.deleted('cobro');
         } catch (error) {
-          this.snackBar.open('Error al eliminar el cobro', 'OK', { duration: 3000 });
+          this.notify.crud.deleteError('cobro');
         }
       }
     });

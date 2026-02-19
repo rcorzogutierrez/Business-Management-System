@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { NotificationService } from '../../../core/services/notification.service';
 import { MatDialog } from '@angular/material/dialog';
 import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { AdminLogsService, AdminLog, LogsFilter } from '../../services/admin-logs.service';
@@ -35,7 +35,7 @@ import { formatDateTime, getRelativeTime } from '../../../shared/utils/date-time
 export class AdminLogsComponent implements OnInit {
   // ✅ Inject pattern (Angular 20)
   private logsService = inject(AdminLogsService);
-  private snackBar = inject(MatSnackBar);
+  private notify = inject(NotificationService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
   private cdr = inject(ChangeDetectorRef);
@@ -85,7 +85,7 @@ export class AdminLogsComponent implements OnInit {
       await this.loadLogs();
     } catch (error) {
       console.error('❌ Error cargando datos iniciales:', error);
-      this.snackBar.open('Error cargando logs', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('logs');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -127,7 +127,7 @@ export class AdminLogsComponent implements OnInit {
       this.lastDoc = result.lastDoc;
     } catch (error) {
       console.error('❌ Error cargando logs:', error);
-      this.snackBar.open('Error cargando logs', 'Cerrar', { duration: 3000 });
+      this.notify.crud.loadError('logs');
     } finally {
       this.isLoading = false;
       this.isLoadingMore = false;
@@ -189,7 +189,7 @@ export class AdminLogsComponent implements OnInit {
     this.selectedAction = 'all';
     this.searchTerm = '';
     await this.loadLogs(true);
-    this.snackBar.open('Filtros limpiados', '', { duration: 2000 });
+    this.notify.info('Filtros limpiados', 2000);
   }
 
   /**
@@ -217,7 +217,7 @@ export class AdminLogsComponent implements OnInit {
    */
   async refreshLogs() {
     await this.loadLogs(true);
-    this.snackBar.open('Logs actualizados', '', { duration: 2000 });
+    this.notify.system.refreshed();
   }
 
   /**
@@ -234,14 +234,11 @@ export class AdminLogsComponent implements OnInit {
       if (result?.success && result?.result) {
         const deleteResult = result.result;
 
-        this.snackBar.open(
-          deleteResult.message,
-          'Cerrar',
-          {
-            duration: 6000,
-            panelClass: deleteResult.success ? ['success-snackbar'] : ['error-snackbar']
-          }
-        );
+        if (deleteResult.success) {
+          this.notify.success(deleteResult.message);
+        } else {
+          this.notify.error(deleteResult.message);
+        }
 
         if (deleteResult.success && deleteResult.deletedCount > 0) {
           await this.refreshLogs();
@@ -277,10 +274,10 @@ export class AdminLogsComponent implements OnInit {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
       
-      this.snackBar.open(`${logs.length} logs exportados`, 'Cerrar', { duration: 3000 });
+      this.notify.success(`${logs.length} logs exportados`);
     } catch (error) {
       console.error('❌ Error exportando logs:', error);
-      this.snackBar.open('Error al exportar logs', 'Cerrar', { duration: 3000 });
+      this.notify.system.exportError('JSON');
     } finally {
       this.isLoading = false;
     }

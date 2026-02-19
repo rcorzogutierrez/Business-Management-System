@@ -7,7 +7,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 
 // Material imports (solo MatIcon según CLAUDE.md)
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { NotificationService } from '@core/services/notification.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 // Services
@@ -43,7 +43,6 @@ interface FieldMappingConfig {
     CommonModule,
     ReactiveFormsModule,
     MatIconModule,
-    MatSnackBarModule,
     MatTooltipModule,
     ModuleHeaderComponent,
     GridConfigSectionComponent,
@@ -284,10 +283,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
    */
   async saveConfig() {
     if (this.configForm.invalid) {
-      this.snackBar.open('Por favor completa todos los campos requeridos', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.validation.invalidForm();
       return;
     }
 
@@ -298,10 +294,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
       const names = categories.map(c => c.name.toLowerCase().trim());
       const uniqueNames = new Set(names);
       if (names.length !== uniqueNames.size) {
-        this.snackBar.open('No puede haber categorías con el mismo nombre', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.warning('No puede haber categorías con el mismo nombre');
         return;
       }
 
@@ -309,28 +302,19 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
       const percentages = categories.map(c => c.percentage);
       const uniquePercentages = new Set(percentages);
       if (percentages.length !== uniquePercentages.size) {
-        this.snackBar.open('No puede haber categorías con el mismo porcentaje', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.warning('No puede haber categorías con el mismo porcentaje');
         return;
       }
 
       // Validar nombres vacíos
       if (categories.some(c => !c.name.trim())) {
-        this.snackBar.open('Todas las categorías deben tener un nombre', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.warning('Todas las categorías deben tener un nombre');
         return;
       }
 
       // Validar porcentajes válidos
       if (categories.some(c => c.percentage < 0 || c.percentage > 1000)) {
-        this.snackBar.open('Los porcentajes deben estar entre 0 y 1000', 'Cerrar', {
-          duration: 3000,
-          panelClass: ['error-snackbar']
-        });
+        this.notify.warning('Los porcentajes deben estar entre 0 y 1000');
         return;
       }
     }
@@ -373,17 +357,11 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
         }
       });
 
-      this.snackBar.open('✅ Configuración guardada exitosamente', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['success-snackbar']
-      });
+      this.notify.system.configUpdated();
 
     } catch (error) {
       console.error('❌ Error guardando configuración:', error);
-      this.snackBar.open('❌ Error al guardar la configuración', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.system.configError();
     } finally {
       this.isSaving.set(false);
     }
@@ -408,9 +386,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
       defaultTerms: this.configService.getDefaultTerms()
     });
 
-    this.snackBar.open('💡 Valores restablecidos con sugerencias automáticas', 'Cerrar', {
-      duration: 3000
-    });
+    this.notify.info('Valores restablecidos con sugerencias automáticas');
   }
 
   /**
@@ -466,10 +442,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
     // Validar que el nombre no esté vacío
     const trimmedName = name.trim();
     if (!trimmedName) {
-      this.snackBar.open('El nombre no puede estar vacío', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.warning('El nombre no puede estar vacío');
       return;
     }
 
@@ -480,10 +453,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
     );
 
     if (duplicate) {
-      this.snackBar.open('Ya existe una categoría con ese nombre', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.validation.duplicate('categoría');
       return;
     }
 
@@ -499,18 +469,12 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
   updateCategoryPercentage(categoryId: string, percentage: number) {
     // Validar que el porcentaje sea válido
     if (percentage < 0) {
-      this.snackBar.open('El porcentaje no puede ser negativo', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.warning('El porcentaje no puede ser negativo');
       return;
     }
 
     if (percentage > 1000) {
-      this.snackBar.open('El porcentaje no puede ser mayor a 1000%', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.warning('El porcentaje no puede ser mayor a 1000%');
       return;
     }
 
@@ -521,10 +485,7 @@ export class ProposalConfigComponent extends GenericGridConfigBaseComponent impl
     );
 
     if (duplicate) {
-      this.snackBar.open('Ya existe una categoría con ese porcentaje', 'Cerrar', {
-        duration: 3000,
-        panelClass: ['error-snackbar']
-      });
+      this.notify.warning('Ya existe una categoría con ese porcentaje');
       return;
     }
 

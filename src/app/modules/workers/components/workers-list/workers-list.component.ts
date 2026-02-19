@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal, computed, effect, ChangeDetectionStr
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -69,7 +68,6 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   private dialog = inject(MatDialog);
   override router = inject(Router);
   private route = inject(ActivatedRoute);
-  private snackBarService = inject(MatSnackBar);
 
   // Proveer datos requeridos por la clase base
   data = this.workersService.workers;
@@ -322,7 +320,7 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   async toggleActive(worker: Worker) {
     const currentUser = this.authService.authorizedUser();
     if (!currentUser?.uid) {
-      this.snackBarService.open('Usuario no autenticado', 'Cerrar', { duration: 3000 });
+      this.notify.system.unauthorized();
       return;
     }
 
@@ -330,9 +328,9 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
     const result = await this.workersService.toggleActive(worker.id, newStatus, currentUser.uid);
 
     if (result.success) {
-      this.snackBarService.open(result.message, 'Cerrar', { duration: 3000 });
+      this.notify.success(result.message);
     } else {
-      this.snackBarService.open(result.message, 'Cerrar', { duration: 4000 });
+      this.notify.error(result.message);
     }
   }
 
@@ -349,9 +347,9 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
       if (result?.confirmed) {
         const deleteResult = await this.workersService.deleteWorker(worker.id);
         if (deleteResult.success) {
-          this.snackBarService.open('Trabajador eliminado exitosamente', 'Cerrar', { duration: 3000 });
+          this.notify.crud.deleted('Trabajador');
         } else {
-          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(deleteResult.message);
         }
       }
     });
@@ -360,7 +358,7 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
   async deleteSelectedWorkers() {
     const selectedIds = Array.from(this.selectedIds());
     if (selectedIds.length === 0) {
-      this.snackBarService.open('Selecciona al menos un trabajador', 'Cerrar', { duration: 3000 });
+      this.notify.validation.selectAtLeastOne('trabajador');
       return;
     }
 
@@ -380,10 +378,10 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
         const deleteResult = await this.workersService.deleteMultipleWorkers(selectedIds as string[]);
 
         if (deleteResult.success) {
-          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 3000 });
+          this.notify.success(deleteResult.message);
           this.selectedIds.set(new Set());
         } else {
-          this.snackBarService.open(deleteResult.message, 'Cerrar', { duration: 4000 });
+          this.notify.error(deleteResult.message);
         }
       }
     });
@@ -428,7 +426,7 @@ export class WorkersListComponent extends GenericListBaseComponent<Worker> imple
 
   override async refreshData() {
     await this.workersService.forceReload();
-    this.snackBarService.open('Datos actualizados', 'Cerrar', { duration: 2000 });
+    this.notify.system.refreshed();
   }
 
   trackById(index: number, worker: Worker): string {

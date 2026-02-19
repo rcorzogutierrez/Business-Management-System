@@ -116,7 +116,7 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result?.success) {
-        this.snackBar.open(result.message, 'Cerrar', { duration: 4000 });
+        this.notify.success(result.message);
         // Recargar configuración después de editar
         this.loadConfig();
       }
@@ -128,7 +128,7 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
    */
   async deleteField(field: FieldConfig): Promise<void> {
     if (field.isSystem) {
-      this.snackBar.open('No se pueden eliminar campos del sistema', 'Cerrar', { duration: 3000 });
+      this.notify.warning('No se pueden eliminar campos del sistema');
       return;
     }
 
@@ -153,10 +153,10 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
 
       try {
         await this.configService.deleteField(field.id);
-        this.snackBar.open('Campo eliminado exitosamente', 'Cerrar', { duration: 3000 });
+        this.notify.crud.deleted('Campo');
       } catch (error) {
         console.error('Error eliminando campo:', error);
-        this.snackBar.open('Error al eliminar el campo', 'Cerrar', { duration: 3000 });
+        this.notify.crud.deleteError('el campo');
       } finally {
         this.isLoading = false;
         this.cdr.markForCheck();
@@ -173,14 +173,10 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
 
     try {
       await this.configService.toggleFieldActive(field.id, !field.isActive);
-      this.snackBar.open(
-        `Campo ${!field.isActive ? 'activado' : 'desactivado'}`,
-        'Cerrar',
-        { duration: 2000 }
-      );
+      this.notify.crud.statusChanged('Campo', !field.isActive ? 'activado' : 'desactivado');
     } catch (error) {
       console.error('Error cambiando estado:', error);
-      this.snackBar.open('Error al cambiar el estado del campo', 'Cerrar', { duration: 3000 });
+      this.notify.crud.statusError('el campo');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -201,14 +197,10 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
           showInGrid: !field.gridConfig.showInGrid
         }
       });
-      this.snackBar.open(
-        `Campo ${!field.gridConfig.showInGrid ? 'visible' : 'oculto'} en tabla`,
-        'Cerrar',
-        { duration: 2000 }
-      );
+      this.notify.success(`Campo ${!field.gridConfig.showInGrid ? 'visible' : 'oculto'} en tabla`);
     } catch (error) {
       console.error('Error cambiando visibilidad:', error);
-      this.snackBar.open('Error al cambiar la visibilidad', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al cambiar la visibilidad');
     } finally {
       this.isLoading = false;
       this.cdr.markForCheck();
@@ -233,10 +225,10 @@ export class ClientConfigComponent extends GenericConfigBaseComponent {
 
     try {
       await this.configService.reorderFields(fieldIds);
-      this.snackBar.open('Orden actualizado', '', { duration: 2000 });
+      this.notify.success('Orden actualizado');
     } catch (error) {
       console.error('Error reordenando campos:', error);
-      this.snackBar.open('Error al guardar el orden', 'Cerrar', { duration: 3000 });
+      this.notify.error('Error al guardar el orden');
       await this.loadConfig(); // Recargar si falla
     }
   }

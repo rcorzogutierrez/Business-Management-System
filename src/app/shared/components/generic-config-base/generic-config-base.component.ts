@@ -104,31 +104,18 @@ export abstract class GenericConfigBaseComponent extends GenericGridConfigBaseCo
       const hasRequiredField = activeFields.some(field => field.validation?.required === true);
 
       if (!hasRequiredField) {
-        this.snackBar.open('⚠️ Debes tener al menos un campo obligatorio en el formulario', 'Cerrar', {
-          duration: 5000,
-          horizontalPosition: 'end',
-          verticalPosition: 'top',
-          panelClass: ['snackbar-warning']
-        });
+        this.notify.warning('Debes tener al menos un campo obligatorio en el formulario');
         return;
       }
 
       await this.configService.saveFormLayout(layout);
 
-      this.snackBar.open('✅ Diseño del formulario guardado correctamente', '', {
-        duration: 3000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.success('Diseño del formulario guardado correctamente');
 
       this.cdr.markForCheck();
     } catch (error) {
       console.error('❌ Error guardando layout:', error);
-      this.snackBar.open('❌ Error al guardar el diseño del formulario', '', {
-        duration: 4000,
-        horizontalPosition: 'end',
-        verticalPosition: 'top'
-      });
+      this.notify.error('Error al guardar el diseño del formulario');
     }
   }
 
