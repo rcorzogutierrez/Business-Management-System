@@ -71,7 +71,7 @@ Este sistema está diseñado para empresas de:
 ### 📑 Estimados y Facturas
 
 - **Creación de Estimados Profesionales**
-  - Numeración automática con formato año fiscal (`FY26-0001`, `FY26-0002`, etc.)
+  - Numeración automática con formato año fiscal configurable (`FY26-0001`, `FY2026-0001`, `2025-2026-0001`, etc.)
   - Información del cliente auto-rellenada
   - Ubicación del trabajo (dirección, ciudad, estado, código postal)
   - Clasificación: Residencial/Comercial, Remodelación/Plomería/Servicios/Equipos/Nueva Construcción
@@ -206,6 +206,7 @@ Este sistema está diseñado para empresas de:
   - Dirección completa
   - Logo y colores de marca
   - Redes sociales
+  - **Año Fiscal configurable**: fecha de inicio (mes/día) y formato de etiqueta (`FY26`, `FY2026`, `2025-2026`) — alimenta la numeración de documentos globalmente
 - **Configuración por Módulo**:
   - Permisos específicos
   - Campos visibles en grids
@@ -543,7 +544,7 @@ Usa el email y contraseña que creaste en Firebase Authentication.
 - **Editar factura directa** (`/modules/projects/:id/edit-invoice`): Edición completa de todos los campos
 - **Cambiar estado**: Draft → Sent → Approved/Rejected → Converted to Invoice → Paid
 - **Convertir a factura**: Agregar materiales, trabajadores, fechas
-- **Numeración automática**: Formato `FY{año}-{secuencial}` (ej: FY26-0001)
+- **Numeración automática**: Formato configurable desde Admin → Información de Empresa (ej: `FY26-0001`, `FY2026-0001`, `2025-2026-0001`) — vía `FiscalYearService` global
 - **Configuración**: Gestión del catálogo de items
 
 ### 4. Trabajadores
@@ -947,6 +948,7 @@ Usa prefijos descriptivos:
 - [x] Facturación directa sin estimado previo (crear, editar, borradores)
 - [x] Numeración automática con año fiscal (`FY26-XXXX`)
 - [x] Soporte de borradores para facturas directas
+- [x] Configuración de año fiscal global (fecha inicio + formato de etiqueta) vía Admin → Información de Empresa
 
 ### 🚧 En Desarrollo
 
