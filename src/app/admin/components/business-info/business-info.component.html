@@ -580,7 +580,145 @@
               </mat-tab>
 
               <!-- ==========================================
-                   TAB 5: REDES SOCIALES
+                   TAB 5: AÑO FISCAL
+                   ========================================== -->
+              <mat-tab>
+                <ng-template mat-tab-label>
+                  <div class="tab-label-content">
+                    <mat-icon class="tab-icon">calendar_today</mat-icon>
+                    <span class="tab-text">Año Fiscal</span>
+                  </div>
+                </ng-template>
+
+                <div class="tab-content">
+                  <form [formGroup]="businessForm">
+                    <div formGroupName="fiscalYear" class="space-y-5">
+
+                      <!-- Info contextual -->
+                      <div class="rounded-xl bg-blue-50 border border-blue-200 p-4 flex gap-3">
+                        <mat-icon class="text-blue-500 shrink-0 mt-0.5">info</mat-icon>
+                        <div class="text-sm text-blue-700">
+                          <p class="font-semibold mb-1">¿Qué es el Año Fiscal?</p>
+                          <p>Define el período contable de la empresa. Afecta la numeración de documentos (estimados, facturas) y los reportes financieros. El cambio aplica a documentos creados a partir de esta configuración.</p>
+                        </div>
+                      </div>
+
+                      <!-- Fecha de inicio -->
+                      <div>
+                        <h3 class="section-title" style="color: #3b82f6;">
+                          <mat-icon>event</mat-icon>
+                          Fecha de Inicio del Año Fiscal
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
+
+                          <!-- Mes de inicio -->
+                          <div class="form-group">
+                            <label class="form-label">
+                              <mat-icon>calendar_month</mat-icon>
+                              Mes de Inicio *
+                            </label>
+                            <select
+                              formControlName="startMonth"
+                              class="form-input"
+                              [class.error]="isFieldInvalid('startMonth', 'fiscalYear')">
+                              <option [value]="1">Enero</option>
+                              <option [value]="2">Febrero</option>
+                              <option [value]="3">Marzo</option>
+                              <option [value]="4">Abril</option>
+                              <option [value]="5">Mayo</option>
+                              <option [value]="6">Junio</option>
+                              <option [value]="7">Julio</option>
+                              <option [value]="8">Agosto</option>
+                              <option [value]="9">Septiembre</option>
+                              <option [value]="10">Octubre</option>
+                              <option [value]="11">Noviembre</option>
+                              <option [value]="12">Diciembre</option>
+                            </select>
+                            <p class="form-hint">
+                              <mat-icon>info_outline</mat-icon>
+                              Mes en que comienza el año fiscal
+                            </p>
+                            @if (isFieldInvalid('startMonth', 'fiscalYear')) {
+                              <p class="error-text">{{ getErrorMessage('startMonth', 'fiscalYear') }}</p>
+                            }
+                          </div>
+
+                          <!-- Día de inicio -->
+                          <div class="form-group">
+                            <label class="form-label">
+                              <mat-icon>today</mat-icon>
+                              Día de Inicio *
+                            </label>
+                            <input
+                              type="number"
+                              formControlName="startDay"
+                              min="1"
+                              max="31"
+                              class="form-input"
+                              [class.error]="isFieldInvalid('startDay', 'fiscalYear')"
+                            />
+                            <p class="form-hint">
+                              <mat-icon>info_outline</mat-icon>
+                              Día del mes (1-31). Lo más común es el día 1.
+                            </p>
+                            @if (isFieldInvalid('startDay', 'fiscalYear')) {
+                              <p class="error-text">{{ getErrorMessage('startDay', 'fiscalYear') }}</p>
+                            }
+                          </div>
+
+                        </div>
+                      </div>
+
+                      <div class="section-divider"></div>
+
+                      <!-- Formato de etiqueta -->
+                      <div>
+                        <h3 class="section-title" style="color: #3b82f6;">
+                          <mat-icon>label</mat-icon>
+                          Formato de Etiqueta
+                        </h3>
+                        <p class="text-sm text-slate-500 mb-3">Define cómo se mostrará el año fiscal en documentos y reportes.</p>
+
+                        <div class="form-group mt-3">
+                          <label class="form-label">
+                            <mat-icon>format_list_bulleted</mat-icon>
+                            Formato *
+                          </label>
+                          <select
+                            formControlName="labelFormat"
+                            class="form-input"
+                            [class.error]="isFieldInvalid('labelFormat', 'fiscalYear')">
+                            <option value="FY{YY}">FY{YY} — Ejemplo: FY26</option>
+                            <option value="FY{YYYY}">FY{YYYY} — Ejemplo: FY2026</option>
+                            <option value="{YYYY}-{YYYY+1}">{YYYY}-{YYYY+1} — Ejemplo: 2025-2026</option>
+                          </select>
+                          <p class="form-hint">
+                            <mat-icon>info_outline</mat-icon>
+                            El prefijo se usará en la numeración de documentos (ej: <strong>FY26-0001</strong>)
+                          </p>
+                          @if (isFieldInvalid('labelFormat', 'fiscalYear')) {
+                            <p class="error-text">{{ getErrorMessage('labelFormat', 'fiscalYear') }}</p>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="section-divider"></div>
+
+                      <!-- Período activo calculado -->
+                      <div class="rounded-xl bg-slate-50 border border-slate-200 p-4">
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Año fiscal activo (guardado)</p>
+                        <p class="text-sm font-semibold text-slate-700">{{ fiscalYearPreview() }}</p>
+                        <p class="text-xs text-slate-400 mt-1">Basado en la configuración guardada actualmente.</p>
+                      </div>
+
+                    </div>
+                  </form>
+                </div>
+              </mat-tab>
+
+              <!-- ==========================================
+                   TAB 6: REDES SOCIALES
                    ========================================== -->
               <mat-tab>
                 <ng-template mat-tab-label>
@@ -778,6 +916,17 @@
                     <span class="color-value">{{ businessForm.get('secondaryColor')?.value || '#8b5cf6' }}</span>
                   </div>
                 </div>
+              </div>
+
+              <!-- Preview: Año Fiscal -->
+              <div class="preview-section">
+                <p class="preview-label">Año Fiscal</p>
+                <div class="flex items-center gap-2 mt-1">
+                  <mat-icon class="text-blue-400 text-sm" style="font-size:16px;width:16px;height:16px;">calendar_today</mat-icon>
+                  <span class="text-sm font-semibold text-slate-700">{{ fiscalYearService.currentFY().label }}</span>
+                  <span class="text-xs text-slate-400 font-mono">→ prefijo: {{ fiscalYearService.currentFY().prefix }}</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-1">{{ fiscalYearPreview() }}</p>
               </div>
 
             </div>

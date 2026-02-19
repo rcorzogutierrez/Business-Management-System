@@ -1,6 +1,26 @@
 // src/app/business/models/business-info.interface.ts
 
 /**
+ * Formatos de etiqueta para el año fiscal
+ * - 'FY{YY}': "FY26"
+ * - 'FY{YYYY}': "FY2026"
+ * - '{YYYY}-{YYYY+1}': "2025-2026"
+ */
+export type FiscalYearLabelFormat = 'FY{YY}' | 'FY{YYYY}' | '{YYYY}-{YYYY+1}';
+
+/**
+ * Configuración del año fiscal de la empresa
+ */
+export interface FiscalYearConfig {
+  /** Mes de inicio del año fiscal (1-12) */
+  startMonth: number;
+  /** Día de inicio del año fiscal (1-31) */
+  startDay: number;
+  /** Formato de la etiqueta del año fiscal */
+  labelFormat: FiscalYearLabelFormat;
+}
+
+/**
  * Dirección de la empresa
  */
 export interface BusinessAddress {
@@ -151,6 +171,11 @@ export interface BusinessInfo {
   description?: string;
 
   /**
+   * Configuración del año fiscal
+   */
+  fiscalYear?: FiscalYearConfig;
+
+  /**
    * Enlaces a redes sociales
    */
   socialMedia?: BusinessSocialMedia;
@@ -196,5 +221,6 @@ export interface BusinessInfoFormData {
   primaryColor?: string;
   secondaryColor?: string;
   description?: string;
+  fiscalYear?: FiscalYearConfig;
   socialMedia?: BusinessSocialMedia;
 }

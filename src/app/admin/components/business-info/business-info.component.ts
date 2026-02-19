@@ -17,6 +17,7 @@ import { MatDividerModule } from '@angular/material/divider';
 
 import { BusinessInfoService } from '../../services/business-info.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { FiscalYearService } from '../../../core/services/fiscal-year.service';
 import { BusinessInfo, BusinessInfoFormData } from '../../models/business-info.interface';
 import { ModuleHeaderComponent, StatChip } from '../../../shared/components/module-header/module-header.component';
 
@@ -71,6 +72,7 @@ export class BusinessInfoComponent implements OnInit {
   private router = inject(Router);
   private notify = inject(NotificationService);
   private cdr = inject(ChangeDetectorRef);
+  readonly fiscalYearService = inject(FiscalYearService);
 
   // ============================================
   // STATE (Signals - Angular 20)
@@ -157,9 +159,19 @@ export class BusinessInfoComponent implements OnInit {
    * Stats para el header compartido
    */
   readonly headerStats = computed<StatChip[]>(() => [
-    { value: 5, label: 'Secciones', color: 'primary' },
+    { value: 6, label: 'Secciones', color: 'primary' },
     { value: this.editMode() ? 'Sí' : 'No', label: 'Editando', color: this.editMode() ? 'success' : 'primary' }
   ]);
+
+  /**
+   * Preview del año fiscal calculado con los valores actuales del formulario
+   */
+  readonly fiscalYearPreview = computed<string>(() => {
+    // Forzar recálculo cuando cambia el modo de edición (el form se habilita/deshabilita)
+    this.editMode();
+    const fy = this.fiscalYearService.currentFY();
+    return `${fy.label} (${fy.startDate.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })} - ${fy.endDate.toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' })})`;
+  });
 
   // ============================================
   // FORM
@@ -266,6 +278,13 @@ export class BusinessInfoComponent implements OnInit {
 
       // Adicional
       description: ['', [Validators.maxLength(500)]],
+
+      // Año fiscal
+      fiscalYear: this.fb.group({
+        startMonth: [1, [Validators.required, Validators.min(1), Validators.max(12)]],
+        startDay: [1, [Validators.required, Validators.min(1), Validators.max(31)]],
+        labelFormat: ['FY{YY}', [Validators.required]]
+      }),
 
       // Redes sociales
       socialMedia: this.fb.group({
@@ -432,6 +451,11 @@ export class BusinessInfoComponent implements OnInit {
       primaryColor: business.primaryColor || '#3b82f6',
       secondaryColor: business.secondaryColor || '#8b5cf6',
       description: business.description || '',
+      fiscalYear: {
+        startMonth: business.fiscalYear?.startMonth ?? 1,
+        startDay: business.fiscalYear?.startDay ?? 1,
+        labelFormat: business.fiscalYear?.labelFormat ?? 'FY{YY}'
+      },
       socialMedia: {
         facebook: business.socialMedia?.facebook || '',
         instagram: business.socialMedia?.instagram || '',
