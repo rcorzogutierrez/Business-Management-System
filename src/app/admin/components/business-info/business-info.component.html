@@ -689,9 +689,9 @@
                             formControlName="labelFormat"
                             class="form-input"
                             [class.error]="isFieldInvalid('labelFormat', 'fiscalYear')">
-                            <option value="FY{YY}">FY{YY} — Ejemplo: FY26</option>
-                            <option value="FY{YYYY}">FY{YYYY} — Ejemplo: FY2026</option>
-                            <option value="{YYYY}-{YYYY+1}">{YYYY}-{YYYY+1} — Ejemplo: 2025-2026</option>
+                            <option value="FY{YY}">FY&#123;YY&#125; — Ejemplo: FY26</option>
+                            <option value="FY{YYYY}">FY&#123;YYYY&#125; — Ejemplo: FY2026</option>
+                            <option value="{YYYY}-{YYYY+1}">&#123;YYYY&#125;-&#123;YYYY+1&#125; — Ejemplo: 2025-2026</option>
                           </select>
                           <p class="form-hint">
                             <mat-icon>info_outline</mat-icon>
