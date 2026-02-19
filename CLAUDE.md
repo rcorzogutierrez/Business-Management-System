@@ -168,7 +168,88 @@ config = this._config.asReadonly();
 
 ❌ **NO importar** de `@angular/fire` (usar SDK directo)
 
-### 5. **HTML Select vs Botones**
+### 5. **NotificationService (Notificaciones Centralizadas)**
+
+**Ubicación:** `src/app/core/services/notification.service.ts`
+
+**REGLA FUNDAMENTAL:** NO usar `MatSnackBar` directamente en componentes. SIEMPRE usar `NotificationService`.
+
+❌ **NUNCA hacer esto:**
+```typescript
+import { MatSnackBar } from '@angular/material/snack-bar';
+this.snackBar.open('Mensaje', 'Cerrar', { duration: 3000 });
+```
+
+✅ **SIEMPRE hacer esto:**
+```typescript
+// En componentes standalone (sin herencia de base)
+import { NotificationService } from '@core/services/notification.service';
+private notify = inject(NotificationService);
+
+// En componentes que heredan de GenericListBaseComponent, GenericGridConfigBaseComponent,
+// GenericConfigBaseComponent o DynamicFormDialogBase → ya tienen `protected notify`
+// NO redeclarar, usar directamente this.notify.*
+```
+
+**API disponible:**
+
+| Categoría | Método | Uso |
+|-----------|--------|-----|
+| **Base** | `success(msg)`, `error(msg)`, `warning(msg)`, `info(msg)` | Mensajes genéricos |
+| **CRUD** | `crud.created(entity)`, `crud.updated(entity)`, `crud.deleted(entity)` | Operaciones exitosas |
+| **CRUD** | `crud.deletedMultiple(count, entity)`, `crud.statusChanged(entity, status)` | Operaciones múltiples/estado |
+| **CRUD** | `crud.saveError(entity)`, `crud.deleteError(entity)`, `crud.loadError(entity)`, `crud.statusError(entity)` | Errores CRUD |
+| **Validation** | `validation.invalidForm()`, `validation.required(field)` | Validación de formularios |
+| **Validation** | `validation.selectAtLeastOne(entity)`, `validation.configUnavailable()`, `validation.duplicate(entity)` | Validaciones comunes |
+| **System** | `system.refreshed()`, `system.refreshError()` | Actualización de datos |
+| **System** | `system.exported(format)`, `system.exportError(format)` | Exportaciones |
+| **System** | `system.configUpdated()`, `system.configError()`, `system.configLoadError()` | Configuración |
+| **System** | `system.unauthorized()` | Autenticación |
+
+**Ejemplo de uso:**
+```typescript
+// CRUD
+this.notify.crud.created('Cliente');        // → "Cliente creado exitosamente"
+this.notify.crud.deleteError('el cliente'); // → "Error al eliminar el cliente"
+
+// Validación
+this.notify.validation.invalidForm();       // → "Por favor completa todos los campos correctamente"
+this.notify.validation.duplicate('categoría'); // → "Este categoría ya está agregado"
+
+// Sistema
+this.notify.system.configUpdated();         // → "Configuración actualizada correctamente"
+this.notify.system.exported('CSV');         // → "Exportación CSV completada"
+
+// Mensajes dinámicos (cuando el mensaje viene de un servicio)
+this.notify.success(result.message);
+this.notify.error(result.message);
+```
+
+**Importante para herencia:**
+- Las clases base (`GenericListBaseComponent`, `GenericGridConfigBaseComponent`, `DynamicFormDialogBase`) ya proveen `protected notify`
+- Los componentes hijos **NO deben** redeclarar `private notify = inject(NotificationService)`
+- Simplemente usar `this.notify.*` directamente
+
+### 5.1 **Path Aliases (tsconfig.json)**
+
+El proyecto usa path aliases para imports limpios:
+
+```json
+"paths": {
+  "@core/*": ["src/app/core/*"]
+}
+```
+
+**Uso:**
+```typescript
+// ✅ CORRECTO
+import { NotificationService } from '@core/services/notification.service';
+
+// ❌ INCORRECTO (imports relativos largos)
+import { NotificationService } from '../../../../core/services/notification.service';
+```
+
+### 6. **HTML Select vs Botones**
 
 **Problema conocido:** Los `<select>` HTML nativos no funcionan bien con:
 - Signals de Angular 20
@@ -346,6 +427,7 @@ interface ActionButton {
 - [ ] ¿Usé `ModuleHeaderComponent` para headers de módulo? (NO crear headers custom)
 - [ ] ¿Usé el color correcto del módulo? (amber/purple/green/blue/teal/indigo)
 - [ ] ¿Es un diálogo? → ¿Usé clases del DIALOG SYSTEM en lugar de CSS custom?
+- [ ] ¿Notificaciones? → ¿Usé `NotificationService` en lugar de `MatSnackBar` directo?
 - [ ] ¿Este cambio requiere actualizar `README.md` o `CLAUDE.md`? → Proponer al usuario
 
 ## 🔧 Comandos Útiles
@@ -496,7 +578,7 @@ export class ClientConfigServiceRefactored extends ModuleConfigBaseService<Clien
 src/
 ├── app/
 │   ├── core/
-│   │   ├── services/                       # Auth, Config, Language, Inactivity, Logger, Navigation
+│   │   ├── services/                       # Auth, Config, Language, Inactivity, Logger, Navigation, ⭐ NotificationService
 │   │   ├── guards/                         # Auth, Login, Role, Module
 │   │   └── layout/                         # Layout, Header, Sidebar
 │   ├── auth/                               # Login component
@@ -785,4 +867,4 @@ Ahora solo contienen estilos específicos (30-147 líneas), con el resto central
 
 ---
 
-**Última actualización:** 2026-02-15
+**Última actualización:** 2026-02-19
