@@ -120,6 +120,30 @@ Servicios con patrón propio (sin herencia):
 
 **Nota:** No todos los servicios de configuración heredan de `ModuleConfigBaseService`. Los módulos que solo necesitan configuración de grid (workers) o que tienen configuración muy específica (proposals) pueden usar su propia implementación siempre que expongan `config()` como signal.
 
+#### Servicios Core Globales (NO reimplementar)
+```
+core/services/
+├── NotificationService   → Notificaciones centralizadas (SIEMPRE usar este)
+└── FiscalYearService     → Año fiscal activo de la empresa (SIEMPRE usar este)
+```
+
+**FiscalYearService** (`src/app/core/services/fiscal-year.service.ts`):
+- Lee la configuración de `business_info/main` (campo `fiscalYear`) via `BusinessInfoService`
+- Expone `currentFY()` como `computed` signal → `{ label, prefix, startDate, endDate }`
+- Fallback automático si no hay config: año calendario, formato `FY{YY}`
+- **USO:** inyectar donde se necesite el prefijo para numeración de documentos o el período fiscal
+
+```typescript
+// ✅ CORRECTO: usar FiscalYearService
+private fiscalYearService = inject(FiscalYearService);
+const prefix = this.fiscalYearService.currentFY().prefix; // "FY26-"
+const label  = this.fiscalYearService.currentFY().label;  // "FY26"
+
+// ❌ INCORRECTO: calcular el año fiscal manualmente
+const year = new Date().getFullYear() % 100;
+const prefix = `FY${year}-`;  // ← hardcodeado, ignora configuración de empresa
+```
+
 ### 3. **Angular 20 - Signals y Reactive Programming**
 
 ✅ **USAR:**
@@ -428,6 +452,8 @@ interface ActionButton {
 - [ ] ¿Usé el color correcto del módulo? (amber/purple/green/blue/teal/indigo)
 - [ ] ¿Es un diálogo? → ¿Usé clases del DIALOG SYSTEM en lugar de CSS custom?
 - [ ] ¿Notificaciones? → ¿Usé `NotificationService` en lugar de `MatSnackBar` directo?
+- [ ] ¿Numeración de documentos o período fiscal? → ¿Usé `FiscalYearService.currentFY()` en lugar de calcular el año manualmente?
+- [ ] ¿Texto con llaves `{}` en un template? → ¿Escapé con `&#123;` / `&#125;` para evitar error ICU?
 - [ ] ¿Este cambio requiere actualizar `README.md` o `CLAUDE.md`? → Proponer al usuario
 
 ## 🔧 Comandos Útiles
@@ -578,7 +604,7 @@ export class ClientConfigServiceRefactored extends ModuleConfigBaseService<Clien
 src/
 ├── app/
 │   ├── core/
-│   │   ├── services/                       # Auth, Config, Language, Inactivity, Logger, Navigation, ⭐ NotificationService
+│   │   ├── services/                       # Auth, Config, Language, Inactivity, Logger, Navigation, ⭐ NotificationService, ⭐ FiscalYearService
 │   │   ├── guards/                         # Auth, Login, Role, Module
 │   │   └── layout/                         # Layout, Header, Sidebar
 │   ├── auth/                               # Login component
@@ -637,6 +663,7 @@ src/
 - [ ] ¿Búsqueda? → `GenericListBaseComponent.searchTerm`
 - [ ] ¿Columnas? → `GenericListBaseComponent.visibleColumnIds`
 - [ ] ¿Config grid? → `GenericGridConfigBaseComponent.updateGridConfig()`
+- [ ] ¿Año fiscal / prefijo de documentos? → `FiscalYearService.currentFY()` (NO calcular manualmente)
 
 ### Error: Select no se actualiza
 **Problema:** `<select [value]="signal()">` no reacciona a cambios
@@ -668,6 +695,26 @@ src/
 ### Error: TypeScript con signals
 **Problema:** `Type 'Signal<T>' is not assignable to type 'T'`
 **Solución:** Llamar el signal como función: `signal()` no `signal`
+
+### Error: Llaves `{}` en texto de template Angular (ICU messages)
+**Problema:** Colocar `{texto}` como contenido de texto en el HTML hace que el compilador Angular lo interprete como una expresión ICU (`{variable, pluralType, cases}`), rompiendo todo el template con errores en cascada como:
+- `error NG5002: Invalid ICU message. Missing '}'`
+- `error NG5002: Unclosed block "if"` (falso positivo en bloques `@if` válidos)
+- `error NG5002: Unexpected character "EOF"`
+
+**Solución:** Escapar las llaves literales en **texto visible** usando entidades HTML:
+- `{` → `&#123;`
+- `}` → `&#125;`
+
+```html
+<!-- ❌ INCORRECTO: Angular lo parsea como ICU, rompe el template -->
+<option value="FY{YY}">FY{YY} — Ejemplo: FY26</option>
+
+<!-- ✅ CORRECTO: entidades HTML en el texto visible; el value="" no se ve afectado -->
+<option value="FY{YY}">FY&#123;YY&#125; — Ejemplo: FY26</option>
+```
+
+> **Nota:** El atributo `value="FY{YY}"` no necesita escape porque los atributos HTML estáticos no son parseados como ICU. Solo el **contenido de texto** del elemento es vulnerable.
 
 ## 📏 Ancho Estándar de Contenedores
 
