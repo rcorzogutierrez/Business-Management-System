@@ -29,6 +29,7 @@ import {
   CreateProposalItemData
 } from '../models';
 import { AuthService } from '../../../core/services/auth.service';
+import { FiscalYearService } from '../../../core/services/fiscal-year.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,6 +37,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class ProposalsService {
   private firestore = getFirestore();
   private authService = inject(AuthService);
+  private fiscalYearService = inject(FiscalYearService);
 
   // Collection reference
   private proposalsCollection = collection(this.firestore, 'proposals');
@@ -95,11 +97,10 @@ export class ProposalsService {
   }
 
   /**
-   * Obtener prefijo del año fiscal actual (ej: "FY26-")
+   * Obtener prefijo del año fiscal actual desde FiscalYearService (ej: "FY26-")
    */
   private getCurrentFYPrefix(): string {
-    const year = new Date().getFullYear() % 100;
-    return `FY${year}-`;
+    return this.fiscalYearService.currentFY().prefix;
   }
 
   /**
